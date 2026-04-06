@@ -3,34 +3,34 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>אביחי משימות</title>
 <meta name="theme-color" content="#1a1a18"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="משימות"/>
 <link rel="manifest" href="manifest.json"/>
 <link rel="apple-touch-icon" href="icon-192.png"/>
-<title>אביחי משימות</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:system-ui,-apple-system,sans-serif;direction:rtl;background:#f0ede8;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:16px}
-:root{--bg1:#fff;--bg2:#f5f3ef;--bg3:#eceae5;--t1:#1a1a18;--t2:#6b6b67;--t3:#aaa9a5;--b2:rgba(0,0,0,.22);--b3:rgba(0,0,0,.12);--rm:8px;--rl:12px;--accent:#1a1a18}
-@media(prefers-color-scheme:dark){body{background:#111}:root{--bg1:#1e1e1c;--bg2:#2a2a28;--bg3:#323230;--t1:#f0ede8;--t2:#9a9994;--t3:#5a5956;--b2:rgba(255,255,255,.18);--b3:rgba(255,255,255,.1)}}
+:root{--bg1:#fff;--bg2:#f5f3ef;--t1:#1a1a18;--t2:#6b6b67;--t3:#aaa9a5;--b2:rgba(0,0,0,.22);--b3:rgba(0,0,0,.12);--rm:8px;--rl:12px}
+@media(prefers-color-scheme:dark){body{background:#111}:root{--bg1:#1e1e1c;--bg2:#2a2a28;--t1:#f0ede8;--t2:#9a9994;--t3:#5a5956;--b2:rgba(255,255,255,.18);--b3:rgba(255,255,255,.1)}}
 #root{display:flex;width:100%;max-width:960px;height:calc(100vh - 32px);max-height:700px;border:.5px solid var(--b2);border-radius:var(--rl);overflow:hidden;background:var(--bg1);position:relative}
-
-/* SIDEBAR */
 #sb{width:195px;min-width:195px;display:flex;flex-direction:column;background:var(--bg2);border-left:.5px solid var(--b3);overflow:hidden}
 .sbh{padding:10px 12px;border-bottom:.5px solid var(--b3)}
 .sbh-t{font-size:14px;font-weight:600;color:var(--t1)}
 .sbh-s{font-size:11px;color:var(--t2);margin-top:2px}
 .pl{flex:1;overflow-y:auto;padding:4px 0}
 .pl-sec{padding:6px 12px 2px;font-size:10px;color:var(--t3);letter-spacing:.5px;font-weight:600}
-.pi{display:flex;align-items:center;justify-content:space-between;padding:6px 12px;cursor:pointer;font-size:13px;color:var(--t2);gap:6px;transition:background .1s}
+.pi{display:flex;align-items:center;justify-content:space-between;padding:6px 12px;cursor:pointer;font-size:13px;color:var(--t2);gap:6px}
 .pi:hover{background:rgba(0,0,0,.04)}
 .pi.act{background:var(--bg1);color:var(--t1);font-weight:500;border-right:2px solid var(--t1)}
 .pi-n{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pi-c{font-size:10px;padding:1px 6px;border-radius:99px;min-width:18px;text-align:center;background:var(--bg1);color:var(--t2)}
 .pi.act .pi-c{background:#E6F1FB;color:#185FA5}
 .pi-cred{background:#FCEBEB!important;color:#A32D2D!important}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:#3B6D11;flex-shrink:0;margin-right:2px}
+.sync-dot.off{background:#E24B4A}
 .sbf{padding:8px;border-top:.5px solid var(--b3);display:flex;flex-direction:column;gap:5px}
 .sbb{font-size:12px;padding:5px 8px;border-radius:var(--rm);border:.5px solid var(--b2);background:var(--bg1);color:var(--t2);cursor:pointer;width:100%;text-align:center}
 .sbb:hover{background:var(--bg2)}
@@ -38,8 +38,6 @@ body{font-family:system-ui,-apple-system,sans-serif;direction:rtl;background:#f0
 .usr{display:flex;align-items:center;gap:7px;padding:4px 2px}
 .av{width:26px;height:26px;border-radius:50%;background:#E6F1FB;color:#185FA5;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .usr span{font-size:12px;color:var(--t2)}
-
-/* MAIN */
 #mn{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
 .mnh{padding:10px 16px;border-bottom:.5px solid var(--b3);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:8px}
 .mnh-t{font-size:16px;font-weight:600;color:var(--t1)}
@@ -56,9 +54,8 @@ body{font-family:system-ui,-apple-system,sans-serif;direction:rtl;background:#f0
 .tb-b{font-size:10px;background:#E6F1FB;color:#185FA5;border-radius:99px;padding:1px 6px}
 .tb-edit{display:none;align-items:center;padding:0 4px 2px 0;border:none;background:none;color:var(--t3);font-size:13px;cursor:pointer;border-bottom:2px solid var(--t1)}
 .tb-add{padding:8px 6px;font-size:18px;cursor:pointer;color:var(--t3);border-bottom:2px solid transparent;display:flex;align-items:center}
-.tb-add:hover{color:var(--t2)}
 .tl{flex:1;overflow-y:auto;padding:8px 12px}
-.tc{display:flex;align-items:flex-start;gap:8px;padding:9px 12px;border:.5px solid var(--b3);border-radius:var(--rm);margin-bottom:7px;background:var(--bg1);cursor:pointer;transition:border-color .1s}
+.tc{display:flex;align-items:flex-start;gap:8px;padding:9px 12px;border:.5px solid var(--b3);border-radius:var(--rm);margin-bottom:7px;background:var(--bg1);cursor:pointer}
 .tc:hover{border-color:var(--b2)}
 .tc-l{display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:2px;flex-shrink:0}
 .tc-ic{width:14px;height:12px;display:flex;flex-direction:column;justify-content:space-between;opacity:.35}
@@ -78,11 +75,9 @@ body{font-family:system-ui,-apple-system,sans-serif;direction:rtl;background:#f0
 .cal-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#1D9E75;margin-right:3px;vertical-align:middle}
 .ab{padding:8px 12px;border-top:.5px solid var(--b3);flex-shrink:0}
 .ai{width:100%;font-size:13px;padding:7px 12px;border:.5px solid var(--b3);border-radius:var(--rm);background:var(--bg2);color:var(--t3);text-align:right;direction:rtl;cursor:pointer;outline:none}
-.ai:hover{border-color:var(--b2);color:var(--t2)}
 .emp{text-align:center;padding:3rem 0;color:var(--t3);font-size:13px;line-height:2}
 .nop{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:var(--t3);font-size:14px}
-
-/* MODAL */
+.loading{flex:1;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--t3);flex-direction:column;gap:8px}
 #mr{position:absolute;inset:0;z-index:100;pointer-events:none}
 #mr.on{pointer-events:all}
 .mbg{width:100%;height:100%;background:rgba(0,0,0,.42);display:flex;align-items:center;justify-content:center;padding:16px}
@@ -94,19 +89,6 @@ body{font-family:system-ui,-apple-system,sans-serif;direction:rtl;background:#f0
 .f textarea{min-height:50px;resize:vertical}
 .fr{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .divider{border:none;border-top:.5px solid var(--b3);margin:.7rem 0}
-.att-list{margin-bottom:6px}
-.att-row{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:.5px solid var(--b3)}
-.att-row:last-child{border-bottom:none}
-.att-type{font-size:10px;padding:2px 5px;border-radius:4px;font-weight:500;flex-shrink:0;background:var(--bg2);color:var(--t2);min-width:32px;text-align:center}
-.att-name{flex:1;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--t1)}
-.att-sz{font-size:11px;color:var(--t3);flex-shrink:0}
-.att-open{font-size:11px;padding:2px 8px;border-radius:var(--rm);border:.5px solid var(--b2);background:var(--bg2);color:var(--t2);cursor:pointer;flex-shrink:0}
-.att-open:hover{color:var(--t1)}
-.att-del{border:none;background:none;cursor:pointer;color:var(--t3);font-size:13px;padding:0 2px;flex-shrink:0}
-.att-del:hover{color:#A32D2D}
-.att-empty{font-size:12px;color:var(--t3);padding:3px 0}
-.upload-label{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:5px 12px;border-radius:var(--rm);border:.5px dashed var(--b2);color:var(--t2);cursor:pointer;margin-top:5px}
-.upload-label:hover{background:var(--bg2);border-style:solid}
 .gcal-box{padding:10px 12px;border:.5px solid var(--b3);border-radius:var(--rm);background:var(--bg2)}
 .gcal-box-title{font-size:12px;font-weight:500;color:var(--t2);margin-bottom:5px}
 .gcal-note{font-size:11px;color:var(--t3);margin-bottom:8px;line-height:1.5}
@@ -117,82 +99,65 @@ body{font-family:system-ui,-apple-system,sans-serif;direction:rtl;background:#f0
 .bs{background:transparent;color:var(--t2);border:.5px solid var(--b2);padding:6px 14px;border-radius:var(--rm);font-size:13px;cursor:pointer}
 .bs:hover{background:var(--bg2)}
 .bd-del{color:#A32D2D;border-color:#F0959580}
-
-/* FILE VIEWER */
-#vr{position:absolute;inset:0;z-index:200;pointer-events:none}
-#vr.on{pointer-events:all}
-.vr-bg{width:100%;height:100%;background:rgba(0,0,0,.88);display:flex;flex-direction:column;padding:12px}
-.vr-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-shrink:0;gap:8px}
-.vr-name{color:white;font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
-.vr-dl{font-size:12px;padding:4px 12px;border-radius:var(--rm);border:.5px solid rgba(255,255,255,.3);color:white;background:rgba(255,255,255,.1);cursor:pointer;text-decoration:none;flex-shrink:0}
-.vr-close{color:white;background:none;border:none;font-size:20px;cursor:pointer;line-height:1;padding:0 4px;flex-shrink:0}
-.vr-body{flex:1;overflow:auto;border-radius:var(--rm);display:flex;align-items:center;justify-content:center;background:white;min-height:0}
-.vr-img{max-width:100%;max-height:100%;object-fit:contain;display:block}
-.vr-iframe{width:100%;height:100%;border:none;display:block}
-.vr-other{text-align:center;padding:2rem;display:flex;flex-direction:column;align-items:center;gap:12px}
-
-/* ── DASHBOARD ── */
 .dash-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden}
 .dash-body{flex:1;overflow-y:auto;padding:12px 14px}
 .dash-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:14px}
 .sc{border-radius:var(--rm);padding:10px 12px;background:var(--bg2)}
-.sc.red{background:#FCEBEB}
-.sc.od{background:#FFF8E1}
+.sc.red{background:#FCEBEB}.sc.od{background:#FAEEDA}
 .sc-n{font-size:22px;font-weight:600;color:var(--t1);line-height:1}
-.sc.red .sc-n{color:#A32D2D}
-.sc.od .sc-n{color:#854F0B}
+.sc.red .sc-n{color:#A32D2D}.sc.od .sc-n{color:#854F0B}
 .sc-l{font-size:11px;color:var(--t2);margin-top:3px}
-.sc.red .sc-l{color:#A32D2D;opacity:.75}
-.sc.od .sc-l{color:#854F0B;opacity:.75}
 .dash-filter{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
-.fb{font-size:12px;padding:4px 12px;border-radius:99px;border:.5px solid var(--b2);background:var(--bg1);color:var(--t2);cursor:pointer;transition:all .1s}
-.fb:hover{border-color:var(--b2);color:var(--t1)}
+.fb{font-size:12px;padding:4px 12px;border-radius:99px;border:.5px solid var(--b2);background:var(--bg1);color:var(--t2);cursor:pointer}
 .fb.on{background:var(--t1);color:var(--bg1);border-color:var(--t1)}
 .dash-empty{text-align:center;padding:2.5rem 0;color:var(--t3);font-size:13px;line-height:2}
-
-/* Dashboard task card */
-.dk{border:.5px solid var(--b3);border-radius:var(--rm);margin-bottom:8px;background:var(--bg1);overflow:hidden;transition:border-color .1s}
+.dk{border:.5px solid var(--b3);margin-bottom:8px;background:var(--bg1);overflow:hidden;border-radius:var(--rm)}
 .dk:hover{border-color:var(--b2)}
-.dk.u{border-right:3px solid #E24B4A}
-.dk.h{border-right:3px solid #EF9F27}
+.dk.u{border-right:3px solid #E24B4A;border-radius:0}
+.dk.h{border-right:3px solid #EF9F27;border-radius:0}
 .dk-top{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;cursor:pointer}
 .dk-b{flex:1;min-width:0}
 .dk-t{font-size:13px;font-weight:500;color:var(--t1);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dk-notes{font-size:11px;color:var(--t2);margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dk-meta{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
 .dk-proj{font-size:11px;color:var(--t2);background:var(--bg2);padding:2px 8px;border-radius:99px;border:.5px solid var(--b3);white-space:nowrap}
-.dk-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;padding-top:1px}
-.dk-edit-btn{font-size:11px;padding:4px 10px;border-radius:var(--rm);border:.5px solid var(--b2);background:var(--bg2);color:var(--t2);cursor:pointer;white-space:nowrap}
-.dk-edit-btn:hover{background:var(--bg3);color:var(--t1)}
-
-/* Inline status bar inside card */
-.dk-status-bar{display:none;border-top:.5px solid var(--b3);padding:8px 12px;background:var(--bg2);align-items:center;gap:6px;flex-wrap:wrap}
-.dk-status-bar.open{display:flex}
-.status-lbl{font-size:11px;color:var(--t2);margin-left:4px;flex-shrink:0}
-.sb-btn{font-size:11px;padding:3px 10px;border-radius:99px;border:.5px solid var(--b2);background:var(--bg1);color:var(--t2);cursor:pointer;transition:all .1s}
+.dk-edit-btn{font-size:11px;padding:4px 10px;border-radius:var(--rm);border:.5px solid var(--b2);background:var(--bg2);color:var(--t2);cursor:pointer;white-space:nowrap;flex-shrink:0}
+.dk-sb{display:none;border-top:.5px solid var(--b3);padding:8px 12px;background:var(--bg2);align-items:center;gap:6px;flex-wrap:wrap}
+.dk-sb.open{display:flex}
+.sb-lbl{font-size:11px;color:var(--t2);flex-shrink:0}
+.sb-btn{font-size:11px;padding:3px 10px;border-radius:99px;border:.5px solid var(--b2);background:var(--bg1);color:var(--t2);cursor:pointer}
 .sb-btn:hover{border-color:var(--t2);color:var(--t1)}
-.sb-btn.active{background:var(--t1);color:var(--bg1);border-color:var(--t1)}
-.sb-btn.done-btn.active{background:#3B6D11;border-color:#3B6D11}
-.sb-full-btn{font-size:11px;padding:3px 10px;border-radius:var(--rm);border:.5px solid var(--b2);background:var(--bg1);color:var(--t2);cursor:pointer;margin-right:auto}
-.sb-full-btn:hover{color:var(--t1);border-color:var(--t2)}
+.sb-btn.cur{background:var(--t1);color:var(--bg1);border-color:var(--t1)}
+.sb-btn.cur.done{background:#3B6D11;border-color:#3B6D11}
 .od-mark{color:#A32D2D!important;border-color:#F09595!important}
-
-@media(max-width:600px){
-  #root{flex-direction:column;height:auto;max-height:none}
-  #sb{width:100%;min-width:0;border-left:none;border-bottom:.5px solid var(--b3)}
-  .pl{max-height:160px}
-  .dash-stats{grid-template-columns:repeat(2,1fr)}
-}
+@media(max-width:600px){#root{flex-direction:column;height:auto;max-height:none}#sb{width:100%;min-width:0;border-left:none;border-bottom:.5px solid var(--b3)}.pl{max-height:160px}.dash-stats{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
 <div id="root">
   <div id="sb"></div>
-  <div id="mn"></div>
+  <div id="mn"><div class="loading"><div>מתחבר לענן...</div></div></div>
   <div id="mr"></div>
-  <div id="vr"></div>
 </div>
-<script>
+<script type="module">
+import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import{getFirestore,doc,setDoc,onSnapshot}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig={
+  apiKey:"AIzaSyAwaErTAz0LAYHLEIQbxWY9ir6MzvaYQUo",
+  authDomain:"avihai-tasks.firebaseapp.com",
+  projectId:"avihai-tasks",
+  storageBucket:"avihai-tasks.firebasestorage.app",
+  messagingSenderId:"155180192399",
+  appId:"1:155180192399:web:f7c54231070047fdcfd6fa"
+};
+
+const SEED_DATA=[{"id":"mnj0plgdlc9","name":"2253","areas":[{"id":"mnj0plge0ym","name":"כללי","tasks":[]},{"id":"mnj0plger70","name":"ביצוע","tasks":[]},{"id":"mnj0plgec3w","name":"הזמנות רכש","tasks":[]},{"id":"mnj0plgef74","name":"חשבונות","tasks":[{"id":"mnj0qcw7ocu","title":"הגשת חשבון 8","content":"","notes":"","priority":"דחוף","importance":"גבוהה","status":"פתוח","assigned":"","dueDate":"","inCal":false,"attachments":[],"created":"2026-04-03"},{"id":"mnj0r2jx0hr","title":"השלמת ביינת כתב כמויות מסודר","content":"","notes":"","priority":"נמוך","importance":"נמוכה","status":"פתוח","assigned":"","dueDate":"","inCal":false,"attachments":[],"created":"2026-04-03"}]}]}];
+
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
+const DOC='data/avihai';
+
 const S={projects:[],apid:null,aaid:null,view:'dash'};
 const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
@@ -200,17 +165,26 @@ const ap=()=>S.projects.find(p=>p.id===S.apid)||null;
 const aa=()=>{const p=ap();return p?p.areas.find(a=>a.id===S.aaid)||null:null;};
 const ptc=p=>p.areas.reduce((s,a)=>s+a.tasks.length,0);
 const pc=v=>v==='דחוף'?'r':v==='נמוך'?'gn':'am';
-const fmtSz=b=>b<1024?b+'B':b<1048576?Math.round(b/1024)+'KB':(b/1048576).toFixed(1)+'MB';
-function typeLabel(t){if(!t)return 'קובץ';if(t.startsWith('image/'))return 'תמונה';if(t==='application/pdf')return 'PDF';if(t.includes('word')||t.includes('document'))return 'Word';if(t.includes('sheet')||t.includes('excel'))return 'Excel';return 'קובץ';}
 function findTask(id){for(const p of S.projects)for(const a of p.areas){const t=a.tasks.find(t=>t.id===id);if(t)return{task:t,proj:p,area:a};}return null;}
 function gcalUrl(t){const ti=encodeURIComponent(t.title);const de=encodeURIComponent([t.content,t.notes].filter(Boolean).join('\n'));let dt='';if(t.dueDate){const d=t.dueDate.replace(/-/g,'');const e=new Date(t.dueDate+'T12:00:00');e.setDate(e.getDate()+1);const es=e.toISOString().split('T')[0].replace(/-/g,'');dt=`&dates=${d}/${es}`;}return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${ti}${dt}&details=${de}`;}
 function isOverdue(due){if(!due)return false;return new Date(due)<new Date(new Date().toDateString());}
-
-let dashFilter='all';
 const STATUSES=['פתוח','בביצוע','תלוי','הושלם'];
+let dashFilter='all';
+let syncOk=false;
 
-function init(){try{const r=localStorage.getItem('apm_v5');if(r)Object.assign(S,JSON.parse(r));}catch(e){}S.view='dash';render();}
-function sv(){try{localStorage.setItem('apm_v5',JSON.stringify(S));}catch(e){}}
+async function sv(){
+  try{
+    await setDoc(doc(db,...DOC.split('/')),{projects:S.projects,updated:Date.now()});
+    syncOk=true;
+  }catch(e){syncOk=false;}
+  updateDot();
+}
+
+function updateDot(){
+  const d=document.getElementById('sdot');
+  if(d){d.className='sync-dot'+(syncOk?'':' off');d.title=syncOk?'מסונכרן':'לא מחובר';}
+}
+
 function render(){rSb();S.view==='dash'?rDash():rMn();}
 
 function getUrgentTasks(){
@@ -222,9 +196,9 @@ function getUrgentTasks(){
   all.sort((a,b)=>{
     if(a.task.status==='הושלם'&&b.task.status!=='הושלם')return 1;
     if(b.task.status==='הושלם'&&a.task.status!=='הושלם')return -1;
-    const od_a=isOverdue(a.task.dueDate)&&a.task.status!=='הושלם';
-    const od_b=isOverdue(b.task.dueDate)&&b.task.status!=='הושלם';
-    if(od_a&&!od_b)return -1;if(od_b&&!od_a)return 1;
+    const oa=isOverdue(a.task.dueDate)&&a.task.status!=='הושלם';
+    const ob=isOverdue(b.task.dueDate)&&b.task.status!=='הושלם';
+    if(oa&&!ob)return -1;if(ob&&!oa)return 1;
     const wa=(a.isU?2:0)+(a.isH?1:0),wb=(b.isU?2:0)+(b.isH?1:0);
     if(wb!==wa)return wb-wa;
     if(a.task.dueDate&&b.task.dueDate)return a.task.dueDate.localeCompare(b.task.dueDate);
@@ -235,20 +209,16 @@ function getUrgentTasks(){
 
 function rSb(){
   const sb=document.getElementById('sb');
-  const all=getUrgentTasks();
-  const urgentActive=all.filter(x=>x.isU&&x.task.status!=='הושלם').length;
+  const urgentActive=getUrgentTasks().filter(x=>x.isU&&x.task.status!=='הושלם').length;
   const items=S.projects.map(p=>`<div class="pi${S.view!=='dash'&&p.id===S.apid?' act':''}" onclick="selP('${p.id}')"><span class="pi-n">${esc(p.name)}</span><span class="pi-c">${ptc(p)}</span></div>`).join('');
   sb.innerHTML=`<div class="sbh"><div class="sbh-t">אביחי משימות</div><div class="sbh-s">ניהול תשתיות אנרגיה</div></div>
-    <div class="pi${S.view==='dash'?' act':''}" onclick="selDash()" style="padding:7px 12px">
-      <span class="pi-n" style="font-weight:500">דשבורד</span>
-      <span class="pi-c${urgentActive?' pi-cred':''}">${urgentActive||'★'}</span>
-    </div>
+    <div class="pi${S.view==='dash'?' act':''}" onclick="selDash()" style="padding:7px 12px"><span class="pi-n" style="font-weight:600">דשבורד</span><span class="pi-c${urgentActive?' pi-cred':''}">${urgentActive||'★'}</span></div>
     <div class="pl-sec">פרויקטים</div>
-    <div class="pl">${items||'<div style="padding:12px;font-size:12px;color:var(--t3);text-align:center">אין פרויקטים עדיין</div>'}</div>
+    <div class="pl">${items||'<div style="padding:12px;font-size:12px;color:var(--t3);text-align:center">אין פרויקטים</div>'}</div>
     <div class="sbf">
       <button class="sbb" onclick="mNewP()">+ פרויקט חדש</button>
       <div class="sbr"><button class="sbb" onclick="xCSV()">CSV</button><button class="sbb" onclick="xJSON()">JSON</button></div>
-      <div class="usr"><div class="av">א</div><span>אביחי אסואן</span></div>
+      <div class="usr"><div class="av">א</div><span>אביחי אסואן</span><div class="sync-dot${syncOk?'':' off'}" id="sdot" title="${syncOk?'מסונכרן':'לא מחובר'}"></div></div>
     </div>`;
 }
 
@@ -263,125 +233,66 @@ function rDash(){
   const overdueCount=active.filter(x=>isOverdue(x.task.dueDate)).length;
   const doneCount=all.filter(x=>x.task.status==='הושלם').length;
   const totalTasks=S.projects.reduce((s,p)=>s+ptc(p),0);
-
-  let filtered;
-  if(dashFilter==='urgent')filtered=urgent;
-  else if(dashFilter==='high')filtered=highOnly;
-  else if(dashFilter==='done')filtered=all.filter(x=>x.task.status==='הושלם');
-  else filtered=all;
-
-  const cards=filtered.length?filtered.map(x=>dashCard(x)).join('')
-    :`<div class="dash-empty">אין משימות להצגה<br><span style="font-size:12px">שנה את הפילטר או הוסף משימות עם עדיפות דחוף / חשיבות גבוהה</span></div>`;
-
-  mn.innerHTML=`
-    <div class="mnh">
-      <div style="min-width:0"><div class="mnh-t">דשבורד</div>
-        <div class="mnh-s">${active.length} פעילות · ${totalTasks} סה"כ בכל הפרויקטים</div>
-      </div>
-    </div>
-    <div class="dash-wrap">
-      <div class="dash-body">
-        <div class="dash-stats">
-          <div class="sc red"><div class="sc-n">${urgent.length}</div><div class="sc-l">דחופות פעילות</div></div>
-          <div class="sc"><div class="sc-n">${highOnly.length}</div><div class="sc-l">חשיבות גבוהה</div></div>
-          <div class="sc od"><div class="sc-n">${overdueCount}</div><div class="sc-l">באיחור</div></div>
-          <div class="sc"><div class="sc-n">${doneCount}</div><div class="sc-l">הושלמו</div></div>
+  const filtered=dashFilter==='urgent'?urgent:dashFilter==='high'?highOnly:dashFilter==='done'?all.filter(x=>x.task.status==='הושלם'):all;
+  const cards=filtered.length?filtered.map(x=>{
+    const t=x.task;const n=t.notes?t.notes.split('\n')[0]:'';const od=isOverdue(t.dueDate)&&t.status!=='הושלם';
+    const btns=STATUSES.map(s=>`<button class="sb-btn${t.status===s?' cur'+(s==='הושלם'?' done':''):''}" onclick="quickStatus('${t.id}','${s}')">${s}</button>`).join('');
+    return `<div class="dk ${x.isU?'u':'h'}" id="dk-${t.id}">
+      <div class="dk-top" onclick="toggleSB('${t.id}')">
+        <div class="dk-b"><div class="dk-t">${esc(t.title)}</div>${n?`<div class="dk-notes">${esc(n)}</div>`:''}
+          <div class="dk-meta">${x.isU?'<span class="bd r">דחוף</span>':''}${x.isH?'<span class="bd am">↑ גבוהה</span>':''}
+            <span class="bd gy${t.status==='הושלם'?' gn':''}">${esc(t.status)}</span>
+            ${t.assigned?`<span class="bd bl">${esc(t.assigned)}</span>`:''}
+            <span class="dk-proj">${esc(x.proj.name)} › ${esc(x.area.name)}</span>
+            ${t.dueDate?`<span class="bd gy${od?' od-mark':''}">${esc(t.dueDate)}${od?' ⚠':''}</span>`:''}
+          </div>
         </div>
-        <div class="dash-filter">
-          <button class="fb${dashFilter==='all'?' on':''}" onclick="setFilt('all')">הכל (${all.length})</button>
-          <button class="fb${dashFilter==='urgent'?' on':''}" onclick="setFilt('urgent')">דחוף (${urgent.length})</button>
-          <button class="fb${dashFilter==='high'?' on':''}" onclick="setFilt('high')">חשיבות גבוהה (${highOnly.length})</button>
-          <button class="fb${dashFilter==='done'?' on':''}" onclick="setFilt('done')">הושלמו (${doneCount})</button>
-        </div>
-        ${cards}
+        <button class="dk-edit-btn" onclick="event.stopPropagation();openFullEdit('${t.id}')">עריכה מלאה</button>
       </div>
-    </div>`;
-}
-
-function dashCard(x){
-  const t=x.task;
-  const notesTxt=t.notes?t.notes.split('\n')[0]:'';
-  const od=isOverdue(t.dueDate)&&t.status!=='הושלם';
-  const cls=x.isU?'u':'h';
-  const statusBtns=STATUSES.map(s=>{
-    const isActive=t.status===s;
-    const isDone=s==='הושלם';
-    return `<button class="sb-btn${isDone?' done-btn':''}${isActive?' active':''}" onclick="quickStatus('${t.id}','${s}')">${s}</button>`;
-  }).join('');
-  return `<div class="dk ${cls}" id="dk-${t.id}">
-    <div class="dk-top" onclick="toggleStatusBar('${t.id}')">
-      <div class="dk-b">
-        <div class="dk-t">${esc(t.title)}</div>
-        ${notesTxt?`<div class="dk-notes">${esc(notesTxt)}</div>`:''}
-        <div class="dk-meta">
-          ${x.isU?'<span class="bd r">דחוף</span>':''}
-          ${x.isH?'<span class="bd am">↑ גבוהה</span>':''}
-          <span class="bd gy${t.status==='הושלם'?' gn':''}">${esc(t.status)}</span>
-          ${t.assigned?`<span class="bd bl">${esc(t.assigned)}</span>`:''}
-          <span class="dk-proj">${esc(x.proj.name)} › ${esc(x.area.name)}</span>
-          ${t.dueDate?`<span class="bd gy${od?' od-mark':''}">${esc(t.dueDate)}${od?' ⚠':''}</span>`:''}
-        </div>
+      <div class="dk-sb" id="dsb-${t.id}"><span class="sb-lbl">סטטוס:</span>${btns}</div>
+    </div>`;}).join(''):`<div class="dash-empty">אין משימות דחופות או בחשיבות גבוהה</div>`;
+  mn.innerHTML=`<div class="mnh"><div style="min-width:0"><div class="mnh-t">דשבורד</div><div class="mnh-s">${active.length} פעילות · ${totalTasks} סה"כ</div></div></div>
+    <div class="dash-wrap"><div class="dash-body">
+      <div class="dash-stats">
+        <div class="sc red"><div class="sc-n">${urgent.length}</div><div class="sc-l">דחופות</div></div>
+        <div class="sc"><div class="sc-n">${highOnly.length}</div><div class="sc-l">חשיבות גבוהה</div></div>
+        <div class="sc od"><div class="sc-n">${overdueCount}</div><div class="sc-l">באיחור</div></div>
+        <div class="sc"><div class="sc-n">${doneCount}</div><div class="sc-l">הושלמו</div></div>
       </div>
-      <div class="dk-actions" onclick="event.stopPropagation()">
-        <button class="dk-edit-btn" onclick="openFullEdit('${t.id}')">עריכה מלאה</button>
+      <div class="dash-filter">
+        <button class="fb${dashFilter==='all'?' on':''}" onclick="setFilt('all')">הכל (${all.length})</button>
+        <button class="fb${dashFilter==='urgent'?' on':''}" onclick="setFilt('urgent')">דחוף (${urgent.length})</button>
+        <button class="fb${dashFilter==='high'?' on':''}" onclick="setFilt('high')">חשיבות גבוהה (${highOnly.length})</button>
+        <button class="fb${dashFilter==='done'?' on':''}" onclick="setFilt('done')">הושלמו (${doneCount})</button>
       </div>
-    </div>
-    <div class="dk-status-bar" id="sb-${t.id}">
-      <span class="status-lbl">סטטוס:</span>
-      ${statusBtns}
-    </div>
-  </div>`;
+      ${cards}
+    </div></div>`;
 }
 
-function toggleStatusBar(id){
-  const bar=document.getElementById('sb-'+id);
-  if(!bar)return;
-  bar.classList.toggle('open');
-}
-
-function quickStatus(taskId,newStatus){
-  const r=findTask(taskId);if(!r)return;
-  r.task.status=newStatus;
-  sv();
-  rDash();
-  rSb();
-  // reopen the bar
-  const bar=document.getElementById('sb-'+taskId);
-  if(bar)bar.classList.add('open');
-}
-
-function openFullEdit(id){
-  const r=findTask(id);if(!r)return;
-  S.apid=r.proj.id;S.aaid=r.area.id;S.view='proj';
-  mEditT(id);
-}
-
+function toggleSB(id){const el=document.getElementById('dsb-'+id);if(el)el.classList.toggle('open');}
+function quickStatus(tid,s){const r=findTask(tid);if(!r)return;r.task.status=s;sv();rDash();rSb();const el=document.getElementById('dsb-'+tid);if(el)el.classList.add('open');}
+function openFullEdit(id){const r=findTask(id);if(!r)return;S.apid=r.proj.id;S.aaid=r.area.id;S.view='proj';mEditT(id);}
 function setFilt(f){dashFilter=f;rDash();}
 
 function rMn(){
   const mn=document.getElementById('mn');const proj=ap();
   if(!proj){mn.innerHTML=`<div class="nop"><div>בחר פרויקט מהרשימה</div><button class="bp" onclick="mNewP()">+ פרויקט חדש</button></div>`;return;}
   const area=aa();const tasks=area?area.tasks:[];
-  const tabs=proj.areas.map(a=>`<div class="tb-wrap${a.id===S.aaid?' act':''}"><div class="tb" onclick="selA('${a.id}')">${esc(a.name)}${a.tasks.length?`<span class="tb-b">${a.tasks.length}</span>`:''}</div><button class="tb-edit" onclick="mEditA('${a.id}')" title="ערוך תחום">&#9998;</button></div>`).join('');
-  const cards=tasks.map(t=>{
-    const atts=(t.attachments||[]).length;
-    const notesTxt=t.notes?t.notes.split('\n')[0]:'';
+  const tabs=proj.areas.map(a=>`<div class="tb-wrap${a.id===S.aaid?' act':''}"><div class="tb" onclick="selA('${a.id}')">${esc(a.name)}${a.tasks.length?`<span class="tb-b">${a.tasks.length}</span>`:''}</div><button class="tb-edit" onclick="mEditA('${a.id}')">&#9998;</button></div>`).join('');
+  const cards=tasks.map(t=>{const n=t.notes?t.notes.split('\n')[0]:'';
     return `<div class="tc" onclick="mEditT('${t.id}')">
       <div class="tc-l"><div class="tc-ic"><i></i><i></i><i></i></div><button class="tc-x" onclick="event.stopPropagation();dTask('${t.id}')">✕</button></div>
-      <div class="tc-b"><div class="tc-t">${esc(t.title)}</div>
-        ${notesTxt?`<div class="tc-notes">${esc(notesTxt)}</div>`:''}
+      <div class="tc-b"><div class="tc-t">${esc(t.title)}</div>${n?`<div class="tc-notes">${esc(n)}</div>`:''}
         <div class="tc-bds">
           ${t.priority?`<span class="bd ${pc(t.priority)}">${esc(t.priority)}</span>`:''}
           ${t.importance?`<span class="bd am">↑ ${esc(t.importance)}</span>`:''}
           ${t.status&&t.status!=='פתוח'?`<span class="bd gy">${esc(t.status)}</span>`:''}
           ${t.assigned?`<span class="bd bl">${esc(t.assigned)}</span>`:''}
           ${t.dueDate?`<span class="bd gy">${esc(t.dueDate)}${t.inCal?'<span class="cal-dot"></span>':''}</span>`:''}
-          ${atts?`<span class="bd gy">📄 ${atts}</span>`:''}
         </div>
       </div>
     </div>`;}).join('');
-  mn.innerHTML=`
-    <div class="mnh"><div style="min-width:0"><div class="mnh-t">${esc(proj.name)}</div><div class="mnh-s">${ptc(proj)} משימות ב-${proj.areas.length} תחומים</div></div><button class="hb" onclick="mEditP()">עריכת פרויקט</button></div>
+  mn.innerHTML=`<div class="mnh"><div style="min-width:0"><div class="mnh-t">${esc(proj.name)}</div><div class="mnh-s">${ptc(proj)} משימות ב-${proj.areas.length} תחומים</div></div><button class="hb" onclick="mEditP()">עריכת פרויקט</button></div>
     <div class="tabs">${tabs}<div class="tb-add" onclick="mNewA()">+</div></div>
     <div class="tl">${!area?'<div class="emp">לחץ על תחום למעלה</div>':cards||'<div class="emp">אין משימות<br><span style="font-size:12px">לחץ "+ הוסף משימה" למטה</span></div>'}</div>
     <div class="ab"><input class="ai" placeholder="+ הוסף משימה חדשה..." onfocus="this.blur();mNewT()" readonly/></div>`;
@@ -393,14 +304,14 @@ function sm(html){const mr=document.getElementById('mr');mr.className='on';mr.in
 function cm(){const mr=document.getElementById('mr');mr.className='';mr.innerHTML='';render();}
 function mNewP(){sm(`<h2>פרויקט חדש</h2><div class="f"><label>שם הפרויקט</label><input id="v1" placeholder="פרויקט 2500"/></div><div class="ma"><button class="bp" onclick="cP()">צור פרויקט</button><button class="bs" onclick="cm()">ביטול</button></div>`);}
 function cP(){const n=document.getElementById('v1').value.trim();if(!n)return;const id=uid();const defs=[{id:uid(),name:'כללי',tasks:[]},{id:uid(),name:'ביצוע',tasks:[]},{id:uid(),name:'הזמנות רכש',tasks:[]},{id:uid(),name:'חשבונות',tasks:[]}];S.projects.push({id,name:n,areas:defs});S.apid=id;S.aaid=defs[0].id;S.view='proj';sv();cm();}
-function mEditP(){const p=ap();if(!p)return;sm(`<h2>עריכת פרויקט</h2><div class="f"><label>שם</label><input id="v1" value="${esc(p.name)}"/></div><div class="ma"><button class="bp" onclick="sPn()">שמור</button><button class="bs bd-del" onclick="dP()">מחק פרויקט</button><button class="bs" onclick="cm()">ביטול</button></div>`);}
+function mEditP(){const p=ap();if(!p)return;sm(`<h2>עריכת פרויקט</h2><div class="f"><label>שם</label><input id="v1" value="${esc(p.name)}"/></div><div class="ma"><button class="bp" onclick="sPn()">שמור</button><button class="bs bd-del" onclick="dP()">מחק</button><button class="bs" onclick="cm()">ביטול</button></div>`);}
 function sPn(){const p=ap();if(!p)return;const n=document.getElementById('v1').value.trim();if(!n)return;p.name=n;sv();cm();}
-function dP(){const p=ap();if(!p||!confirm(`למחוק את "${p.name}"?`))return;p.areas.forEach(a=>a.tasks.forEach(t=>cleanFiles(t)));S.projects=S.projects.filter(x=>x.id!==S.apid);S.apid=null;S.aaid=null;S.view='dash';sv();cm();}
-function mNewA(){sm(`<h2>תחום חדש</h2><div class="f"><label>שם התחום</label><input id="v1" placeholder="לדוגמה: חשבונות"/></div><div class="ma"><button class="bp" onclick="cA()">צור תחום</button><button class="bs" onclick="cm()">ביטול</button></div>`);}
+function dP(){const p=ap();if(!p||!confirm(`למחוק?`))return;S.projects=S.projects.filter(x=>x.id!==S.apid);S.apid=null;S.aaid=null;S.view='dash';sv();cm();}
+function mNewA(){sm(`<h2>תחום חדש</h2><div class="f"><label>שם</label><input id="v1" placeholder="חשבונות"/></div><div class="ma"><button class="bp" onclick="cA()">צור</button><button class="bs" onclick="cm()">ביטול</button></div>`);}
 function cA(){const n=document.getElementById('v1').value.trim();if(!n)return;const p=ap();if(!p)return;const id=uid();p.areas.push({id,name:n,tasks:[]});S.aaid=id;sv();cm();}
-function mEditA(id){const p=ap();if(!p)return;const a=p.areas.find(x=>x.id===id);if(!a)return;sm(`<h2>עריכת תחום</h2><div class="f"><label>שם התחום</label><input id="v1" value="${esc(a.name)}"/></div>${a.tasks.length?`<div style="font-size:11px;color:var(--t3);margin-top:4px">לתחום זה ${a.tasks.length} משימות</div>`:''}<div class="ma"><button class="bp" onclick="sA('${id}')">שמור</button><button class="bs bd-del" onclick="dA('${id}')" ${p.areas.length>1?'':'disabled'}>מחק תחום</button><button class="bs" onclick="cm()">ביטול</button></div>`);}
+function mEditA(id){const p=ap();if(!p)return;const a=p.areas.find(x=>x.id===id);if(!a)return;sm(`<h2>עריכת תחום</h2><div class="f"><label>שם</label><input id="v1" value="${esc(a.name)}"/></div>${a.tasks.length?`<div style="font-size:11px;color:var(--t3);margin-top:4px">לתחום זה ${a.tasks.length} משימות</div>`:''}<div class="ma"><button class="bp" onclick="sA('${id}')">שמור</button><button class="bs bd-del" onclick="dA('${id}')" ${p.areas.length>1?'':'disabled'}>מחק</button><button class="bs" onclick="cm()">ביטול</button></div>`);}
 function sA(id){const p=ap();if(!p)return;const a=p.areas.find(x=>x.id===id);if(!a)return;const n=document.getElementById('v1').value.trim();if(!n)return;a.name=n;sv();cm();}
-function dA(id){const p=ap();if(!p)return;const a=p.areas.find(x=>x.id===id);if(!a||!confirm(`למחוק "${a.name}"${a.tasks.length?` ו-${a.tasks.length} משימות`:''}?`))return;a.tasks.forEach(t=>cleanFiles(t));p.areas=p.areas.filter(x=>x.id!==id);if(S.aaid===id)S.aaid=p.areas[0]?.id||null;sv();cm();}
+function dA(id){const p=ap();if(!p)return;const a=p.areas.find(x=>x.id===id);if(!a||!confirm(`למחוק?`))return;p.areas=p.areas.filter(x=>x.id!==id);if(S.aaid===id)S.aaid=p.areas[0]?.id||null;sv();cm();}
 function tForm(t){return `
   <div class="f"><label>כותרת *</label><input id="v1" value="${esc(t?.title||'')}" placeholder="תיאור המשימה"/></div>
   <div class="f"><label>תוכן / תיאור</label><textarea id="v2">${esc(t?.content||'')}</textarea></div>
@@ -414,22 +325,31 @@ function tForm(t){return `
     <div class="f"><label>אחראי</label><input id="v7" value="${esc(t?.assigned||'')}" placeholder="שם"/></div>
   </div>
   <div class="f"><label>תאריך יעד</label><input type="date" id="v8" value="${esc(t?.dueDate||'')}"/></div>`;}
-function attSection(t){const atts=t?.attachments||[];const rows=atts.map(a=>`<div class="att-row"><span class="att-type">${typeLabel(a.type)}</span><span class="att-name" title="${esc(a.name)}">${esc(a.name)}</span><span class="att-sz">${fmtSz(a.size)}</span><button class="att-open" onclick="viewFile('${t.id}','${a.id}')">פתח</button><button class="att-del" onclick="delFile('${t.id}','${a.id}')">✕</button></div>`).join('');
-  return `<hr class="divider"/><div class="f"><label>קבצים מצורפים</label><div class="att-list" id="att-list">${rows||'<div class="att-empty">אין קבצים מצורפים</div>'}</div><label class="upload-label" onclick="document.getElementById('fup').click()">+ הוסף קובץ / תמונה</label><input type="file" id="fup" style="display:none" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.csv" onchange="handleUpload('${t?.id||''}',this)"/><div style="font-size:11px;color:var(--t3);margin-top:4px">תמונות, PDF, Word, Excel — עד 4MB לקובץ</div></div>`;}
-function gcalSection(t){const has=t?.dueDate;return `<hr class="divider"/><div class="gcal-box"><div class="gcal-box-title">ייצוא ליומן גוגל (אופציונלי)</div><div class="gcal-note">${has?'לחץ כדי לפתוח אירוע ביומן גוגל עם פרטי המשימה.':'הוסף תאריך יעד כדי לאפשר ייצוא.'}</div><a ${has?`href="${gcalUrl(t)}" target="_blank"`:'href="#" onclick="event.preventDefault()"'} class="gcal-btn" style="${has?'':'opacity:.4;cursor:not-allowed'}">פתח ביומן גוגל${t?.inCal?' ✓':''}</a></div>`;}
-function mNewT(){const a=aa();if(!a)return;const fake={id:'__new__',attachments:[]};sm(`<h2>משימה חדשה</h2>${tForm(null)}${attSection(fake)}${gcalSection(null)}<div class="ma"><button class="bp" onclick="sT('')">שמור</button><button class="bs" onclick="cm()">ביטול</button></div>`);}
-function mEditT(id){const r=findTask(id);if(!r)return;const t=r.task;sm(`<h2>עריכת משימה</h2>${tForm(t)}${attSection(t)}${gcalSection(t)}<div class="ma"><button class="bp" onclick="sT('${id}')">שמור</button><button class="bs bd-del" onclick="dTask('${id}');cm()">מחק</button><button class="bs" onclick="cm()">ביטול</button></div>`);}
-function sT(eid){const n=document.getElementById('v1').value.trim();if(!n)return;const a=aa();if(!a)return;const existing=eid?a.tasks.find(t=>t.id===eid)||{}:{};const task={id:eid||uid(),title:n,content:document.getElementById('v2').value.trim(),notes:document.getElementById('v3').value.trim(),priority:document.getElementById('v4').value,importance:document.getElementById('v5').value,status:document.getElementById('v6').value,assigned:document.getElementById('v7').value.trim(),dueDate:document.getElementById('v8').value,inCal:existing.inCal||false,attachments:existing.attachments||[],created:existing.created||new Date().toISOString().split('T')[0]};if(eid)a.tasks=a.tasks.map(t=>t.id===eid?task:t);else a.tasks.push(task);sv();cm();}
-async function handleUpload(taskId,input){const files=Array.from(input.files);if(!files.length)return;const listEl=document.getElementById('att-list');if(listEl)listEl.innerHTML='<div style="font-size:12px;color:var(--t3);padding:4px 0">מעלה...</div>';const r=taskId&&taskId!=='__new__'?findTask(taskId):null;const task=r?r.task:null;const tmpAtts=task?[...(task.attachments||[])]:[];for(const file of files){if(file.size>4*1024*1024){alert(`"${file.name}" גדול מדי`);continue;}await new Promise(res=>{const fr=new FileReader();fr.onload=e=>{const fid=uid();try{localStorage.setItem('apm_file_'+fid,e.target.result);tmpAtts.push({id:fid,name:file.name,type:file.type||'application/octet-stream',size:file.size});}catch(err){alert(`שגיאה`);}res();};fr.readAsDataURL(file);});}if(task){task.attachments=tmpAtts;sv();mEditT(taskId);}}
-function viewFile(taskId,fileId){const r=findTask(taskId);if(!r)return;const att=(r.task.attachments||[]).find(a=>a.id===fileId);if(!att)return;let data;try{data=localStorage.getItem('apm_file_'+fileId);}catch(e){}if(!data){alert('הקובץ לא נמצא');return;}const vr=document.getElementById('vr');let body;if(att.type.startsWith('image/')){body=`<img class="vr-img" src="${data}" alt="${esc(att.name)}"/>`;}else if(att.type==='application/pdf'){body=`<iframe class="vr-iframe" src="${data}"></iframe>`;}else{body=`<div class="vr-other"><div style="font-size:32px">📄</div><div style="font-size:13px;color:#666">${esc(att.name)}</div><a href="${data}" download="${esc(att.name)}" class="bp" style="text-decoration:none">הורד</a></div>`;}vr.className='on';vr.innerHTML=`<div class="vr-bg"><div class="vr-hd"><span class="vr-name">${esc(att.name)}</span><a href="${data}" download="${esc(att.name)}" class="vr-dl">הורד</a><button class="vr-close" onclick="closeViewer()">✕</button></div><div class="vr-body">${body}</div></div>`;}
-function closeViewer(){const vr=document.getElementById('vr');vr.className='';vr.innerHTML='';}
-function delFile(taskId,fileId){if(!confirm('למחוק?'))return;try{localStorage.removeItem('apm_file_'+fileId);}catch(e){}const r=findTask(taskId);if(!r)return;r.task.attachments=(r.task.attachments||[]).filter(a=>a.id!==fileId);sv();mEditT(taskId);}
-function cleanFiles(task){for(const a of(task.attachments||[])){try{localStorage.removeItem('apm_file_'+a.id);}catch(e){}}}
-function dTask(id){if(!confirm('למחוק?'))return;const r=findTask(id);if(r)cleanFiles(r.task);for(const p of S.projects)p.areas.forEach(a=>{a.tasks=a.tasks.filter(t=>t.id!==id);});sv();render();}
-function xCSV(){const p=ap();if(!p){alert('בחר פרויקט');return;}let rows=[['פרויקט','תחום','כותרת','הערות','עדיפות','חשיבות','סטטוס','אחראי','תאריך יעד','קבצים']];p.areas.forEach(a=>a.tasks.forEach(t=>rows.push([p.name,a.name,t.title,t.notes,t.priority,t.importance,t.status,t.assigned,t.dueDate,(t.attachments||[]).length])));const csv=rows.map(r=>r.map(x=>`"${(x||'').toString().replace(/"/g,'""')}"`).join(',')).join('\n');const el=document.createElement('a');el.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv'}));el.download=p.name+'.csv';el.click();}
+function gcalSection(t){const has=t?.dueDate;return `<hr class="divider"/><div class="gcal-box"><div class="gcal-box-title">ייצוא ליומן גוגל (אופציונלי)</div><div class="gcal-note">${has?'לחץ לפתוח ביומן גוגל.':'הוסף תאריך יעד כדי לאפשר.'}</div><a ${has?`href="${gcalUrl(t)}" target="_blank"`:'href="#" onclick="event.preventDefault()"'} class="gcal-btn" style="${has?'':'opacity:.4;cursor:not-allowed'}">פתח ביומן גוגל</a></div>`;}
+function mNewT(){const a=aa();if(!a)return;sm(`<h2>משימה חדשה</h2>${tForm(null)}${gcalSection(null)}<div class="ma"><button class="bp" onclick="sT('')">שמור</button><button class="bs" onclick="cm()">ביטול</button></div>`);}
+function mEditT(id){const r=findTask(id);if(!r)return;const t=r.task;sm(`<h2>עריכת משימה</h2>${tForm(t)}${gcalSection(t)}<div class="ma"><button class="bp" onclick="sT('${id}')">שמור</button><button class="bs bd-del" onclick="dTask('${id}');cm()">מחק</button><button class="bs" onclick="cm()">ביטול</button></div>`);}
+function sT(eid){const n=document.getElementById('v1').value.trim();if(!n)return;const a=aa();if(!a)return;const ex=eid?a.tasks.find(t=>t.id===eid)||{}:{};const task={id:eid||uid(),title:n,content:document.getElementById('v2').value.trim(),notes:document.getElementById('v3').value.trim(),priority:document.getElementById('v4').value,importance:document.getElementById('v5').value,status:document.getElementById('v6').value,assigned:document.getElementById('v7').value.trim(),dueDate:document.getElementById('v8').value,inCal:ex.inCal||false,created:ex.created||new Date().toISOString().split('T')[0]};if(eid)a.tasks=a.tasks.map(t=>t.id===eid?task:t);else a.tasks.push(task);sv();cm();}
+function dTask(id){if(!confirm('למחוק?'))return;for(const p of S.projects)p.areas.forEach(a=>{a.tasks=a.tasks.filter(t=>t.id!==id);});sv();render();}
+function xCSV(){const p=ap();if(!p){alert('בחר פרויקט');return;}let rows=[['פרויקט','תחום','כותרת','הערות','עדיפות','חשיבות','סטטוס','אחראי','תאריך יעד']];p.areas.forEach(a=>a.tasks.forEach(t=>rows.push([p.name,a.name,t.title,t.notes,t.priority,t.importance,t.status,t.assigned,t.dueDate])));const csv=rows.map(r=>r.map(x=>`"${(x||'').toString().replace(/"/g,'""')}"`).join(',')).join('\n');const el=document.createElement('a');el.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv'}));el.download=p.name+'.csv';el.click();}
 function xJSON(){const p=ap();if(!p){alert('בחר פרויקט');return;}const el=document.createElement('a');el.href=URL.createObjectURL(new Blob([JSON.stringify(p,null,2)],{type:'application/json'}));el.download=p.name+'.json';el.click();}
-init();
-if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js');}
+
+window.selP=selP;window.selA=selA;window.selDash=selDash;window.mNewP=mNewP;window.mEditP=mEditP;window.mNewA=mNewA;window.mEditA=mEditA;window.mNewT=mNewT;window.mEditT=mEditT;window.sT=sT;window.dTask=dTask;window.cP=cP;window.sPn=sPn;window.dP=dP;window.cA=cA;window.sA=sA;window.dA=dA;window.cm=cm;window.toggleSB=toggleSB;window.quickStatus=quickStatus;window.openFullEdit=openFullEdit;window.setFilt=setFilt;window.xCSV=xCSV;window.xJSON=xJSON;
+
+const [col,docId]=DOC.split('/');
+onSnapshot(doc(db,col,docId),async(snap)=>{
+  if(snap.exists()){
+    const data=snap.data();
+    S.projects=data.projects||[];
+    syncOk=true;
+  } else {
+    S.projects=SEED_DATA;
+    await sv();
+  }
+  if(!S.apid&&S.projects.length){S.apid=S.projects[0].id;S.aaid=S.projects[0].areas[0]?.id||null;}
+  render();
+});
+
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
 </script>
 </body>
 </html>
