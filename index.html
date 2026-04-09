@@ -35,6 +35,8 @@ body{font-family:system-ui,-apple-system,sans-serif;direction:rtl;background:#f0
 .sbb{font-size:12px;padding:5px 8px;border-radius:var(--rm);border:.5px solid var(--b2);background:var(--bg1);color:var(--t2);cursor:pointer;width:100%;text-align:center}
 .sbb:hover{background:var(--bg2)}
 .sbr{display:flex;gap:5px}.sbr .sbb{flex:1}
+.ai-btn{font-size:12px;padding:6px 8px;border-radius:var(--rm);border:none;background:var(--t1);color:var(--bg1);cursor:pointer;width:100%;text-align:center;display:flex;align-items:center;justify-content:center;gap:5px}
+.ai-btn:hover{opacity:.85}
 .usr{display:flex;align-items:center;gap:7px;padding:4px 2px}
 .av{width:26px;height:26px;border-radius:50%;background:#E6F1FB;color:#185FA5;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .usr span{font-size:12px;color:var(--t2)}
@@ -71,7 +73,7 @@ body{font-family:system-ui,-apple-system,sans-serif;direction:rtl;background:#f0
 .gy{background:var(--bg2);color:var(--t2);border:.5px solid var(--b3)}
 .cal-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#1D9E75;margin-right:3px;vertical-align:middle}
 .ab{padding:8px 12px;border-top:.5px solid var(--b3);flex-shrink:0}
-.ai{width:100%;font-size:13px;padding:7px 12px;border:.5px solid var(--b3);border-radius:var(--rm);background:var(--bg2);color:var(--t3);text-align:right;direction:rtl;cursor:pointer;outline:none}
+.ai-inp{width:100%;font-size:13px;padding:7px 12px;border:.5px solid var(--b3);border-radius:var(--rm);background:var(--bg2);color:var(--t3);text-align:right;direction:rtl;cursor:pointer;outline:none}
 .emp{text-align:center;padding:3rem 0;color:var(--t3);font-size:13px;line-height:2}
 .nop{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:var(--t3);font-size:14px}
 .loading{flex:1;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--t3)}
@@ -125,6 +127,25 @@ body{font-family:system-ui,-apple-system,sans-serif;direction:rtl;background:#f0
 .sb-btn.cur{background:var(--t1);color:var(--bg1);border-color:var(--t1)}
 .sb-btn.cur.done{background:#3B6D11;border-color:#3B6D11}
 .od-mark{color:#A32D2D!important;border-color:#F09595!important}
+/* AI CHAT */
+.ai-view{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.ai-hd{padding:10px 16px;border-bottom:.5px solid var(--b3);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.ai-hd-t{font-size:15px;font-weight:600;color:var(--t1)}
+.ai-hd-s{font-size:11px;color:var(--t2);margin-top:2px}
+.ai-msgs{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:85%;padding:9px 12px;border-radius:var(--rl);font-size:13px;line-height:1.5}
+.msg.user{background:var(--t1);color:var(--bg1);align-self:flex-start;border-radius:var(--rl) var(--rl) var(--rl) 4px}
+.msg.ai{background:var(--bg2);color:var(--t1);align-self:flex-end;border-radius:var(--rl) var(--rl) 4px var(--rl);border:.5px solid var(--b3)}
+.msg.ai.loading{color:var(--t3);font-style:italic}
+.ai-foot{padding:10px 12px;border-top:.5px solid var(--b3);display:flex;gap:8px;flex-shrink:0}
+.ai-text{flex:1;font-size:13px;padding:8px 12px;border:.5px solid var(--b2);border-radius:var(--rm);background:var(--bg1);color:var(--t1);direction:rtl;outline:none;resize:none;height:38px;min-height:38px}
+.ai-text:focus{border-color:var(--t2)}
+.ai-send{font-size:13px;padding:8px 14px;border-radius:var(--rm);border:none;background:var(--t1);color:var(--bg1);cursor:pointer;flex-shrink:0}
+.ai-send:hover{opacity:.85}
+.ai-send:disabled{opacity:.4;cursor:not-allowed}
+.ai-no-key{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:2rem;text-align:center}
+.ai-no-key p{font-size:13px;color:var(--t2);line-height:1.6}
+.ai-welcome{text-align:center;color:var(--t3);font-size:12px;padding:1rem 0;line-height:1.8}
 @media(max-width:600px){#root{flex-direction:column;height:auto;max-height:none}#sb{width:100%;min-width:0;border-left:none;border-bottom:.5px solid var(--b3)}.pl{max-height:160px}.dash-stats{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
@@ -138,7 +159,7 @@ body{font-family:system-ui,-apple-system,sans-serif;direction:rtl;background:#f0
 import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import{getFirestore,doc,setDoc,onSnapshot}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 const firebaseConfig={apiKey:"AIzaSyAwaErTAz0LAYHLEIQbxWY9ir6MzvaYQUo",authDomain:"avihai-tasks.firebaseapp.com",projectId:"avihai-tasks",storageBucket:"avihai-tasks.firebasestorage.app",messagingSenderId:"155180192399",appId:"1:155180192399:web:f7c54231070047fdcfd6fa"};
-const SEED=[{"id": "ce6c92303f3", "name": "2253", "areas": [{"id": "563b210bd23", "name": "כללי", "tasks": []}, {"id": "7c80056e5c1", "name": "ביצוע", "tasks": [{"id": "74ef251bece", "title": "להשלים חוסרים בשוחות", "content": "", "notes": "", "priority": "", "importance": "", "status": "פתוח", "assigned": "", "dueDate": "", "inCal": false, "created": "2026-04-06"}, {"id": "5ee04bac924", "title": "להשלים אנקס", "content": "", "notes": "", "priority": "", "importance": "", "status": "פתוח", "assigned": "", "dueDate": "", "inCal": false, "created": "2026-04-06"}, {"id": "d3408386f5c", "title": "להשלים מבנה אחזקה", "content": "", "notes": "", "priority": "", "importance": "", "status": "פתוח", "assigned": "", "dueDate": "", "inCal": false, "created": "2026-04-06"}, {"id": "c3776843903", "title": "לסיים אנגרים", "content": "", "notes": "", "priority": "", "importance": "", "status": "פתוח", "assigned": "", "dueDate": "", "inCal": false, "created": "2026-04-06"}, {"id": "420b37eef78", "title": "תיקוני צבע", "content": "", "notes": "", "priority": "", "importance": "", "status": "פתוח", "assigned": "", "dueDate": "", "inCal": false, "created": "2026-04-06"}, {"id": "1296bb8b371", "title": "סגירת ברגים", "content": "", "notes": "", "priority": "", "importance": "", "status": "פתוח", "assigned": "", "dueDate": "", "inCal": false, "created": "2026-04-06"}, {"id": "c38e8ebb87a", "title": "סיום תמיכות", "content": "", "notes": "", "priority": "", "importance": "", "status": "פתוח", "assigned": "", "dueDate": "", "inCal": false, "created": "2026-04-06"}]}, {"id": "f55427c8386", "name": "הזמנות רכש", "tasks": [{"id": "975eea68565", "title": "להזמין ברזי מחט", "content": "", "notes": "", "priority": "", "importance": "", "status": "פתוח", "assigned": "", "dueDate": "", "inCal": false, "created": "2026-04-06"}, {"id": "04b3d999d6a", "title": "להזמין שעוני לחץ", "content": "", "notes": "", "priority": "", "importance": "", "status": "פתוח", "assigned": "", "dueDate": "", "inCal": false, "created": "2026-04-06"}]}, {"id": "5fb5abf602b", "name": "חשבונות", "tasks": [{"id": "1f37d5e897f", "title": "להכין חשבון מס 8", "content": "", "notes": "", "priority": "", "importance": "", "status": "פתוח", "assigned": "", "dueDate": "", "inCal": false, "created": "2026-04-06"}, {"id": "919dabd031e", "title": "להפריד שעות רג'י על פי סעיפים מאלכס", "content": "", "notes": "", "priority": "", "importance": "", "status": "פתוח", "assigned": "", "dueDate": "", "inCal": false, "created": "2026-04-06"}, {"id": "787cd9e915a", "title": "להפריד את החריגים", "content": "", "notes": "", "priority": "", "importance": "", "status": "פתוח", "assigned": "", "dueDate": "", "inCal": false, "created": "2026-04-06"}, {"id": "fa3645711e8", "title": "לנסות ולעדכן את הקובץ הראשי של כתב הכמויות", "content": "", "notes": "", "priority": "", "importance": "", "status": "פתוח", "assigned": "", "dueDate": "", "inCal": false, "created": "2026-04-06"}]}]}, {"id": "8b6dd7db9af", "name": "908", "areas": [{"id": "04e24759e3f", "name": "כללי", "tasks": []}, {"id": "7a3465db649", "name": "ביצוע", "tasks": []}, {"id": "668319f9c25", "name": "הזמנות רכש", "tasks": []}, {"id": "caaeb4b4b6f", "name": "חשבונות", "tasks": []}]}, {"id": "1a3f91fead9", "name": "2242", "areas": [{"id": "f6c672d1ef3", "name": "כללי", "tasks": []}, {"id": "0d2f9b693a9", "name": "ביצוע", "tasks": []}, {"id": "ba6e2a1ca47", "name": "הזמנות רכש", "tasks": []}, {"id": "762a171f99a", "name": "חשבונות", "tasks": []}]}, {"id": "c3614206a44", "name": "2288", "areas": [{"id": "e8fb2c4fecf", "name": "כללי", "tasks": []}, {"id": "e37dfb5a119", "name": "ביצוע", "tasks": []}, {"id": "69253140d1f", "name": "הזמנות רכש", "tasks": []}, {"id": "e2cb56db17c", "name": "חשבונות", "tasks": []}]}, {"id": "f976b57bb9d", "name": "2306", "areas": [{"id": "554d5910d6f", "name": "כללי", "tasks": []}, {"id": "1fd3dbc73ac", "name": "ביצוע", "tasks": []}, {"id": "ba1b5163ed3", "name": "הזמנות רכש", "tasks": []}, {"id": "5e7135632c4", "name": "חשבונות", "tasks": []}]}, {"id": "25db67c5657", "name": "2196", "areas": [{"id": "8799b97fd71", "name": "כללי", "tasks": []}, {"id": "889c9adc496", "name": "ביצוע", "tasks": []}, {"id": "ed75fe2b17c", "name": "הזמנות רכש", "tasks": []}, {"id": "2f836c44125", "name": "חשבונות", "tasks": []}]}];
+const SEED=[{"id":"ce6c92303f3","name":"2253","areas":[{"id":"563b210bd23","name":"כללי","tasks":[]},{"id":"7c80056e5c1","name":"ביצוע","tasks":[{"id":"74ef251bece","title":"להשלים חוסרים בשוחות","content":"","notes":"","priority":"","importance":"","status":"פתוח","assigned":"","dueDate":"","inCal":false,"created":"2026-04-06"},{"id":"5ee04bac924","title":"להשלים אנקס","content":"","notes":"","priority":"","importance":"","status":"פתוח","assigned":"","dueDate":"","inCal":false,"created":"2026-04-06"},{"id":"d3408386f5c","title":"להשלים מבנה אחזקה","content":"","notes":"","priority":"","importance":"","status":"פתוח","assigned":"","dueDate":"","inCal":false,"created":"2026-04-06"},{"id":"c3776843903","title":"לסיים אנגרים","content":"","notes":"","priority":"","importance":"","status":"פתוח","assigned":"","dueDate":"","inCal":false,"created":"2026-04-06"},{"id":"420b37eef78","title":"תיקוני צבע","content":"","notes":"","priority":"","importance":"","status":"פתוח","assigned":"","dueDate":"","inCal":false,"created":"2026-04-06"},{"id":"1296bb8b371","title":"סגירת ברגים","content":"","notes":"","priority":"","importance":"","status":"פתוח","assigned":"","dueDate":"","inCal":false,"created":"2026-04-06"},{"id":"c38e8ebb87a","title":"סיום תמיכות","content":"","notes":"","priority":"","importance":"","status":"פתוח","assigned":"","dueDate":"","inCal":false,"created":"2026-04-06"}]},{"id":"f55427c8386","name":"הזמנות רכש","tasks":[{"id":"975eea68565","title":"להזמין ברזי מחט","content":"","notes":"","priority":"","importance":"","status":"פתוח","assigned":"","dueDate":"","inCal":false,"created":"2026-04-06"},{"id":"04b3d999d6a","title":"להזמין שעוני לחץ","content":"","notes":"","priority":"","importance":"","status":"פתוח","assigned":"","dueDate":"","inCal":false,"created":"2026-04-06"}]},{"id":"5fb5abf602b","name":"חשבונות","tasks":[{"id":"1f37d5e897f","title":"להכין חשבון מס 8","content":"","notes":"","priority":"","importance":"","status":"פתוח","assigned":"","dueDate":"","inCal":false,"created":"2026-04-06"},{"id":"919dabd031e","title":"להפריד שעות רג'י על פי סעיפים מאלכס","content":"","notes":"","priority":"","importance":"","status":"פתוח","assigned":"","dueDate":"","inCal":false,"created":"2026-04-06"},{"id":"787cd9e915a","title":"להפריד את החריגים","content":"","notes":"","priority":"","importance":"","status":"פתוח","assigned":"","dueDate":"","inCal":false,"created":"2026-04-06"},{"id":"fa3645711e8","title":"לנסות ולעדכן את הקובץ הראשי של כתב הכמויות","content":"","notes":"","priority":"","importance":"","status":"פתוח","assigned":"","dueDate":"","inCal":false,"created":"2026-04-06"}]}]},{"id":"8b6dd7db9af","name":"908","areas":[{"id":"04e24759e3f","name":"כללי","tasks":[]},{"id":"7a3465db649","name":"ביצוע","tasks":[]},{"id":"668319f9c25","name":"הזמנות רכש","tasks":[]},{"id":"caaeb4b4b6f","name":"חשבונות","tasks":[]}]},{"id":"1a3f91fead9","name":"2242","areas":[{"id":"f6c672d1ef3","name":"כללי","tasks":[]},{"id":"0d2f9b693a9","name":"ביצוע","tasks":[]},{"id":"ba6e2a1ca47","name":"הזמנות רכש","tasks":[]},{"id":"762a171f99a","name":"חשבונות","tasks":[]}]},{"id":"c3614206a44","name":"2288","areas":[{"id":"e8fb2c4fecf","name":"כללי","tasks":[]},{"id":"e37dfb5a119","name":"ביצוע","tasks":[]},{"id":"69253140d1f","name":"הזמנות רכש","tasks":[]},{"id":"e2cb56db17c","name":"חשבונות","tasks":[]}]},{"id":"f976b57bb9d","name":"2306","areas":[{"id":"554d5910d6f","name":"כללי","tasks":[]},{"id":"1fd3dbc73ac","name":"ביצוע","tasks":[]},{"id":"ba1b5163ed3","name":"הזמנות רכש","tasks":[]},{"id":"5e7135632c4","name":"חשבונות","tasks":[]}]},{"id":"25db67c5657","name":"2196","areas":[{"id":"8799b97fd71","name":"כללי","tasks":[]},{"id":"889c9adc496","name":"ביצוע","tasks":[]},{"id":"ed75fe2b17c","name":"הזמנות רכש","tasks":[]},{"id":"2f836c44125","name":"חשבונות","tasks":[]}]}];
 const app=initializeApp(firebaseConfig);
 const db=getFirestore(app);
 const S={projects:[],apid:null,aaid:null,view:'dash'};
@@ -153,18 +174,161 @@ function gcalUrl(t){const ti=encodeURIComponent(t.title);const de=encodeURICompo
 function isOverdue(due){if(!due)return false;return new Date(due)<new Date(new Date().toDateString());}
 const STATUSES=['פתוח','בביצוע','תלוי','הושלם'];
 let dashFilter='all',syncOk=false;
+let aiMsgs=[];
+
+// API Key management - stored in localStorage only, never in code
+function getApiKey(){return localStorage.getItem('anthropic_api_key')||'';}
+function setApiKey(k){localStorage.setItem('anthropic_api_key',k);}
+
 async function sv(){try{await setDoc(doc(db,'data','avihai'),{projects:S.projects,updated:Date.now()});syncOk=true;}catch(e){syncOk=false;}updateDot();}
 function updateDot(){const d=document.getElementById('sdot');if(d){d.className='sync-dot'+(syncOk?'':' off');d.title=syncOk?'מסונכרן':'לא מחובר';}}
-function render(){rSb();S.view==='dash'?rDash():rMn();}
+function render(){rSb();S.view==='dash'?rDash():S.view==='ai'?rAI():rMn();}
+
 function getUrgentTasks(){const all=[];for(const p of S.projects)for(const a of p.areas)for(const t of a.tasks){const isU=t.priority==='דחוף',isH=t.importance==='גבוהה';if(isU||isH)all.push({task:t,proj:p,area:a,isU,isH});}all.sort((a,b)=>{if(a.task.status==='הושלם'&&b.task.status!=='הושלם')return 1;if(b.task.status==='הושלם'&&a.task.status!=='הושלם')return -1;const oa=isOverdue(a.task.dueDate)&&a.task.status!=='הושלם',ob=isOverdue(b.task.dueDate)&&b.task.status!=='הושלם';if(oa&&!ob)return -1;if(ob&&!oa)return 1;const wa=(a.isU?2:0)+(a.isH?1:0),wb=(b.isU?2:0)+(b.isH?1:0);if(wb!==wa)return wb-wa;if(a.task.dueDate&&b.task.dueDate)return a.task.dueDate.localeCompare(b.task.dueDate);return a.task.dueDate?-1:b.task.dueDate?1:0;});return all;}
-function rSb(){const sb=document.getElementById('sb');const urgentActive=getUrgentTasks().filter(x=>x.isU&&x.task.status!=='הושלם').length;const items=S.projects.map(p=>'<div class="pi'+(S.view!=='dash'&&p.id===S.apid?' act':'')+'" onclick="selP(\''+p.id+'\')"><span class="pi-n">'+esc(p.name)+'</span><span class="pi-c">'+ptc(p)+'</span></div>').join('');sb.innerHTML='<div class="sbh"><div class="sbh-t">אביחי משימות</div><div class="sbh-s">ניהול תשתיות אנרגיה</div></div><div class="pi'+(S.view==='dash'?' act':'')+'" onclick="selDash()" style="padding:7px 12px"><span class="pi-n" style="font-weight:600">דשבורד</span><span class="pi-c'+(urgentActive?' pi-cred':'')+'">'+( urgentActive||'★')+'</span></div><div class="pl-sec">פרויקטים</div><div class="pl">'+(items||'<div style="padding:12px;font-size:12px;color:var(--t3);text-align:center">אין פרויקטים</div>')+'</div><div class="sbf"><button class="sbb" onclick="mNewP()">+ פרויקט חדש</button><div class="sbr"><button class="sbb" onclick="xCSV()">CSV</button><button class="sbb" onclick="xJSON()">JSON</button></div><div class="usr"><div class="av">א</div><span>אביחי אסואן</span><div class="sync-dot'+(syncOk?'':' off')+'" id="sdot" title="'+(syncOk?'מסונכרן':'לא מחובר')+'"></div></div></div>';}
+
+function rSb(){const sb=document.getElementById('sb');const urgentActive=getUrgentTasks().filter(x=>x.isU&&x.task.status!=='הושלם').length;const items=S.projects.map(p=>'<div class="pi'+(S.view!=='dash'&&S.view!=='ai'&&p.id===S.apid?' act':'')+'" onclick="selP(\''+p.id+'\')"><span class="pi-n">'+esc(p.name)+'</span><span class="pi-c">'+ptc(p)+'</span></div>').join('');sb.innerHTML='<div class="sbh"><div class="sbh-t">אביחי משימות</div><div class="sbh-s">ניהול תשתיות אנרגיה</div></div><div class="pi'+(S.view==='dash'?' act':'')+'" onclick="selDash()" style="padding:7px 12px"><span class="pi-n" style="font-weight:600">דשבורד</span><span class="pi-c'+(urgentActive?' pi-cred':'')+'">'+( urgentActive||'★')+'</span></div><div class="pl-sec">פרויקטים</div><div class="pl">'+(items||'<div style="padding:12px;font-size:12px;color:var(--t3);text-align:center">אין פרויקטים</div>')+'</div><div class="sbf"><button class="ai-btn" onclick="selAI()">✦ עדכון עם AI</button><button class="sbb" onclick="mNewP()">+ פרויקט חדש</button><div class="sbr"><button class="sbb" onclick="xCSV()">CSV</button><button class="sbb" onclick="xJSON()">JSON</button></div><div class="usr"><div class="av">א</div><span>אביחי אסואן</span><div class="sync-dot'+(syncOk?'':' off')+'" id="sdot" title="'+(syncOk?'מסונכרן':'לא מחובר')+'"></div></div></div>';}
+
 function selDash(){S.view='dash';S.apid=null;render();}
+function selAI(){S.view='ai';render();}
+
+// AI View
+function rAI(){
+  const mn=document.getElementById('mn');
+  const hasKey=!!getApiKey();
+  if(!hasKey){
+    mn.innerHTML=`<div class="ai-hd"><div><div class="mnh-t">✦ עדכון עם AI</div><div class="mnh-s">הגדר מפתח API להתחיל</div></div><button class="hb" onclick="selDash()">← חזור</button></div>
+    <div class="ai-no-key">
+      <div style="font-size:32px">🔑</div>
+      <p>כדי להשתמש בעדכון עם AI<br>נדרש מפתח Anthropic API.<br>המפתח נשמר אצלך בלבד — לא בשרת.</p>
+      <button class="bp" onclick="mSetKey()">הגדר מפתח API</button>
+    </div>`;
+    return;
+  }
+  const msgs=aiMsgs.map(m=>`<div class="msg ${m.role==='user'?'user':'ai'}${m.loading?' loading':''}">${esc(m.content)}</div>`).join('');
+  const welcome=aiMsgs.length===0?`<div class="ai-welcome">כתוב בשפה חופשית מה לעדכן<br>לדוגמה: "הוסף משימה לפרויקט 2253 להזמין מגופים"</div>`:'';
+  mn.innerHTML=`<div class="ai-hd"><div><div class="mnh-t">✦ עדכון עם AI</div><div class="mnh-s">מדבר ישירות עם הפרויקטים שלך</div></div><div style="display:flex;gap:6px"><button class="hb" onclick="mSetKey()">🔑</button><button class="hb" onclick="clearAI()">נקה</button><button class="hb" onclick="selDash()">← חזור</button></div></div>
+  <div class="ai-msgs" id="ai-msgs">${welcome}${msgs}</div>
+  <div class="ai-foot">
+    <textarea class="ai-text" id="ai-input" placeholder="מה לעדכן? (Enter לשליחה)" onkeydown="aiKeyDown(event)"></textarea>
+    <button class="ai-send" id="ai-send-btn" onclick="sendAI()">שלח</button>
+  </div>`;
+  const el=document.getElementById('ai-msgs');
+  if(el)el.scrollTop=el.scrollHeight;
+}
+
+function aiKeyDown(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendAI();}}
+
+function clearAI(){aiMsgs=[];render();}
+
+function mSetKey(){
+  const cur=getApiKey();
+  sm(`<h2>מפתח Anthropic API</h2>
+  <div class="f"><label>המפתח נשמר במכשיר שלך בלבד — לא בשרת ולא בקוד</label>
+  <input id="v1" type="password" value="${cur?'sk-...מוגדר...':''}" placeholder="sk-ant-..." autocomplete="off"/></div>
+  <div style="font-size:11px;color:var(--t3);margin-bottom:8px">קבל מפתח ב: console.anthropic.com</div>
+  <div class="ma"><button class="bp" onclick="saveKey()">שמור</button>${cur?'<button class="bs bd-del" onclick="delKey()">מחק מפתח</button>':''}<button class="bs" onclick="cm()">ביטול</button></div>`);
+}
+
+function saveKey(){
+  const inp=document.getElementById('v1');
+  const v=inp.value.trim();
+  if(v&&v!=='sk-...מוגדר...'){setApiKey(v);}
+  cm();
+  if(S.view==='ai')rAI();
+}
+
+function delKey(){
+  localStorage.removeItem('anthropic_api_key');
+  cm();
+  if(S.view==='ai')rAI();
+}
+
+async function sendAI(){
+  const inp=document.getElementById('ai-input');
+  const btn=document.getElementById('ai-send-btn');
+  if(!inp)return;
+  const msg=inp.value.trim();
+  if(!msg)return;
+  const key=getApiKey();
+  if(!key){mSetKey();return;}
+
+  inp.value='';
+  if(btn)btn.disabled=true;
+
+  aiMsgs.push({role:'user',content:msg});
+  aiMsgs.push({role:'ai',content:'חושב...',loading:true});
+  rAI();
+
+  // Build context about current projects
+  const projSummary=S.projects.map(p=>{
+    const tasks=p.areas.flatMap(a=>a.tasks.map(t=>`[${a.name}] ${t.title} (${t.status}${t.priority?', '+t.priority:''})`));
+    return `פרויקט ${p.name}:\n${tasks.length?tasks.join('\n'):'(ריק)'}`;
+  }).join('\n\n');
+
+  const systemPrompt=`אתה עוזר לניהול פרויקטים בתשתיות אנרגיה עבור אביחי אסואן.
+יש לך גישה לפרויקטים הבאים:
+${projSummary}
+
+תפקידך: לעזור להוסיף, לעדכן או למחוק משימות בשיחה טבעית בעברית.
+כשאתה מבין מה לעשות, ענה עם JSON בפורמט הבא בנוסף לתשובה הטקסטואלית:
+<ACTION>{"type":"add_task","project":"שם פרויקט","area":"שם תחום","title":"כותרת","priority":"דחוף/בינוני/נמוך/","importance":"גבוהה/בינונית/נמוכה/","status":"פתוח","notes":"","dueDate":"YYYY-MM-DD/"}</ACTION>
+או: <ACTION>{"type":"update_status","taskTitle":"כותרת המשימה","project":"שם פרויקט","status":"הושלם"}</ACTION>
+אם חסר מידע — שאל שאלה אחת ממוקדת.
+ענה תמיד בעברית.`;
+
+  const messages=aiMsgs.filter(m=>!m.loading).map(m=>({role:m.role==='user'?'user':'assistant',content:m.content}));
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:systemPrompt,messages})
+    });
+    const data=await res.json();
+    if(data.error){throw new Error(data.error.message);}
+    const reply=data.content[0].text;
+
+    // Remove loading message
+    aiMsgs=aiMsgs.filter(m=>!m.loading);
+
+    // Extract action if present
+    const actionMatch=reply.match(/<ACTION>(.*?)<\/ACTION>/s);
+    let displayReply=reply.replace(/<ACTION>.*?<\/ACTION>/s,'').trim();
+
+    if(actionMatch){
+      try{
+        const action=JSON.parse(actionMatch[1]);
+        if(action.type==='add_task'){
+          const proj=S.projects.find(p=>p.name===action.project);
+          if(proj){
+            let area=proj.areas.find(a=>a.name===action.area);
+            if(!area){area={id:uid(),name:action.area,tasks:[]};proj.areas.push(area);}
+            area.tasks.push({id:uid(),title:action.title,content:'',notes:action.notes||'',priority:action.priority||'',importance:action.importance||'',status:action.status||'פתוח',assigned:'',dueDate:action.dueDate||'',inCal:false,created:new Date().toISOString().split('T')[0]});
+            await sv();
+            displayReply+=' ✅ המשימה נוספה!';
+          }
+        } else if(action.type==='update_status'){
+          const proj=S.projects.find(p=>p.name===action.project);
+          if(proj){for(const a of proj.areas){const t=a.tasks.find(t=>t.title===action.taskTitle);if(t){t.status=action.status;await sv();displayReply+=' ✅ הסטטוס עודכן!';}}}
+        }
+      }catch(e){console.error('Action parse error',e);}
+    }
+
+    aiMsgs.push({role:'ai',content:displayReply});
+  }catch(e){
+    aiMsgs=aiMsgs.filter(m=>!m.loading);
+    aiMsgs.push({role:'ai',content:'שגיאה: '+(e.message||'בעיה בחיבור ל-API')});
+  }
+  rAI();
+  if(btn)btn.disabled=false;
+}
+
 function rDash(){const mn=document.getElementById('mn');const all=getUrgentTasks();const active=all.filter(x=>x.task.status!=='הושלם');const urgent=active.filter(x=>x.isU);const highOnly=active.filter(x=>!x.isU&&x.isH);const overdueCount=active.filter(x=>isOverdue(x.task.dueDate)).length;const doneCount=all.filter(x=>x.task.status==='הושלם').length;const totalTasks=S.projects.reduce((s,p)=>s+ptc(p),0);const filtered=dashFilter==='urgent'?urgent:dashFilter==='high'?highOnly:dashFilter==='done'?all.filter(x=>x.task.status==='הושלם'):all;const cards=filtered.length?filtered.map(x=>{const t=x.task;const n=t.notes?t.notes.split('\n')[0]:'';const od=isOverdue(t.dueDate)&&t.status!=='הושלם';const btns=STATUSES.map(s=>'<button class="sb-btn'+(t.status===s?' cur'+(s==='הושלם'?' done':''):'')+'" onclick="quickStatus(\''+t.id+'\',\''+s+'\')">'+s+'</button>').join('');return '<div class="dk '+(x.isU?'u':'h')+'" id="dk-'+t.id+'"><div class="dk-top" onclick="toggleSB(\''+t.id+'\')"><div class="dk-b"><div class="dk-t">'+esc(t.title)+'</div>'+(n?'<div class="dk-notes">'+esc(n)+'</div>':'')+'<div class="dk-meta">'+(x.isU?'<span class="bd r">דחוף</span>':'')+(x.isH?'<span class="bd am">↑ גבוהה</span>':'')+'<span class="bd gy'+(t.status==='הושלם'?' gn':'')+'">'+esc(t.status)+'</span>'+(t.assigned?'<span class="bd bl">'+esc(t.assigned)+'</span>':'')+'<span class="dk-proj">'+esc(x.proj.name)+' › '+esc(x.area.name)+'</span>'+(t.dueDate?'<span class="bd gy'+(od?' od-mark':'')+'">'+esc(t.dueDate)+(od?' ⚠':'')+'</span>':'')+'</div></div><button class="dk-edit-btn" onclick="event.stopPropagation();openFullEdit(\''+t.id+'\')">עריכה מלאה</button></div><div class="dk-sb" id="dsb-'+t.id+'"><span class="sb-lbl">סטטוס:</span>'+btns+'</div></div>';}).join(''):'<div class="dash-empty">אין משימות דחופות או בחשיבות גבוהה</div>';mn.innerHTML='<div class="mnh"><div style="min-width:0"><div class="mnh-t">דשבורד</div><div class="mnh-s">'+active.length+' פעילות · '+totalTasks+' סה"כ</div></div></div><div class="dash-wrap"><div class="dash-body"><div class="dash-stats"><div class="sc red"><div class="sc-n">'+urgent.length+'</div><div class="sc-l">דחופות</div></div><div class="sc"><div class="sc-n">'+highOnly.length+'</div><div class="sc-l">חשיבות גבוהה</div></div><div class="sc od"><div class="sc-n">'+overdueCount+'</div><div class="sc-l">באיחור</div></div><div class="sc"><div class="sc-n">'+doneCount+'</div><div class="sc-l">הושלמו</div></div></div><div class="dash-filter"><button class="fb'+(dashFilter==='all'?' on':'')+'" onclick="setFilt(\'all\')">הכל ('+all.length+')</button><button class="fb'+(dashFilter==='urgent'?' on':'')+'" onclick="setFilt(\'urgent\')">דחוף ('+urgent.length+')</button><button class="fb'+(dashFilter==='high'?' on':'')+'" onclick="setFilt(\'high\')">חשיבות גבוהה ('+highOnly.length+')</button><button class="fb'+(dashFilter==='done'?' on':'')+'" onclick="setFilt(\'done\')">הושלמו ('+doneCount+')</button></div>'+cards+'</div></div>';}
 function toggleSB(id){const el=document.getElementById('dsb-'+id);if(el)el.classList.toggle('open');}
 function quickStatus(tid,s){const r=findTask(tid);if(!r)return;r.task.status=s;sv();rDash();rSb();const el=document.getElementById('dsb-'+tid);if(el)el.classList.add('open');}
 function openFullEdit(id){const r=findTask(id);if(!r)return;S.apid=r.proj.id;S.aaid=r.area.id;S.view='proj';mEditT(id);}
 function setFilt(f){dashFilter=f;rDash();}
-function rMn(){const mn=document.getElementById('mn');const proj=ap();if(!proj){mn.innerHTML='<div class="nop"><div>בחר פרויקט מהרשימה</div><button class="bp" onclick="mNewP()">+ פרויקט חדש</button></div>';return;}const area=aa();const tasks=area?area.tasks:[];const tabs=proj.areas.map(a=>'<div class="tb-wrap'+(a.id===S.aaid?' act':'')+'"><div class="tb" onclick="selA(\''+a.id+'\')">'+esc(a.name)+(a.tasks.length?'<span class="tb-b">'+a.tasks.length+'</span>':'')+'</div><button class="tb-edit" onclick="mEditA(\''+a.id+'\')" title="ערוך">&#9998;</button></div>').join('');const cards=tasks.map(t=>{const n=t.notes?t.notes.split('\n')[0]:'';return '<div class="tc" onclick="mEditT(\''+t.id+'\')"><div class="tc-l"><div class="tc-ic"><i></i><i></i><i></i></div><button class="tc-x" onclick="event.stopPropagation();dTask(\''+t.id+'\')">✕</button></div><div class="tc-b"><div class="tc-t">'+esc(t.title)+'</div>'+(n?'<div class="tc-notes">'+esc(n)+'</div>':'')+'<div class="tc-bds">'+(t.priority?'<span class="bd '+pc(t.priority)+'">'+esc(t.priority)+'</span>':'')+(t.importance?'<span class="bd am">↑ '+esc(t.importance)+'</span>':'')+(t.status&&t.status!=='פתוח'?'<span class="bd gy">'+esc(t.status)+'</span>':'')+(t.assigned?'<span class="bd bl">'+esc(t.assigned)+'</span>':'')+(t.dueDate?'<span class="bd gy">'+esc(t.dueDate)+(t.inCal?'<span class="cal-dot"></span>':'')+'</span>':'')+'</div></div></div>';}).join('');mn.innerHTML='<div class="mnh"><div style="min-width:0"><div class="mnh-t">'+esc(proj.name)+'</div><div class="mnh-s">'+ptc(proj)+' משימות ב-'+proj.areas.length+' תחומים</div></div><button class="hb" onclick="mEditP()">עריכת פרויקט</button></div><div class="tabs">'+tabs+'<div class="tb-add" onclick="mNewA()">+</div></div><div class="tl">'+((!area)?'<div class="emp">לחץ על תחום למעלה</div>':(cards||'<div class="emp">אין משימות<br><span style="font-size:12px">לחץ "+ הוסף משימה" למטה</span></div>'))+'</div><div class="ab"><input class="ai" placeholder="+ הוסף משימה חדשה..." onfocus="this.blur();mNewT()" readonly/></div>';}
+function rMn(){const mn=document.getElementById('mn');const proj=ap();if(!proj){mn.innerHTML='<div class="nop"><div>בחר פרויקט מהרשימה</div><button class="bp" onclick="mNewP()">+ פרויקט חדש</button></div>';return;}const area=aa();const tasks=area?area.tasks:[];const tabs=proj.areas.map(a=>'<div class="tb-wrap'+(a.id===S.aaid?' act':'')+'"><div class="tb" onclick="selA(\''+a.id+'\')">'+esc(a.name)+(a.tasks.length?'<span class="tb-b">'+a.tasks.length+'</span>':'')+'</div><button class="tb-edit" onclick="mEditA(\''+a.id+'\')" title="ערוך">&#9998;</button></div>').join('');const cards=tasks.map(t=>{const n=t.notes?t.notes.split('\n')[0]:'';return '<div class="tc" onclick="mEditT(\''+t.id+'\')"><div class="tc-l"><div class="tc-ic"><i></i><i></i><i></i></div><button class="tc-x" onclick="event.stopPropagation();dTask(\''+t.id+'\')">✕</button></div><div class="tc-b"><div class="tc-t">'+esc(t.title)+'</div>'+(n?'<div class="tc-notes">'+esc(n)+'</div>':'')+'<div class="tc-bds">'+(t.priority?'<span class="bd '+pc(t.priority)+'">'+esc(t.priority)+'</span>':'')+(t.importance?'<span class="bd am">↑ '+esc(t.importance)+'</span>':'')+(t.status&&t.status!=='פתוח'?'<span class="bd gy">'+esc(t.status)+'</span>':'')+(t.assigned?'<span class="bd bl">'+esc(t.assigned)+'</span>':'')+(t.dueDate?'<span class="bd gy">'+esc(t.dueDate)+(t.inCal?'<span class="cal-dot"></span>':'')+'</span>':'')+'</div></div></div>';}).join('');mn.innerHTML='<div class="mnh"><div style="min-width:0"><div class="mnh-t">'+esc(proj.name)+'</div><div class="mnh-s">'+ptc(proj)+' משימות ב-'+proj.areas.length+' תחומים</div></div><button class="hb" onclick="mEditP()">עריכת פרויקט</button></div><div class="tabs">'+tabs+'<div class="tb-add" onclick="mNewA()">+</div></div><div class="tl">'+((!area)?'<div class="emp">לחץ על תחום למעלה</div>':(cards||'<div class="emp">אין משימות<br><span style="font-size:12px">לחץ "+ הוסף משימה" למטה</span></div>'))+'</div><div class="ab"><input class="ai-inp" placeholder="+ הוסף משימה חדשה..." onfocus="this.blur();mNewT()" readonly/></div>';}
 function selP(id){S.apid=id;S.view='proj';const p=S.projects.find(x=>x.id===id);if(p&&p.areas.length){if(!p.areas.find(a=>a.id===S.aaid))S.aaid=p.areas[0].id;}else S.aaid=null;render();}
 function selA(id){S.aaid=id;render();}
 function sm(html){const mr=document.getElementById('mr');mr.className='on';mr.innerHTML='<div class="mbg" onclick="if(event.target.classList.contains(\'mbg\'))cm()"><div class="mc">'+html+'</div></div>';}
@@ -187,7 +351,7 @@ function sT(eid){const n=document.getElementById('v1').value.trim();if(!n)return
 function dTask(id){if(!confirm('למחוק?'))return;for(const p of S.projects)p.areas.forEach(a=>{a.tasks=a.tasks.filter(t=>t.id!==id);});sv();render();}
 function xCSV(){const p=ap();if(!p){alert('בחר פרויקט');return;}let rows=[['פרויקט','תחום','כותרת','הערות','עדיפות','חשיבות','סטטוס','אחראי','תאריך יעד']];p.areas.forEach(a=>a.tasks.forEach(t=>rows.push([p.name,a.name,t.title,t.notes,t.priority,t.importance,t.status,t.assigned,t.dueDate])));const csv=rows.map(r=>r.map(x=>'"'+(x||'').toString().replace(/"/g,'""')+'"').join(',')).join('\n');const el=document.createElement('a');el.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv'}));el.download=p.name+'.csv';el.click();}
 function xJSON(){const p=ap();if(!p){alert('בחר פרויקט');return;}const el=document.createElement('a');el.href=URL.createObjectURL(new Blob([JSON.stringify(p,null,2)],{type:'application/json'}));el.download=p.name+'.json';el.click();}
-window.selP=selP;window.selA=selA;window.selDash=selDash;window.mNewP=mNewP;window.mEditP=mEditP;window.mNewA=mNewA;window.mEditA=mEditA;window.mNewT=mNewT;window.mEditT=mEditT;window.sT=sT;window.dTask=dTask;window.cP=cP;window.sPn=sPn;window.dP=dP;window.cA=cA;window.sA=sA;window.dA=dA;window.cm=cm;window.toggleSB=toggleSB;window.quickStatus=quickStatus;window.openFullEdit=openFullEdit;window.setFilt=setFilt;window.xCSV=xCSV;window.xJSON=xJSON;
+window.selP=selP;window.selA=selA;window.selDash=selDash;window.selAI=selAI;window.mNewP=mNewP;window.mEditP=mEditP;window.mNewA=mNewA;window.mEditA=mEditA;window.mNewT=mNewT;window.mEditT=mEditT;window.sT=sT;window.dTask=dTask;window.cP=cP;window.sPn=sPn;window.dP=dP;window.cA=cA;window.sA=sA;window.dA=dA;window.cm=cm;window.toggleSB=toggleSB;window.quickStatus=quickStatus;window.openFullEdit=openFullEdit;window.setFilt=setFilt;window.xCSV=xCSV;window.xJSON=xJSON;window.mSetKey=mSetKey;window.saveKey=saveKey;window.delKey=delKey;window.sendAI=sendAI;window.clearAI=clearAI;window.aiKeyDown=aiKeyDown;
 onSnapshot(doc(db,'data','avihai'),async(snap)=>{
   if(snap.exists()){S.projects=snap.data().projects||[];syncOk=true;}
   else{S.projects=SEED;await sv();}
