@@ -204,7 +204,7 @@ function rAI(){
     </div>`;
     return;
   }
-  const msgs=aiMsgs.map(m=>`<div class="msg ${m.role==='user'?'user':'ai'}${m.loading?' loading':''}">${esc(m.content)}</div>`).join('');
+  const msgs=aiMsgs.map(m=>`<div class="msg ${m.role==='user'?'user':'ai'}${m.loading?' loading':''}" style="white-space:pre-wrap">${esc(m.content)}</div>`).join('');
   const welcome=aiMsgs.length===0?`<div class="ai-welcome">כתוב בשפה חופשית מה לעדכן<br>לדוגמה: "הוסף משימה לפרויקט 2253 להזמין מגופים"</div>`:'';
   mn.innerHTML=`<div class="ai-hd"><div><div class="mnh-t">✦ עדכון עם AI</div><div class="mnh-s">מדבר ישירות עם הפרויקטים שלך</div></div><div style="display:flex;gap:6px"><button class="hb" onclick="mSetKey()">🔑</button><button class="hb" onclick="clearAI()">נקה</button><button class="hb" onclick="selDash()">← חזור</button></div></div>
   <div class="ai-msgs" id="ai-msgs">${welcome}${msgs}</div>
@@ -259,22 +259,45 @@ async function sendAI(){
   aiMsgs.push({role:'ai',content:'חושב...',loading:true});
   rAI();
 
-  // Build context about current projects
+  // Build context about current projects - INCLUDING all areas (even empty ones)
   const projSummary=S.projects.map(p=>{
-    const tasks=p.areas.flatMap(a=>a.tasks.map(t=>`[${a.name}] ${t.title} (${t.status}${t.priority?', '+t.priority:''})`));
-    return `פרויקט ${p.name}:\n${tasks.length?tasks.join('\n'):'(ריק)'}`;
+    const areas=p.areas.map(a=>{
+      const tasks=a.tasks.map(t=>`    - ${t.title} (${t.status}${t.priority?', '+t.priority:''}${t.importance?', '+t.importance:''})`);
+      return `  תחום "${a.name}":${a.tasks.length?'\n'+tasks.join('\n'):' (ריק)'}`;
+    }).join('\n');
+    return `פרויקט "${p.name}":\n${areas}`;
   }).join('\n\n');
 
   const systemPrompt=`אתה עוזר לניהול פרויקטים בתשתיות אנרגיה עבור אביחי אסואן.
-יש לך גישה לפרויקטים הבאים:
+
+מבנה הנתונים הנוכחי (כולל תחומים ריקים):
 ${projSummary}
 
-תפקידך: לעזור להוסיף, לעדכן או למחוק משימות בשיחה טבעית בעברית.
-כשאתה מבין מה לעשות, ענה עם JSON בפורמט הבא בנוסף לתשובה הטקסטואלית:
-<ACTION>{"type":"add_task","project":"שם פרויקט","area":"שם תחום","title":"כותרת","priority":"דחוף/בינוני/נמוך/","importance":"גבוהה/בינונית/נמוכה/","status":"פתוח","notes":"","dueDate":"YYYY-MM-DD/"}</ACTION>
-או: <ACTION>{"type":"update_status","taskTitle":"כותרת המשימה","project":"שם פרויקט","status":"הושלם"}</ACTION>
-אם חסר מידע — שאל שאלה אחת ממוקדת.
-ענה תמיד בעברית.`;
+חשוב מאוד:
+- השתמש תמיד בשמות הפרויקטים והתחומים בדיוק כפי שמופיעים למעלה.
+- אל תמציא שמות תחומים חדשים אם כבר קיים תחום דומה בפרויקט (למשל "ביצוע" קיים בכל הפרויקטים).
+- שמות תחומים מקובלים: "כללי", "ביצוע", "הזמנות רכש", "חשבונות", "אדריכלות".
+
+תפקידך: להוסיף/לעדכן/למחוק משימות ופרויקטים בשיחה טבעית בעברית.
+כשאתה מבין מה המשתמש רוצה, ענה עם פקודה אחת או יותר (אפשר כמה בבת אחת) בנוסף לטקסט קצר:
+
+הוספת משימה:
+<ACTION>{"type":"add_task","project":"שם פרויקט","area":"שם תחום","title":"כותרת","priority":"","importance":"","status":"פתוח","notes":"","assigned":"","dueDate":""}</ACTION>
+priority: דחוף/בינוני/נמוך או ריק. importance: גבוהה/בינונית/נמוכה או ריק. dueDate: YYYY-MM-DD או ריק.
+
+עדכון סטטוס:
+<ACTION>{"type":"update_status","project":"שם פרויקט","taskTitle":"כותרת מדויקת","status":"הושלם"}</ACTION>
+status: פתוח/בביצוע/תלוי/הושלם.
+
+הוספת פרויקט חדש (ייווצר עם תחומים: כללי, ביצוע, הזמנות רכש, חשבונות):
+<ACTION>{"type":"add_project","name":"שם הפרויקט"}</ACTION>
+
+מחיקת משימה:
+<ACTION>{"type":"delete_task","project":"שם פרויקט","taskTitle":"כותרת מדויקת"}</ACTION>
+
+כללים:
+- אם חסר מידע חיוני — שאל שאלה אחת ממוקדת לפני פעולה.
+- ענה תמיד בעברית, בקצרה.`;
 
   const messages=aiMsgs.filter(m=>!m.loading).map(m=>({role:m.role==='user'?'user':'assistant',content:m.content}));
 
@@ -291,30 +314,61 @@ ${projSummary}
     // Remove loading message
     aiMsgs=aiMsgs.filter(m=>!m.loading);
 
-    // Extract action if present
-    const actionMatch=reply.match(/<ACTION>(.*?)<\/ACTION>/s);
-    let displayReply=reply.replace(/<ACTION>.*?<\/ACTION>/s,'').trim();
+    // Extract ALL actions (global flag supports multiple actions per reply)
+    const actionMatches=[...reply.matchAll(/<ACTION>([\s\S]*?)<\/ACTION>/g)];
+    let displayReply=reply.replace(/<ACTION>[\s\S]*?<\/ACTION>/g,'').trim();
 
-    if(actionMatch){
+    const results=[];
+    const norm=s=>(s||'').toString().trim();
+
+    for(const match of actionMatches){
       try{
-        const action=JSON.parse(actionMatch[1]);
+        const action=JSON.parse(match[1].trim());
         if(action.type==='add_task'){
-          const proj=S.projects.find(p=>p.name===action.project);
-          if(proj){
-            let area=proj.areas.find(a=>a.name===action.area);
-            if(!area){area={id:uid(),name:action.area,tasks:[]};proj.areas.push(area);}
-            area.tasks.push({id:uid(),title:action.title,content:'',notes:action.notes||'',priority:action.priority||'',importance:action.importance||'',status:action.status||'פתוח',assigned:'',dueDate:action.dueDate||'',inCal:false,created:new Date().toISOString().split('T')[0]});
-            await sv();
-            displayReply+=' ✅ המשימה נוספה!';
-          }
+          const proj=S.projects.find(p=>norm(p.name)===norm(action.project));
+          if(!proj){results.push(`❌ פרויקט "${action.project}" לא נמצא`);continue;}
+          let area=proj.areas.find(a=>norm(a.name)===norm(action.area));
+          let isNewArea=false;
+          if(!area){area={id:uid(),name:action.area||'כללי',tasks:[]};proj.areas.push(area);isNewArea=true;}
+          area.tasks.push({id:uid(),title:action.title,content:'',notes:action.notes||'',priority:action.priority||'',importance:action.importance||'',status:action.status||'פתוח',assigned:action.assigned||'',dueDate:action.dueDate||'',inCal:false,created:new Date().toISOString().split('T')[0]});
+          results.push(`✅ נוספה משימה "${action.title}" → ${proj.name} › ${area.name}${isNewArea?' (תחום חדש!)':''}`);
         } else if(action.type==='update_status'){
-          const proj=S.projects.find(p=>p.name===action.project);
-          if(proj){for(const a of proj.areas){const t=a.tasks.find(t=>t.title===action.taskTitle);if(t){t.status=action.status;await sv();displayReply+=' ✅ הסטטוס עודכן!';}}}
+          const proj=S.projects.find(p=>norm(p.name)===norm(action.project));
+          if(!proj){results.push(`❌ פרויקט "${action.project}" לא נמצא`);continue;}
+          let found=false;
+          for(const a of proj.areas){
+            const t=a.tasks.find(t=>norm(t.title)===norm(action.taskTitle));
+            if(t){t.status=action.status;results.push(`✅ "${action.taskTitle}" → ${action.status}`);found=true;break;}
+          }
+          if(!found)results.push(`❌ משימה "${action.taskTitle}" לא נמצאה ב-${proj.name}`);
+        } else if(action.type==='add_project'){
+          const exists=S.projects.find(p=>norm(p.name)===norm(action.name));
+          if(exists){results.push(`❌ פרויקט "${action.name}" כבר קיים`);continue;}
+          const id=uid();
+          const defs=[{id:uid(),name:'כללי',tasks:[]},{id:uid(),name:'ביצוע',tasks:[]},{id:uid(),name:'הזמנות רכש',tasks:[]},{id:uid(),name:'חשבונות',tasks:[]}];
+          S.projects.push({id,name:action.name,areas:defs});
+          results.push(`✅ נוסף פרויקט "${action.name}"`);
+        } else if(action.type==='delete_task'){
+          const proj=S.projects.find(p=>norm(p.name)===norm(action.project));
+          if(!proj){results.push(`❌ פרויקט "${action.project}" לא נמצא`);continue;}
+          let found=false;
+          for(const a of proj.areas){
+            const idx=a.tasks.findIndex(t=>norm(t.title)===norm(action.taskTitle));
+            if(idx>=0){a.tasks.splice(idx,1);results.push(`✅ נמחקה "${action.taskTitle}"`);found=true;break;}
+          }
+          if(!found)results.push(`❌ משימה "${action.taskTitle}" לא נמצאה`);
+        } else {
+          results.push(`❌ סוג פקודה לא מוכר: ${action.type}`);
         }
-      }catch(e){console.error('Action parse error',e);}
+      }catch(e){
+        results.push('❌ שגיאה בפענוח פקודה');
+        console.error('Action parse error',e,match[1]);
+      }
     }
 
-    aiMsgs.push({role:'ai',content:displayReply});
+    if(results.length){await sv();displayReply=(displayReply?displayReply+'\n\n':'')+results.join('\n');}
+
+    aiMsgs.push({role:'ai',content:displayReply||'(אין תשובה)'});
   }catch(e){
     aiMsgs=aiMsgs.filter(m=>!m.loading);
     aiMsgs.push({role:'ai',content:'שגיאה: '+(e.message||'בעיה בחיבור ל-API')});
