@@ -4,352 +4,1575 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>אביחי משימות</title>
-<meta name="theme-color" content="#1a1a18"/>
+<meta name="theme-color" content="#FAF9F7"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="משימות"/>
 <link rel="manifest" href="manifest.json"/>
 <link rel="apple-touch-icon" href="icon-192.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Hebrew:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:system-ui,-apple-system,sans-serif;direction:rtl;background:#f0ede8;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:16px}
-:root{--bg1:#fff;--bg2:#f5f3ef;--t1:#1a1a18;--t2:#6b6b67;--t3:#aaa9a5;--b2:rgba(0,0,0,.22);--b3:rgba(0,0,0,.12);--rm:8px;--rl:12px}
-@media(prefers-color-scheme:dark){body{background:#111}:root{--bg1:#1e1e1c;--bg2:#2a2a28;--t1:#f0ede8;--t2:#9a9994;--t3:#5a5956;--b2:rgba(255,255,255,.18);--b3:rgba(255,255,255,.1)}}
-#root{display:flex;width:100%;max-width:960px;height:calc(100vh - 32px);max-height:700px;border:.5px solid var(--b2);border-radius:var(--rl);overflow:hidden;background:var(--bg1);position:relative}
-#sb{width:195px;min-width:195px;display:flex;flex-direction:column;background:var(--bg2);border-left:.5px solid var(--b3);overflow:hidden}
-.sbh{padding:10px 12px;border-bottom:.5px solid var(--b3)}
-.sbh-t{font-size:14px;font-weight:600;color:var(--t1)}
-.sbh-s{font-size:11px;color:var(--t2);margin-top:2px}
-.pl{flex:1;overflow-y:auto;padding:4px 0}
-.pl-sec{padding:6px 12px 2px;font-size:10px;color:var(--t3);letter-spacing:.5px;font-weight:600}
-.pi{display:flex;align-items:center;justify-content:space-between;padding:6px 12px;cursor:pointer;font-size:13px;color:var(--t2);gap:6px}
-.pi:hover{background:rgba(0,0,0,.04)}
-.pi.act{background:var(--bg1);color:var(--t1);font-weight:500;border-right:2px solid var(--t1)}
-.pi-n{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pi-c{font-size:10px;padding:1px 6px;border-radius:99px;min-width:18px;text-align:center;background:var(--bg1);color:var(--t2)}
-.pi.act .pi-c{background:#E6F1FB;color:#185FA5}
-.pi-cred{background:#FCEBEB!important;color:#A32D2D!important}
-.sync-dot{width:7px;height:7px;border-radius:50%;background:#3B6D11;flex-shrink:0}
-.sync-dot.off{background:#E24B4A}
-.sbf{padding:8px;border-top:.5px solid var(--b3);display:flex;flex-direction:column;gap:5px}
-.sbb{font-size:12px;padding:5px 8px;border-radius:var(--rm);border:.5px solid var(--b2);background:var(--bg1);color:var(--t2);cursor:pointer;width:100%;text-align:center}
-.sbb:hover{background:var(--bg2)}
-.sbr{display:flex;gap:5px}.sbr .sbb{flex:1}
-.ai-btn{font-size:12px;padding:6px 8px;border-radius:var(--rm);border:none;background:var(--t1);color:var(--bg1);cursor:pointer;width:100%;text-align:center;display:flex;align-items:center;justify-content:center;gap:5px}
-.ai-btn:hover{opacity:.85}
-.usr{display:flex;align-items:center;gap:7px;padding:4px 2px}
-.av{width:26px;height:26px;border-radius:50%;background:#E6F1FB;color:#185FA5;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.usr span{font-size:12px;color:var(--t2)}
-#mn{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
-.mnh{padding:10px 16px;border-bottom:.5px solid var(--b3);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:8px}
-.mnh-t{font-size:16px;font-weight:600;color:var(--t1)}
-.mnh-s{font-size:12px;color:var(--t2);margin-top:1px}
-.hb{font-size:11px;padding:4px 10px;border-radius:var(--rm);border:.5px solid var(--b2);background:var(--bg1);color:var(--t2);cursor:pointer}
-.hb:hover{background:var(--bg2)}
-.tabs{display:flex;align-items:stretch;border-bottom:.5px solid var(--b3);padding:0 10px;overflow-x:auto;flex-shrink:0;scrollbar-width:none}
-.tabs::-webkit-scrollbar{display:none}
-.tb-wrap{display:flex;align-items:stretch}
-.tb-wrap.act .tb-edit{display:flex}
-.tb{padding:8px 10px;font-size:13px;cursor:pointer;color:var(--t2);border-bottom:2px solid transparent;white-space:nowrap;display:flex;align-items:center;gap:5px;user-select:none}
-.tb:hover{color:var(--t1)}
-.tb-wrap.act .tb{color:var(--t1);border-bottom-color:var(--t1);font-weight:500}
-.tb-b{font-size:10px;background:#E6F1FB;color:#185FA5;border-radius:99px;padding:1px 6px}
-.tb-edit{display:none;align-items:center;padding:0 4px 2px 0;border:none;background:none;color:var(--t3);font-size:13px;cursor:pointer;border-bottom:2px solid var(--t1)}
-.tb-add{padding:8px 6px;font-size:18px;cursor:pointer;color:var(--t3);border-bottom:2px solid transparent;display:flex;align-items:center}
-.tl{flex:1;overflow-y:auto;padding:8px 12px}
-.tc{display:flex;align-items:flex-start;gap:8px;padding:9px 12px;border:.5px solid var(--b3);border-radius:var(--rm);margin-bottom:7px;background:var(--bg1);cursor:pointer}
-.tc:hover{border-color:var(--b2)}
-.tc-l{display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:2px;flex-shrink:0}
-.tc-ic{width:14px;height:12px;display:flex;flex-direction:column;justify-content:space-between;opacity:.35}
-.tc-ic i{display:block;height:2px;background:currentColor;border-radius:1px}
-.tc-x{border:none;background:none;cursor:pointer;color:var(--t3);font-size:13px;line-height:1;padding:0;width:14px;text-align:center}
-.tc-x:hover{color:#A32D2D}
-.tc-b{flex:1;min-width:0}
-.tc-t{font-size:13px;font-weight:500;color:var(--t1);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tc-notes{font-size:11px;color:var(--t2);margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.4}
-.tc-bds{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
-.tc-created{font-size:10px;color:var(--t3);margin-top:5px;font-feature-settings:"tnum"}
-.bd{font-size:11px;padding:2px 8px;border-radius:99px;font-weight:500;white-space:nowrap}
-.r{background:#FCEBEB;color:#A32D2D}.am{background:#FAEEDA;color:#854F0B}.gn{background:#EAF3DE;color:#3B6D11}.bl{background:#E6F1FB;color:#185FA5}
-.gy{background:var(--bg2);color:var(--t2);border:.5px solid var(--b3)}
-.cal-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#1D9E75;margin-right:3px;vertical-align:middle}
-.ab{padding:8px 12px;border-top:.5px solid var(--b3);flex-shrink:0}
-.ai-inp{width:100%;font-size:13px;padding:7px 12px;border:.5px solid var(--b3);border-radius:var(--rm);background:var(--bg2);color:var(--t3);text-align:right;direction:rtl;cursor:pointer;outline:none}
-.emp{text-align:center;padding:3rem 0;color:var(--t3);font-size:13px;line-height:2}
-.nop{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:var(--t3);font-size:14px}
-.loading{flex:1;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--t3)}
-#mr{position:absolute;inset:0;z-index:100;pointer-events:none}
-#mr.on{pointer-events:all}
-.mbg{width:100%;height:100%;background:rgba(0,0,0,.42);display:flex;align-items:center;justify-content:center;padding:16px}
-.mc{background:var(--bg1);border-radius:var(--rl);border:.5px solid var(--b2);padding:1.1rem 1.25rem;width:100%;max-width:460px;max-height:96%;overflow-y:auto}
-.mc h2{font-size:15px;font-weight:600;margin-bottom:.85rem;color:var(--t1)}
-.f{margin-bottom:.6rem}
-.f label{display:block;font-size:12px;color:var(--t2);margin-bottom:3px}
-.f input,.f select,.f textarea{width:100%;font-size:13px;padding:5px 9px;border-radius:var(--rm);border:.5px solid var(--b2);background:var(--bg1);color:var(--t1);direction:rtl}
-.f textarea{min-height:50px;resize:vertical}
-.opt-grp{display:flex;flex-wrap:wrap;gap:5px;margin-top:3px}
-.opt{font-size:12px;padding:6px 13px;border-radius:99px;border:1px solid var(--b3);background:var(--bg1);color:var(--t2);cursor:pointer;transition:all .12s;white-space:nowrap;font-family:inherit}
-.opt:hover{border-color:var(--b2)}
-.opt.opt-add{font-size:11px;color:var(--t3);border-style:dashed}
-.opt.opt-add:hover{color:var(--t1);border-color:var(--t1)}
-.opt-none.active{background:#6b6b67;color:#fff;border-color:#6b6b67}
-.opt-r{color:#A32D2D}
-.opt-r.active{background:#FCEBEB;color:#A32D2D;border-color:#A32D2D;font-weight:600}
-.opt-am{color:#854F0B}
-.opt-am.active{background:#FAEEDA;color:#854F0B;border-color:#854F0B;font-weight:600}
-.opt-gn{color:#3B6D11}
-.opt-gn.active{background:#EAF3DE;color:#3B6D11;border-color:#3B6D11;font-weight:600}
-.opt-bl{color:#185FA5}
-.opt-bl.active{background:#E6F1FB;color:#185FA5;border-color:#185FA5;font-weight:600}
-.opt-gy.active{background:var(--bg2);color:var(--t1);border-color:var(--t1);font-weight:600}
-.rt-toolbar{display:flex;gap:2px;background:var(--bg2);border:.5px solid var(--b2);border-radius:var(--rm) var(--rm) 0 0;padding:4px 6px;border-bottom:none}
-.rt-btn{font-size:13px;padding:4px 9px;border:none;background:transparent;color:var(--t2);cursor:pointer;border-radius:4px;min-width:28px;font-family:inherit}
-.rt-btn:hover{background:var(--bg1);color:var(--t1)}
-.rt-content{min-height:120px;max-height:240px;overflow-y:auto;padding:9px 12px;border:.5px solid var(--b2);border-radius:0 0 var(--rm) var(--rm);background:var(--bg1);color:var(--t1);direction:rtl;text-align:right;font-size:13px;line-height:1.55;outline:none}
-.rt-content:focus{border-color:var(--t2)}
-.rt-content:empty:before{content:attr(data-placeholder);color:var(--t3);pointer-events:none}
+html,body{height:100%}
+:root{
+  --bg:#FAF9F7;--panel:#FFFFFF;--rail:#F1EFEC;--rail2:#F4F2EE;
+  --rule:#1418240F;--rule2:#1418241F;
+  --ink:#14181C;--ink2:#5A6470;--ink3:#9099A3;
+  --accent:#3F6FB5;--accentSoft:#E5EDF7;
+  --red:#B23D3D;--redSoft:#F7E5E5;
+  --amber:#9C6A1F;--amberSoft:#F6EBD7;
+  --green:#3D7A4F;--greenSoft:#E2EEE5;
+  --r:6px;--row-pad-y:9px;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#15171A;--panel:#1C1F22;--rail:#191B1E;--rail2:#1F2226;
+    --rule:#FFFFFF12;--rule2:#FFFFFF24;
+    --ink:#E7E9EC;--ink2:#A0A8B2;--ink3:#6E7681;
+    --accentSoft:#1E2C42;--redSoft:#3A1E1E;--amberSoft:#36280F;--greenSoft:#16291C;
+  }
+}
+body{
+  font-family:'IBM Plex Sans Hebrew',system-ui,-apple-system,sans-serif;
+  direction:rtl;color:var(--ink);background:var(--bg);
+  overflow:hidden;font-size:13px;line-height:1.5;
+}
+button,input,textarea,select{font-family:inherit;color:inherit}
+input,textarea,select{outline:none}
+button{background:none;border:none;cursor:pointer;font-family:inherit;color:inherit}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-thumb{background:var(--rule2);border-radius:4px}
+::-webkit-scrollbar-track{background:transparent}
+
+#root{display:flex;height:100vh;overflow:hidden}
+
+/* ===== SIDEBAR ===== */
+#sb{width:230px;flex-shrink:0;background:var(--rail);border-left:.5px solid var(--rule);display:flex;flex-direction:column}
+.sb-user{padding:12px 14px;border-bottom:.5px solid var(--rule);display:flex;align-items:center;gap:9px}
+.sb-av{width:26px;height:26px;background:var(--ink);border-radius:5px;display:flex;align-items:center;justify-content:center;color:var(--bg);font-size:13px;font-weight:700;flex-shrink:0}
+.sb-uinfo{min-width:0;flex:1}
+.sb-uname{font-size:12.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-utitle{font-size:10.5px;color:var(--ink2);margin-top:1px}
+.sb-search{padding:10px 12px}
+.sb-search-box{display:flex;align-items:center;gap:7px;padding:6px 10px;background:var(--panel);border:.5px solid var(--rule);border-radius:5px;font-size:12px;color:var(--ink3);cursor:pointer}
+.sb-search-box input{flex:1;background:transparent;border:none;font-size:12px;color:var(--ink);min-width:0}
+.sb-search-box input::placeholder{color:var(--ink3)}
+.sb-search-kbd{font-family:var(--mono);font-size:10px;color:var(--ink3);padding:1px 5px;background:var(--rail);border-radius:3px}
+.sb-nav{padding:4px 8px;display:flex;flex-direction:column;gap:1px}
+.nav-item{width:100%;display:flex;align-items:center;gap:10px;padding:6px 9px;font-size:12.5px;color:var(--ink2);background:transparent;border-radius:4px;text-align:right;font-weight:400}
+.nav-item:hover{background:var(--rail2)}
+.nav-item.act{color:var(--ink);background:var(--panel);font-weight:500}
+.nav-item .ic{color:var(--ink3);display:flex;align-items:center;flex-shrink:0}
+.nav-item.act .ic{color:var(--ink2)}
+.nav-item span.lbl{flex:1;text-align:right}
+.nav-item .cnt{font-size:10px;font-family:var(--mono);padding:1px 6px;border-radius:3px;color:var(--ink3);font-weight:500}
+.nav-item .cnt.red{background:var(--redSoft);color:var(--red)}
+.sb-section{padding:14px 14px 6px;font-size:10px;color:var(--ink3);letter-spacing:.14em;font-weight:600;display:flex;align-items:center;justify-content:space-between}
+.sb-section .add{font-size:14px;cursor:pointer;color:var(--ink3);padding:2px 6px;border-radius:3px}
+.sb-section .add:hover{color:var(--ink);background:var(--rail2)}
+.sb-projects{flex:1;overflow-y:auto;padding:0 8px}
+.proj-item{width:100%;display:flex;align-items:center;justify-content:space-between;padding:6px 8px;font-size:12.5px;color:var(--ink2);font-weight:500;border-radius:4px;text-align:right;cursor:pointer}
+.proj-item:hover{background:var(--rail2)}
+.proj-item.act{color:var(--ink);background:var(--panel);font-weight:600}
+.proj-left{display:flex;gap:9px;align-items:center;min-width:0;flex:1}
+.proj-dot{width:10px;height:10px;border-radius:3px;background:var(--ink3);flex-shrink:0;cursor:pointer;border:1px solid transparent;transition:transform .12s}
+.proj-dot:hover{transform:scale(1.3);border-color:var(--ink2)}
+.proj-item.act .proj-dot{background:var(--accent)}
+.proj-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.proj-cnt{font-size:10px;color:var(--ink3);font-family:var(--mono);flex-shrink:0;margin-right:6px}
+.proj-areas{padding-right:14px;margin-top:2px;margin-bottom:6px;display:flex;flex-direction:column;gap:1px}
+.area-item{display:flex;align-items:center;justify-content:space-between;padding:5px 8px;font-size:11.5px;color:var(--ink2);border-radius:3px;cursor:pointer;gap:5px}
+.area-item:hover{background:var(--rail2)}
+.area-item.act{color:var(--ink);font-weight:500;background:var(--rail2)}
+.area-edit-btn{font-size:11px;color:var(--ink3);padding:1px 5px;border-radius:3px;opacity:0;transition:opacity .12s;cursor:pointer}
+.area-item:hover .area-edit-btn{opacity:1}
+.area-edit-btn:hover{color:var(--ink);background:var(--panel)}
+.area-add{color:var(--ink3);font-style:italic}
+.area-cnt{font-size:10px;color:var(--ink3);font-family:var(--mono);flex-shrink:0}
+.proj-item[draggable="true"]{cursor:grab}
+.proj-item.dragging,.area-item.dragging{opacity:.4}
+.proj-item.drop-target,.area-item.drop-target{background:var(--greenSoft)!important;color:var(--green)!important}
+.proj-item.drop-before{box-shadow:inset 0 2px 0 0 var(--accent)}
+.proj-item.drop-after{box-shadow:inset 0 -2px 0 0 var(--accent)}
+.sb-foot{padding:10px;border-top:.5px solid var(--rule);display:flex;align-items:center;gap:9px}
+.sb-foot .dot{width:7px;height:7px;border-radius:50%;background:var(--green)}
+.sb-foot .dot.off{background:var(--red)}
+.sb-foot .lbl{font-size:11px;color:var(--ink2);flex:1}
+.sb-foot .ver{font-size:10px;color:var(--ink3);font-family:var(--mono)}
+.sb-actions{padding:8px 10px;border-top:.5px solid var(--rule);display:flex;flex-direction:column;gap:5px}
+.sb-btn{font-size:11.5px;padding:5px 9px;border-radius:4px;border:.5px solid var(--rule2);background:var(--panel);color:var(--ink2);text-align:center}
+.sb-btn:hover{background:var(--rail2);color:var(--ink)}
+.sb-btn-row{display:flex;gap:5px}
+.sb-btn-row .sb-btn{flex:1}
+.sb-btn-ai{font-size:12px;padding:6px 9px;border-radius:4px;background:var(--ink);color:var(--bg);font-weight:500;display:flex;align-items:center;justify-content:center;gap:6px;border:none}
+.sb-btn-ai:hover{opacity:.88}
+
+/* ===== MAIN ===== */
+#mn{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
+.mn-h{padding:14px 22px 0;border-bottom:.5px solid var(--rule)}
+.mn-crumb{font-size:11.5px;color:var(--ink2);margin-bottom:8px;display:flex;gap:6px;align-items:center}
+.mn-crumb .sep{color:var(--ink3)}
+.mn-crumb .cur{color:var(--ink)}
+.mn-h-row{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding-bottom:14px}
+.mn-h-l h1{font-size:22px;font-weight:600;letter-spacing:-.01em}
+.mn-h-meta{display:flex;gap:14px;margin-top:6px;font-size:11.5px;color:var(--ink2);align-items:center;flex-wrap:wrap}
+.mn-h-code{font-family:var(--mono);color:var(--accent);font-weight:600;font-size:11px}
+.mn-h-actions{display:flex;gap:7px}
+.btn-ghost{font-size:12px;padding:6px 10px;background:var(--panel);border:.5px solid var(--rule2);border-radius:4px;color:var(--ink2)}
+.btn-ghost:hover{background:var(--rail2);color:var(--ink)}
+.btn-primary{font-size:12px;padding:6px 10px;background:var(--ink);border:none;border-radius:4px;color:var(--bg);font-weight:500;display:flex;align-items:center;gap:5px}
+.btn-primary:hover{opacity:.88}
+.btn-accent{font-size:12px;padding:6px 12px;background:var(--accent);border:none;border-radius:4px;color:#fff;font-weight:500}
+.btn-accent:hover{opacity:.88}
+.btn-danger{color:var(--red);border-color:#F0959580}
+
+/* KPI cards */
+.kpis{padding:14px 22px 0;display:flex;gap:10px;flex-wrap:wrap}
+.kpi{flex:1;min-width:140px;background:var(--panel);border:.5px solid var(--rule);border-radius:6px;padding:12px 14px;border-right:.5px solid var(--rule)}
+.kpi.acc-r{border-right:2px solid var(--red)}
+.kpi.acc-g{border-right:2px solid var(--green)}
+.kpi.acc-a{border-right:2px solid var(--amber)}
+.kpi-l{font-size:10.5px;color:var(--ink3);letter-spacing:.1em;font-weight:600;margin-bottom:6px}
+.kpi-row{display:flex;align-items:baseline;gap:8px}
+.kpi-v{font-size:24px;font-weight:600;color:var(--ink);font-feature-settings:"tnum";line-height:1}
+.kpi.acc-r .kpi-v{color:var(--red)}
+.kpi.acc-g .kpi-v{color:var(--green)}
+.kpi.acc-a .kpi-v{color:var(--amber)}
+.kpi-s{font-size:11px;color:var(--ink3)}
+
+/* Toolbar */
+.tlb{padding:14px 22px 10px;display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.chip-filter{font-size:11.5px;padding:5px 10px;background:var(--panel);border:.5px solid var(--rule2);border-radius:4px;color:var(--ink2);display:flex;align-items:center;gap:4px}
+.chip-filter:hover{background:var(--rail2)}
+.chip-filter.on{background:var(--accentSoft);border-color:var(--accent);color:var(--accent);font-weight:500}
+.chip-wrap{display:inline-flex;align-items:stretch;gap:0}
+.chip-wrap .chip-filter{border-radius:4px 0 0 4px;border-left:none}
+.chip-wrap .chip-filter:not(.on){border-radius:4px}
+.chip-edit-btn{font-size:11px;padding:5px 7px;background:var(--accentSoft);border:.5px solid var(--accent);border-right:none;border-radius:0 4px 4px 0;color:var(--accent);cursor:pointer}
+.chip-edit-btn:hover{background:var(--accent);color:#fff}
+.tlb-divider{height:18px;width:1px;background:var(--rule2)}
+.tlb-grow{margin-right:auto}
+.tlb-lbl{font-size:11px;color:var(--ink3)}
+.tlb-sel{font-size:11.5px;padding:5px 10px;background:var(--panel);border:.5px solid var(--rule2);border-radius:4px;color:var(--ink2)}
+
+/* Task table */
+.tl-wrap{flex:1;overflow-y:auto;padding:0 22px 22px}
+.tl{background:var(--panel);border:.5px solid var(--rule);border-radius:6px;overflow:hidden}
+
+/* Dashboard */
+.dash-body{flex:1;overflow-y:auto;padding:14px 22px 22px}
+.dash-section-title{display:flex;align-items:center;gap:10px;padding:10px 0 10px;font-size:13px;font-weight:600;color:var(--ink)}
+.dash-section-cnt{font-size:11px;color:var(--ink3);font-family:var(--mono);background:var(--rail2);padding:1px 8px;border-radius:99px}
+.dash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin-bottom:6px}
+.dash-card{background:var(--panel);border:.5px solid var(--rule);border-radius:7px;padding:13px 14px;cursor:pointer;transition:all .12s;display:flex;flex-direction:column;gap:8px}
+.dash-card:hover{border-color:var(--rule2);transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.dash-card-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.dash-card-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.dash-card-name{font-size:14px;font-weight:600;color:var(--ink);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.dash-card-badge{font-size:10px;font-weight:600;padding:2px 6px;border-radius:3px;font-family:var(--mono)}
+.dash-card-badge.urgent{background:var(--redSoft);color:var(--red)}
+.dash-card-badge.overdue{background:var(--amberSoft);color:var(--amber)}
+.dash-card-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;padding:6px 0 2px}
+.dash-stat{display:flex;flex-direction:column;align-items:center;gap:1px}
+.dash-stat-v{font-size:18px;font-weight:600;color:var(--ink);font-feature-settings:"tnum";line-height:1}
+.dash-stat-l{font-size:10px;color:var(--ink3);letter-spacing:.04em}
+.dash-card-bar{width:100%;height:4px;background:var(--rail2);border-radius:99px;overflow:hidden}
+.dash-card-bar-fill{height:100%;background:var(--accent);border-radius:99px;transition:width .3s}
+.dash-card-foot{display:flex;justify-content:space-between;align-items:center}
+.tl-head{display:grid;grid-template-columns:22px 1fr 100px 100px 70px 24px;gap:14px;padding:7px 16px;background:var(--rail2);border-bottom:.5px solid var(--rule);font-size:10px;color:var(--ink3);letter-spacing:.1em;font-weight:600}
+.sec-head{width:100%;padding:8px 16px;background:var(--rail2);border-top:.5px solid var(--rule);border-bottom:.5px solid var(--rule);font-size:11.5px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:8px;text-align:right}
+.sec-head .chev{color:var(--ink3);transition:transform .15s}
+.sec-head.col .chev{transform:rotate(-90deg)}
+.sec-head .cnt{color:var(--ink3);font-weight:400;font-family:var(--mono)}
+.sec-head .ic-add{margin-right:auto;color:var(--ink3);padding:0 4px;font-size:14px;cursor:pointer;border-radius:3px}
+.sec-head .ic-add:hover{color:var(--ink);background:var(--rail)}
+.sec-head[ondragover]{transition:background .12s}
+.sec-head.drop-target{background:var(--greenSoft);color:var(--green)}
+.tr{display:grid;grid-template-columns:22px 1fr 100px 100px 70px 24px;align-items:center;padding:var(--row-pad-y) 16px;gap:14px;border-bottom:.5px solid var(--rule);background:var(--panel);cursor:pointer}
+.tr:hover{background:var(--rail2)}
+.tr.sel{background:var(--accentSoft)}
+.tr.done{opacity:.55}
+.tr-title-wrap{display:flex;align-items:center;gap:10px;min-width:0}
+.tr-title{font-size:13.5px;font-weight:500;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:1;min-width:0}
+.tr.done .tr-title{text-decoration:line-through}
+.imp-tag{font-size:10px;font-weight:600;color:var(--amber);padding:1px 5px;border:.5px solid var(--amber);border-radius:2px;flex-shrink:0;letter-spacing:.04em}
+.tr-area,.tr-proj{font-size:11px;color:var(--ink3);flex-shrink:0;white-space:nowrap}
+.tr-proj{font-family:var(--mono)}
+.tr-due{font-size:11.5px;color:var(--ink2);font-feature-settings:"tnum";white-space:nowrap}
+.tr-due.od{color:var(--red);font-weight:600}
+.tr-more{color:var(--ink3);font-size:13px;text-align:center;border-radius:3px;padding:2px 0}
+.tr-more:hover{color:var(--ink);background:var(--rail)}
+.tl-add{padding:9px 16px;font-size:12px;color:var(--ink3);border-top:.5px solid var(--rule);cursor:pointer}
+.tl-add:hover{color:var(--ink);background:var(--rail2)}
+.empty-st{padding:60px 0;text-align:center;color:var(--ink3);font-size:13px;line-height:2}
+.tr[draggable="true"]{cursor:pointer}
+.tr.dragging{opacity:.35}
+
+/* Checkbox */
+.cb{width:14px;height:14px;border-radius:3px;border:1.5px solid var(--ink3);background:transparent;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;padding:0;cursor:pointer;transition:all .12s}
+.cb:hover{border-color:var(--ink2)}
+.cb.done{background:var(--green);border-color:var(--green)}
+.cb.done::after{content:"✓";color:#fff;font-size:9px;font-weight:700;line-height:1}
+
+/* Chips */
+.chip-st{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;padding:2px 8px;border-radius:3px;border:.5px solid;white-space:nowrap}
+.chip-st.s-open{color:var(--ink2);border-color:var(--rule2);background:var(--panel)}
+.chip-st.s-prog{color:var(--accent);border-color:var(--accent);background:var(--accentSoft)}
+.chip-st.s-wait{color:var(--amber);border-color:var(--amber);background:var(--amberSoft)}
+.chip-st.s-done{color:var(--green);border-color:var(--green);background:var(--greenSoft)}
+.chip-pr{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;padding:2px 7px;border-radius:3px;white-space:nowrap}
+.chip-pr-dot{width:5px;height:5px;border-radius:50%}
+.chip-pr.p-r{background:var(--redSoft);color:var(--red)}
+.chip-pr.p-r .chip-pr-dot{background:var(--red)}
+.chip-pr.p-a{background:var(--amberSoft);color:var(--amber)}
+.chip-pr.p-a .chip-pr-dot{background:var(--amber)}
+.chip-pr.p-l{background:var(--rail2);color:var(--ink2)}
+.chip-pr.p-l .chip-pr-dot{background:var(--ink3)}
+.chip-em{font-size:11px;color:var(--ink3)}
+.chip-as{display:inline-flex;align-items:center;font-size:11px;font-weight:500;padding:2px 7px;border-radius:3px;background:var(--accentSoft);color:var(--accent)}
+
+/* ===== DETAIL PANEL ===== */
+#dp{width:360px;flex-shrink:0;background:var(--panel);border-right:.5px solid var(--rule);display:flex;flex-direction:column;animation:slidein .22s cubic-bezier(.2,.7,.3,1);overflow-y:auto}
+@keyframes slidein{from{transform:translateX(-12px);opacity:0}to{transform:translateX(0);opacity:1}}
+.dp-h{padding:12px 16px;border-bottom:.5px solid var(--rule);display:flex;align-items:center;justify-content:space-between}
+.dp-crumb{font-size:11px;color:var(--ink2);font-family:var(--mono)}
+.dp-h-actions{display:flex;gap:4px}
+.dp-h-btn{padding:6px;color:var(--ink3);border-radius:4px;display:flex;align-items:center}
+.dp-h-btn:hover{background:var(--rail2);color:var(--ink)}
+.dp-h-btn.del:hover{color:var(--red)}
+.dp-title-wrap{padding:16px 18px 12px}
+.dp-title{width:100%;font-size:18px;font-weight:600;color:var(--ink);background:transparent;border:none;direction:rtl;line-height:1.3;padding:4px 0;letter-spacing:-.01em}
+.dp-fields{padding:0 18px 14px;display:flex;flex-direction:column;gap:12px}
+.f-l{font-size:10.5px;color:var(--ink3);letter-spacing:.06em;font-weight:600;margin-bottom:5px;text-transform:uppercase}
+.opt-grp{display:flex;gap:5px;flex-wrap:wrap}
+.opt{font-size:11.5px;padding:4px 10px;border-radius:3px;border:.5px solid var(--rule2);background:var(--panel);color:var(--ink2);font-weight:400}
+.opt:hover{background:var(--rail2)}
+.opt.act{font-weight:600}
+.opt.act-acc{border-color:var(--accent);background:var(--accentSoft);color:var(--accent)}
+.opt.act-r{border-color:var(--red);background:var(--redSoft);color:var(--red)}
+.opt.act-a{border-color:var(--amber);background:var(--amberSoft);color:var(--amber)}
+.opt.act-l{border-color:var(--ink3);background:var(--rail2);color:var(--ink)}
+.opt.act-g{border-color:var(--green);background:var(--greenSoft);color:var(--green)}
+.opt.act-ink{border-color:var(--ink);background:var(--rail2);color:var(--ink)}
+.opt.add{color:var(--ink3);border-style:dashed}
+.opt.add:hover{color:var(--ink);border-color:var(--ink)}
+.dp-input{width:100%;font-size:12.5px;padding:6px 10px;border-radius:4px;border:.5px solid var(--rule2);background:var(--panel);color:var(--ink);direction:rtl}
+.dp-input:focus{border-color:var(--ink2)}
+.dp-input[type="date"]{direction:ltr}
+.dp-textarea{width:100%;font-size:12.5px;padding:7px 10px;border-radius:4px;border:.5px solid var(--rule2);background:var(--panel);color:var(--ink);direction:rtl;min-height:60px;resize:vertical;font-family:inherit;line-height:1.5}
+.dp-textarea:focus{border-color:var(--ink2)}
+.rt-tools{display:flex;gap:2px;padding:4px 6px;border:.5px solid var(--rule2);border-bottom:none;border-radius:4px 4px 0 0;background:var(--rail2)}
+.rt-btn{font-size:12px;padding:3px 8px;color:var(--ink2);border-radius:3px;min-width:24px}
+.rt-btn:hover{background:var(--panel);color:var(--ink)}
+.rt-content{min-height:90px;max-height:180px;overflow-y:auto;padding:8px 11px;border:.5px solid var(--rule2);border-radius:0 0 4px 4px;background:var(--panel);color:var(--ink);direction:rtl;text-align:right;font-size:12.5px;line-height:1.55;outline:none}
+.rt-content:focus{border-color:var(--ink2)}
+.rt-content:empty:before{content:attr(data-placeholder);color:var(--ink3);pointer-events:none}
 .rt-content ul,.rt-content ol{padding-right:22px;margin:4px 0}
 .rt-content b,.rt-content strong{font-weight:700}
-.fr{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.divider{border:none;border-top:.5px solid var(--b3);margin:.7rem 0}
-.gcal-box{padding:10px 12px;border:.5px solid var(--b3);border-radius:var(--rm);background:var(--bg2)}
-.gcal-box-title{font-size:12px;font-weight:500;color:var(--t2);margin-bottom:5px}
-.gcal-note{font-size:11px;color:var(--t3);margin-bottom:8px;line-height:1.5}
-.gcal-btn{font-size:12px;padding:5px 14px;border-radius:var(--rm);border:.5px solid var(--b2);background:var(--bg1);color:var(--t2);cursor:pointer;text-decoration:none;display:inline-block}
-.gcal-btn:hover{background:#EAF3DE;color:#3B6D11;border-color:#97C459}
-.ma{display:flex;gap:7px;margin-top:.8rem;flex-wrap:wrap}
-.bp{background:var(--t1);color:var(--bg1);border:none;padding:6px 16px;border-radius:var(--rm);font-size:13px;cursor:pointer}
-.bs{background:transparent;color:var(--t2);border:.5px solid var(--b2);padding:6px 14px;border-radius:var(--rm);font-size:13px;cursor:pointer}
-.bs:hover{background:var(--bg2)}
-.bd-del{color:#A32D2D;border-color:#F0959580}
-.cb{width:20px;height:20px;border:1.5px solid var(--b2);border-radius:5px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--bg1);transition:all .12s;margin-top:1px;padding:0}
-.cb:hover{border-color:var(--t1);background:var(--bg2)}
-.cb.done{background:#3B6D11;border-color:#3B6D11}
-.cb.done::after{content:'✓';color:#fff;font-size:13px;font-weight:bold;line-height:1}
-.tc.done .tc-t,.dk.done .dk-t{text-decoration:line-through;color:var(--t2)}
-.tc.done,.dk.done{opacity:.6}
-.tc-move{border:none;background:none;cursor:pointer;color:var(--t3);font-size:14px;padding:0;width:14px;text-align:center;line-height:1}
-.tc-move:hover{color:#185FA5}
-.tc[draggable="true"]{cursor:grab}
-.tc.dragging{opacity:.35}
-.tc-area-tag{font-size:10px;padding:1px 7px;border-radius:99px;background:#E6F1FB;color:#185FA5;font-weight:500}
-.tb-wrap.all .tb{font-weight:600}
-.tb-wrap.all .tb-b{background:#3B6D11;color:#fff}
-.tb-wrap.drop-target .tb{background:#EAF3DE;color:#3B6D11;border-bottom-color:#3B6D11}
-.move-pop{position:fixed;background:var(--bg1);border:.5px solid var(--b2);border-radius:var(--rm);padding:4px;box-shadow:0 4px 14px rgba(0,0,0,.18);z-index:200;min-width:150px;max-width:220px}
-.move-pop-h{font-size:10px;color:var(--t3);padding:5px 8px 4px;border-bottom:.5px solid var(--b3);margin-bottom:3px;letter-spacing:.3px}
-.move-pop-i{display:block;width:100%;text-align:right;background:none;border:none;padding:7px 10px;font-size:12px;color:var(--t1);cursor:pointer;border-radius:4px;direction:rtl}
-.move-pop-i:hover{background:var(--bg2)}
-.notes-add{padding:10px 14px;border-bottom:.5px solid var(--b3);flex-shrink:0}
-.notes-add input{width:100%;font-size:13px;padding:8px 12px;border:.5px solid var(--b2);border-radius:var(--rm);background:var(--bg2);color:var(--t1);direction:rtl;outline:none}
-.notes-add input:focus{border-color:var(--t2);background:var(--bg1)}
-.notes-list{flex:1;overflow-y:auto;padding:8px 14px}
-.note{border:.5px solid var(--b3);border-radius:var(--rm);margin-bottom:6px;background:var(--bg1);overflow:hidden}
-.note:hover{border-color:var(--b2)}
+.dp-act{padding:12px 18px;border-top:.5px solid var(--rule);margin-top:auto;display:flex;flex-direction:column;gap:7px}
+.dp-act-l{font-size:10px;color:var(--ink3);letter-spacing:.1em;font-weight:600;margin-bottom:4px}
+.act-row{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--ink2)}
+.act-row .ic{color:var(--ink3);display:flex;align-items:center}
+.act-row .lbl{flex:1}
+.act-row .v{color:var(--ink);font-feature-settings:"tnum"}
+.gcal-link{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;padding:5px 10px;border-radius:4px;border:.5px solid var(--rule2);background:var(--panel);color:var(--ink2);text-decoration:none}
+.gcal-link:hover{background:var(--greenSoft);color:var(--green);border-color:var(--green)}
+.gcal-link.dis{opacity:.4;pointer-events:none}
+.dp-foot-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+.area-pop{position:relative;display:inline-block}
+.area-pop-menu{position:absolute;background:var(--panel);border:.5px solid var(--rule2);border-radius:4px;padding:4px;box-shadow:0 4px 14px rgba(0,0,0,.15);z-index:50;min-width:140px;top:calc(100% + 4px);right:0}
+.area-pop-i{display:block;width:100%;text-align:right;padding:6px 10px;font-size:12px;color:var(--ink);border-radius:3px;direction:rtl}
+.area-pop-i:hover{background:var(--rail2)}
+
+/* ===== NOTES VIEW ===== */
+.notes-add{padding:14px 22px 8px;display:flex;gap:8px}
+.notes-add input{flex:1;font-size:13px;padding:8px 12px;border:.5px solid var(--rule2);border-radius:4px;background:var(--panel);color:var(--ink);direction:rtl}
+.notes-add input:focus{border-color:var(--ink2)}
+.notes-list{flex:1;overflow-y:auto;padding:8px 22px 22px;display:flex;flex-direction:column;gap:9px}
+.note{background:var(--panel);border:.5px solid var(--rule);border-radius:6px;overflow:hidden;flex-shrink:0}
+.note:hover{border-color:var(--rule2)}
 .note.dragging{opacity:.4}
-.note.done{opacity:.65}
-.note.done .note-input{text-decoration:line-through;color:var(--t2)}
-.note-row{display:flex;align-items:center;gap:8px;padding:7px 10px;cursor:grab}
-.note-input{flex:1;font-size:13px;padding:4px 6px;border:none;background:transparent;color:var(--t1);direction:rtl;outline:none;min-width:0}
-.note-input:focus{background:var(--bg2);border-radius:4px}
-.note-toggle{border:none;background:none;cursor:pointer;color:var(--t3);font-size:12px;line-height:1;padding:3px 7px;flex-shrink:0;transition:transform .15s;border-radius:4px}
-.note-toggle:hover{color:var(--t1);background:var(--bg2)}
-.note-toggle.open{transform:rotate(180deg)}
-.note-toggle.has-text{color:#185FA5}
-.note-x{border:none;background:none;cursor:pointer;color:var(--t3);font-size:13px;line-height:1;padding:0;width:20px;text-align:center;flex-shrink:0}
-.note-x:hover{color:#A32D2D}
-.note-extra{display:none;padding:8px 10px 10px;border-top:.5px solid var(--b3);background:var(--bg2)}
+.note.done{opacity:.55}
+.note-row{display:flex;align-items:center;gap:10px;padding:13px 16px;cursor:grab;min-height:44px}
+.note-input{flex:1;font-size:13.5px;background:transparent;border:none;color:var(--ink);direction:rtl;min-width:0;padding:3px 5px;border-radius:3px;font-weight:500}
+.note-input:focus{background:var(--rail2)}
+.note.done .note-input{text-decoration:line-through;color:var(--ink2)}
+.note-tg{padding:5px 9px;color:var(--ink3);font-size:12px;border-radius:3px;transition:transform .15s}
+.note-tg:hover{color:var(--ink);background:var(--rail2)}
+.note-tg.open{transform:rotate(180deg)}
+.note-tg.has{color:var(--accent)}
+.note-x{padding:6px;color:var(--ink3);border-radius:3px;display:flex;align-items:center}
+.note-x:hover{color:var(--red);background:var(--redSoft)}
+.note-extra{display:none;padding:10px 14px 14px;border-top:.5px solid var(--rule);background:var(--rail2)}
 .note-extra.open{display:block}
-.note-textarea{width:100%;font-size:12px;padding:7px 9px;border:.5px solid var(--b3);border-radius:6px;background:var(--bg1);color:var(--t1);direction:rtl;outline:none;min-height:80px;resize:vertical;font-family:inherit;line-height:1.55}
-.note-textarea:focus{border-color:var(--t2)}
-.notes-sep{font-size:10px;color:var(--t3);padding:10px 4px 4px;letter-spacing:.5px}
-.pi.drop-target{background:#EAF3DE!important;color:#3B6D11!important;font-weight:600;border-right:2px solid #3B6D11}
-.pi[draggable="true"]{cursor:grab}
-.pi.dragging{opacity:.4}
-.pi.drop-before{box-shadow:inset 0 2px 0 0 #185FA5}
-.pi.drop-after{box-shadow:inset 0 -2px 0 0 #185FA5}
-.ab-row{display:flex;gap:6px}
-.ab-task{flex:1;font-size:13px;padding:8px 10px;border:.5px solid var(--b3);border-radius:var(--rm);background:var(--bg2);color:var(--t1);cursor:pointer;text-align:center}
-.ab-task:hover{background:var(--bg1);border-color:var(--b2)}
-.ab-ai{flex:1;font-size:13px;padding:8px 10px;border:none;border-radius:var(--rm);background:var(--t1);color:var(--bg1);cursor:pointer;text-align:center}
-.ab-ai:hover{opacity:.85}
-.dash-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden}
-.dash-body{flex:1;overflow-y:auto;padding:12px 14px}
-.dash-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:14px}
-.sc{border-radius:var(--rm);padding:10px 12px;background:var(--bg2)}
-.sc.red{background:#FCEBEB}.sc.od{background:#FAEEDA}
-.sc-n{font-size:22px;font-weight:600;color:var(--t1);line-height:1}
-.sc.red .sc-n{color:#A32D2D}.sc.od .sc-n{color:#854F0B}
-.sc-l{font-size:11px;color:var(--t2);margin-top:3px}
-.dash-filter{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
-.fb{font-size:12px;padding:4px 12px;border-radius:99px;border:.5px solid var(--b2);background:var(--bg1);color:var(--t2);cursor:pointer}
-.fb.on{background:var(--t1);color:var(--bg1);border-color:var(--t1)}
-.dash-empty{text-align:center;padding:2.5rem 0;color:var(--t3);font-size:13px;line-height:2}
-.dk{border:.5px solid var(--b3);margin-bottom:8px;background:var(--bg1);overflow:hidden;border-radius:var(--rm)}
-.dk:hover{border-color:var(--b2)}
-.dk.u{border-right:3px solid #E24B4A;border-radius:0}.dk.h{border-right:3px solid #EF9F27;border-radius:0}
-.dk-top{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;cursor:pointer}
-.dk-b{flex:1;min-width:0}
-.dk-t{font-size:13px;font-weight:500;color:var(--t1);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dk-notes{font-size:11px;color:var(--t2);margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dk-meta{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
-.dk-proj{font-size:11px;color:var(--t2);background:var(--bg2);padding:2px 8px;border-radius:99px;border:.5px solid var(--b3);white-space:nowrap}
-.dk-edit-btn{font-size:11px;padding:4px 10px;border-radius:var(--rm);border:.5px solid var(--b2);background:var(--bg2);color:var(--t2);cursor:pointer;white-space:nowrap;flex-shrink:0}
-.dk-sb{display:none;border-top:.5px solid var(--b3);padding:8px 12px;background:var(--bg2);align-items:center;gap:6px;flex-wrap:wrap}
-.dk-sb.open{display:flex}
-.sb-lbl{font-size:11px;color:var(--t2);flex-shrink:0}
-.sb-btn{font-size:11px;padding:3px 10px;border-radius:99px;border:.5px solid var(--b2);background:var(--bg1);color:var(--t2);cursor:pointer}
-.sb-btn.cur{background:var(--t1);color:var(--bg1);border-color:var(--t1)}
-.sb-btn.cur.done{background:#3B6D11;border-color:#3B6D11}
-.od-mark{color:#A32D2D!important;border-color:#F09595!important}
-/* AI CHAT */
-.ai-view{flex:1;display:flex;flex-direction:column;overflow:hidden}
-.ai-hd{padding:10px 16px;border-bottom:.5px solid var(--b3);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.ai-hd-t{font-size:15px;font-weight:600;color:var(--t1)}
-.ai-hd-s{font-size:11px;color:var(--t2);margin-top:2px}
-.ai-msgs{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:10px}
-.msg{max-width:85%;padding:9px 12px;border-radius:var(--rl);font-size:13px;line-height:1.5}
-.msg.user{background:var(--t1);color:var(--bg1);align-self:flex-start;border-radius:var(--rl) var(--rl) var(--rl) 4px}
-.msg.ai{background:var(--bg2);color:var(--t1);align-self:flex-end;border-radius:var(--rl) var(--rl) 4px var(--rl);border:.5px solid var(--b3)}
-.msg.ai.loading{color:var(--t3);font-style:italic}
-.ai-foot{padding:10px 12px;border-top:.5px solid var(--b3);display:flex;gap:8px;flex-shrink:0}
-.ai-text{flex:1;font-size:13px;padding:8px 12px;border:.5px solid var(--b2);border-radius:var(--rm);background:var(--bg1);color:var(--t1);direction:rtl;outline:none;resize:none;height:38px;min-height:38px}
-.ai-text:focus{border-color:var(--t2)}
-.ai-send{font-size:13px;padding:8px 14px;border-radius:var(--rm);border:none;background:var(--t1);color:var(--bg1);cursor:pointer;flex-shrink:0}
-.ai-send:hover{opacity:.85}
-.ai-send:disabled{opacity:.4;cursor:not-allowed}
-.ai-no-key{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:2rem;text-align:center}
-.ai-no-key p{font-size:13px;color:var(--t2);line-height:1.6}
-.ai-welcome{text-align:center;color:var(--t3);font-size:12px;padding:1rem 0;line-height:1.8}
-@media(max-width:600px){#root{flex-direction:column;height:auto;max-height:none}#sb{width:100%;min-width:0;border-left:none;border-bottom:.5px solid var(--b3)}.pl{max-height:160px}.dash-stats{grid-template-columns:repeat(2,1fr)}}
+.note-rt-tools{display:flex;gap:2px;padding:5px 7px;border:.5px solid var(--rule2);border-bottom:none;border-radius:5px 5px 0 0;background:var(--panel);flex-wrap:wrap}
+.note-rt-btn{font-size:13px;padding:4px 9px;color:var(--ink2);border-radius:3px;min-width:28px;font-family:inherit;cursor:pointer;background:transparent;border:none}
+.note-rt-btn:hover{background:var(--rail2);color:var(--ink)}
+.note-rt-btn.sz-input{padding:0;width:55px;display:flex;align-items:center}
+.note-rt-btn select{font-size:12px;padding:3px 4px;border:.5px solid var(--rule);border-radius:3px;background:var(--bg);color:var(--ink);width:100%;font-family:inherit;cursor:pointer}
+.note-rt-color{width:22px;height:22px;border:1px solid var(--rule2);border-radius:3px;cursor:pointer;padding:0;background:transparent;position:relative}
+.note-rt-color::after{content:"A";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--ink)}
+.note-rt-color.bg::after{content:"";background:linear-gradient(135deg,#FFE4B5 50%,transparent 50%)}
+.note-content{width:100%;padding:11px 13px;border:.5px solid var(--rule2);border-radius:0 0 5px 5px;background:var(--panel);color:var(--ink);direction:rtl;text-align:right;font-size:13px;line-height:1.65;outline:none;min-height:120px;max-height:none;overflow:visible;font-family:inherit}
+.note-content:focus{border-color:var(--ink2)}
+.note-content:empty:before{content:attr(data-placeholder);color:var(--ink3);pointer-events:none}
+.note-content ul,.note-content ol{padding-right:24px;margin:6px 0}
+.note-content b,.note-content strong{font-weight:700}
+.note-content i,.note-content em{font-style:italic}
+.note-content u{text-decoration:underline}
+.note-content h1,.note-content h2,.note-content h3{font-weight:700;margin:8px 0 4px}
+.note-content h1{font-size:18px}
+.note-content h2{font-size:16px}
+.note-content h3{font-size:14px}
+.notes-sep{font-size:10px;color:var(--ink3);padding:14px 4px 6px;letter-spacing:.1em;font-weight:600;flex-shrink:0}
+
+/* ===== NOTE CANVAS (handwriting) ===== */
+.note-canvas-section{margin-top:10px;border:.5px solid var(--rule2);border-radius:6px;background:#FFFFFF;overflow:hidden}
+[data-dark="true"] .note-canvas-section,.note-canvas-section{--canvas-bg:#FFFFFF}
+@media(prefers-color-scheme:dark){.note-canvas-section{background:#FAFAF8}}
+.note-canvas-toolbar{display:flex;align-items:center;gap:5px;padding:6px 8px;background:var(--rail2);border-bottom:.5px solid var(--rule2);flex-wrap:wrap}
+.note-canvas-tool{font-size:14px;padding:5px 9px;color:var(--ink2);border-radius:4px;cursor:pointer;background:transparent;border:.5px solid transparent;font-family:inherit;min-width:30px;display:inline-flex;align-items:center;justify-content:center}
+.note-canvas-tool:hover{background:var(--panel);color:var(--ink);border-color:var(--rule2)}
+.note-canvas-tool.act{background:var(--accentSoft);color:var(--accent);border-color:var(--accent);font-weight:600}
+.note-canvas-tool svg{width:14px;height:14px}
+.note-canvas-divider{width:1px;height:20px;background:var(--rule2);margin:0 2px}
+.note-canvas-colors{display:flex;gap:4px;align-items:center}
+.note-canvas-color{width:22px;height:22px;border-radius:50%;cursor:pointer;border:1.5px solid transparent;padding:0;transition:transform .12s;flex-shrink:0}
+.note-canvas-color:hover{transform:scale(1.15)}
+.note-canvas-color.act{border-color:var(--ink);box-shadow:0 0 0 1.5px var(--bg),0 0 0 3px var(--ink)}
+.note-canvas-sizes{display:flex;gap:3px;align-items:center}
+.note-canvas-size{width:30px;height:24px;border-radius:4px;cursor:pointer;border:.5px solid var(--rule2);background:var(--panel);display:inline-flex;align-items:center;justify-content:center;color:var(--ink2);padding:0}
+.note-canvas-size:hover{border-color:var(--ink2);color:var(--ink)}
+.note-canvas-size.act{background:var(--accentSoft);color:var(--accent);border-color:var(--accent)}
+.note-canvas-size .dot{display:block;background:currentColor;border-radius:50%}
+.note-canvas-size.s1 .dot{width:3px;height:3px}
+.note-canvas-size.s2 .dot{width:5px;height:5px}
+.note-canvas-size.s3 .dot{width:8px;height:8px}
+.note-canvas-size.s4 .dot{width:11px;height:11px}
+.note-canvas-wrap{position:relative;width:100%;background:#FFFFFF;overflow:hidden}
+.note-canvas{display:block;width:100%;height:100%;cursor:crosshair;touch-action:none;user-select:none;-webkit-user-select:none;background:#FFFFFF}
+.note-canvas.tool-eraser{cursor:cell}
+.note-canvas-handle{display:flex;justify-content:center;align-items:center;padding:8px 0;background:var(--rail2);border-top:.5px solid var(--rule2);cursor:ns-resize;touch-action:none;user-select:none;transition:background .12s}
+.note-canvas-handle:hover{background:var(--accentSoft)}
+.note-canvas-handle:active{background:var(--accent)}
+.note-canvas-handle-bar{width:48px;height:4px;background:var(--ink3);border-radius:99px;transition:all .12s;pointer-events:none}
+.note-canvas-handle:hover .note-canvas-handle-bar{background:var(--accent);width:60px;height:5px}
+.note-canvas-handle:active .note-canvas-handle-bar{background:#fff}
+.note-canvas-handle-label{font-size:10px;color:var(--ink3);margin-right:8px;pointer-events:none;letter-spacing:.04em}
+.note-canvas-handle:hover .note-canvas-handle-label{color:var(--accent)}
+.note-canvas-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:30px 20px;color:var(--ink3);text-align:center}
+.note-canvas-empty .btn-primary{margin-top:6px}
+
+/* ===== AI VIEW ===== */
+.ai-msgs{flex:1;overflow-y:auto;padding:18px 22px;display:flex;flex-direction:column;gap:10px}
+.ai-msg{max-width:75%;padding:10px 14px;font-size:13px;line-height:1.55;border-radius:8px;white-space:pre-wrap}
+.ai-msg.user{background:var(--ink);color:var(--bg);align-self:flex-start;border-radius:8px 8px 8px 2px}
+.ai-msg.ai{background:var(--rail2);color:var(--ink);align-self:flex-end;border:.5px solid var(--rule);border-radius:8px 8px 2px 8px}
+.ai-msg.loading{opacity:.6;font-style:italic}
+.ai-foot{padding:12px 16px;border-top:.5px solid var(--rule);display:flex;gap:8px}
+.ai-text{flex:1;font-size:13px;padding:8px 12px;border:.5px solid var(--rule2);border-radius:4px;background:var(--panel);color:var(--ink);direction:rtl;resize:none;height:38px;font-family:inherit}
+.ai-text:focus{border-color:var(--ink2)}
+.ai-no-key{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:2rem;text-align:center}
+.ai-no-key p{font-size:13px;color:var(--ink2);line-height:1.7;max-width:400px}
+.ai-welcome{text-align:center;color:var(--ink3);font-size:12px;padding:1.5rem 1rem;line-height:1.8}
+
+/* ===== MODAL ===== */
+#mr{position:fixed;inset:0;z-index:100;pointer-events:none}
+#mr.on{pointer-events:all}
+.mbg{width:100%;height:100%;background:rgba(20,24,28,.45);display:flex;align-items:center;justify-content:center;padding:16px}
+.mc{background:var(--panel);border-radius:8px;border:.5px solid var(--rule2);padding:18px 20px;width:100%;max-width:440px;max-height:96%;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,.18)}
+.mc h2{font-size:15px;font-weight:600;margin-bottom:14px;color:var(--ink)}
+.mf{margin-bottom:11px}
+.mf label{display:block;font-size:10.5px;color:var(--ink3);margin-bottom:5px;letter-spacing:.06em;font-weight:600;text-transform:uppercase}
+.mf input,.mf select{width:100%;font-size:13px;padding:6px 10px;border-radius:4px;border:.5px solid var(--rule2);background:var(--panel);color:var(--ink);direction:rtl}
+.mf input:focus,.mf select:focus{border-color:var(--ink2)}
+.mc-actions{display:flex;gap:7px;margin-top:14px;flex-wrap:wrap}
+.mc-actions .btn-primary{padding:7px 18px}
+.mc-actions .btn-ghost{padding:7px 16px}
+
+/* Color picker */
+.color-pick{display:flex;gap:7px;flex-wrap:wrap}
+.color-sw{width:30px;height:30px;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:all .12s;padding:0}
+.color-sw:hover{transform:scale(1.1)}
+.color-sw.act{border-color:var(--ink);box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--ink)}
+
+/* ===== MOVE POPUP ===== */
+.move-pop{position:fixed;background:var(--panel);border:.5px solid var(--rule2);border-radius:5px;padding:4px;box-shadow:0 4px 14px rgba(0,0,0,.18);z-index:200;min-width:160px;max-width:240px}
+.move-pop-h{font-size:10px;color:var(--ink3);padding:5px 8px 4px;border-bottom:.5px solid var(--rule);margin-bottom:3px;letter-spacing:.1em;font-weight:600}
+.move-pop-i{display:block;width:100%;text-align:right;padding:7px 10px;font-size:12px;color:var(--ink);border-radius:3px;direction:rtl}
+.move-pop-i:hover{background:var(--rail2)}
+
+/* Mobile burger */
+.mb-burger{display:none;position:fixed;top:14px;right:14px;z-index:50;width:36px;height:36px;border-radius:5px;background:var(--panel);border:.5px solid var(--rule2);align-items:center;justify-content:center;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.mb-burger svg{width:18px;height:18px;color:var(--ink)}
+
+@media(max-width:900px){
+  #sb{position:fixed;top:0;right:0;height:100vh;z-index:40;transform:translateX(110%);transition:transform .25s ease;border-left:.5px solid var(--rule2);box-shadow:-2px 0 10px rgba(0,0,0,.05)}
+  #sb.open{transform:translateX(0)}
+  .mb-burger{display:flex}
+  #dp{position:fixed;top:0;left:0;height:100vh;z-index:30;width:min(360px,100%);box-shadow:2px 0 10px rgba(0,0,0,.05)}
+  .mn-h{padding:14px 16px 0}
+  .kpis{padding:14px 16px 0}
+  .tlb{padding:14px 16px 10px}
+  .tl-wrap{padding:0 16px 22px}
+  .ai-msgs{padding:16px}
+  .notes-add{padding:14px 16px 8px}
+  .notes-list{padding:4px 16px 22px}
+  .kpi{min-width:0}
+  .tl-head{display:none}
+  .tr{grid-template-columns:22px 1fr auto;gap:8px;padding:9px 12px}
+  .tr-status-cell,.tr-priority-cell,.tr-due-cell,.tr-more{display:none}
+  .tr-mobi-meta{display:flex;gap:5px;align-items:center;flex-wrap:wrap;font-size:11px;color:var(--ink2);margin-top:4px}
+}
+@media(min-width:901px){.tr-mobi-meta{display:none}}
 </style>
 </head>
 <body>
+<button class="mb-burger" id="burger" onclick="toggleSB()" title="תפריט" aria-label="תפריט">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+</button>
 <div id="root">
-  <div id="sb"></div>
-  <div id="mn"><div class="loading">מתחבר לענן...</div></div>
-  <div id="mr"></div>
+  <aside id="sb"></aside>
+  <main id="mn"><div class="empty-st">מתחבר לענן...</div></main>
 </div>
+<div id="mr"></div>
+
 <script type="module">
-import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import{getFirestore,doc,setDoc,onSnapshot}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-const firebaseConfig={apiKey:"AIzaSyAwaErTAz0LAYHLEIQbxWY9ir6MzvaYQUo",authDomain:"avihai-tasks.firebaseapp.com",projectId:"avihai-tasks",storageBucket:"avihai-tasks.firebasestorage.app",messagingSenderId:"155180192399",appId:"1:155180192399:web:f7c54231070047fdcfd6fa"};
+import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import {getFirestore,doc,setDoc,onSnapshot} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {apiKey:"AIzaSyAwaErTAz0LAYHLEIQbxWY9ir6MzvaYQUo",authDomain:"avihai-tasks.firebaseapp.com",projectId:"avihai-tasks",storageBucket:"avihai-tasks.firebasestorage.app",messagingSenderId:"155180192399",appId:"1:155180192399:web:f7c54231070047fdcfd6fa"};
+
 const SEED=[{"id":"ce6c92303f3","name":"2253","areas":[{"id":"563b210bd23","name":"כללי","tasks":[]},{"id":"7c80056e5c1","name":"ביצוע","tasks":[{"id":"74ef251bece","title":"להשלים חוסרים בשוחות","content":"","notes":"","priority":"","importance":"","status":"פתוח","assigned":"","dueDate":"","inCal":false,"created":"2026-04-06"},{"id":"5ee04bac924","title":"להשלים אנקס","content":"","notes":"","priority":"","importance":"","status":"פתוח","assigned":"","dueDate":"","inCal":false,"created":"2026-04-06"},{"id":"d3408386f5c","title":"להשלים מבנה אחזקה","content":"","notes":"","priority":"","importance":"","status":"פתוח","assigned":"","dueDate":"","inCal":false,"created":"2026-04-06"},{"id":"c3776843903","title":"לסיים אנגרים","content":"","notes":"","priority":"","importance":"","status":"פתוח","assigned":"","dueDate":"","inCal":false,"created":"2026-04-06"},{"id":"420b37eef78","title":"תיקוני צבע","content":"","notes":"","priority":"","importance":"","status":"פתוח","assigned":"","dueDate":"","inCal":false,"created":"2026-04-06"},{"id":"1296bb8b371","title":"סגירת ברגים","content":"","notes":"","priority":"","importance":"","status":"פתוח","assigned":"","dueDate":"","inCal":false,"created":"2026-04-06"},{"id":"c38e8ebb87a","title":"סיום תמיכות","content":"","notes":"","priority":"","importance":"","status":"פתוח","assigned":"","dueDate":"","inCal":false,"created":"2026-04-06"}]},{"id":"f55427c8386","name":"הזמנות רכש","tasks":[{"id":"975eea68565","title":"להזמין ברזי מחט","content":"","notes":"","priority":"","importance":"","status":"פתוח","assigned":"","dueDate":"","inCal":false,"created":"2026-04-06"},{"id":"04b3d999d6a","title":"להזמין שעוני לחץ","content":"","notes":"","priority":"","importance":"","status":"פתוח","assigned":"","dueDate":"","inCal":false,"created":"2026-04-06"}]},{"id":"5fb5abf602b","name":"חשבונות","tasks":[{"id":"1f37d5e897f","title":"להכין חשבון מס 8","content":"","notes":"","priority":"","importance":"","status":"פתוח","assigned":"","dueDate":"","inCal":false,"created":"2026-04-06"},{"id":"919dabd031e","title":"להפריד שעות רג'י על פי סעיפים מאלכס","content":"","notes":"","priority":"","importance":"","status":"פתוח","assigned":"","dueDate":"","inCal":false,"created":"2026-04-06"},{"id":"787cd9e915a","title":"להפריד את החריגים","content":"","notes":"","priority":"","importance":"","status":"פתוח","assigned":"","dueDate":"","inCal":false,"created":"2026-04-06"},{"id":"fa3645711e8","title":"לנסות ולעדכן את הקובץ הראשי של כתב הכמויות","content":"","notes":"","priority":"","importance":"","status":"פתוח","assigned":"","dueDate":"","inCal":false,"created":"2026-04-06"}]}]},{"id":"8b6dd7db9af","name":"908","areas":[{"id":"04e24759e3f","name":"כללי","tasks":[]},{"id":"7a3465db649","name":"ביצוע","tasks":[]},{"id":"668319f9c25","name":"הזמנות רכש","tasks":[]},{"id":"caaeb4b4b6f","name":"חשבונות","tasks":[]}]},{"id":"1a3f91fead9","name":"2242","areas":[{"id":"f6c672d1ef3","name":"כללי","tasks":[]},{"id":"0d2f9b693a9","name":"ביצוע","tasks":[]},{"id":"ba6e2a1ca47","name":"הזמנות רכש","tasks":[]},{"id":"762a171f99a","name":"חשבונות","tasks":[]}]},{"id":"c3614206a44","name":"2288","areas":[{"id":"e8fb2c4fecf","name":"כללי","tasks":[]},{"id":"e37dfb5a119","name":"ביצוע","tasks":[]},{"id":"69253140d1f","name":"הזמנות רכש","tasks":[]},{"id":"e2cb56db17c","name":"חשבונות","tasks":[]}]},{"id":"f976b57bb9d","name":"2306","areas":[{"id":"554d5910d6f","name":"כללי","tasks":[]},{"id":"1fd3dbc73ac","name":"ביצוע","tasks":[]},{"id":"ba1b5163ed3","name":"הזמנות רכש","tasks":[]},{"id":"5e7135632c4","name":"חשבונות","tasks":[]}]},{"id":"25db67c5657","name":"2196","areas":[{"id":"8799b97fd71","name":"כללי","tasks":[]},{"id":"889c9adc496","name":"ביצוע","tasks":[]},{"id":"ed75fe2b17c","name":"הזמנות רכש","tasks":[]},{"id":"2f836c44125","name":"חשבונות","tasks":[]}]}];
+
 const app=initializeApp(firebaseConfig);
 const db=getFirestore(app);
-const S={projects:[],notes:[],apid:null,aaid:null,view:'dash',aiProjId:null};
+
+// ===== ICONS =====
+const IC={
+  search:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 19a8 8 0 100-16 8 8 0 000 16zM21 21l-4.35-4.35"/></svg>',
+  inbox:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>',
+  cal:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2zM16 2v4M8 2v4"/></svg>',
+  star:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>',
+  flag:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22V4M4 4h12l-2 4 2 4H4"/></svg>',
+  bolt:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>',
+  note:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6"/></svg>',
+  ai:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/></svg>',
+  plus:'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>',
+  x:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>',
+  trash:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>',
+  link:'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>',
+  more:'<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg>',
+  arrow:'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>',
+  edit:'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 113 3L7 19l-4 1 1-4z"/></svg>',
+};
+
+// ===== STATE =====
+const S={projects:[],notes:[],apid:null,aaid:null,view:'dashboard',selTaskId:null,aiProjId:null,grouping:'area',filterStatus:null,collapsed:{}};
+let syncOk=false;
+let dashFilter='active';
+const expandedNotes=new Set();
+let aiMsgs=[];
+let draggedTaskId=null,draggedNoteId=null,draggedProjId=null;
+let TODAY=new Date().toISOString().split('T')[0];
+
+// ===== COLORS =====
+const COLORS={
+  blue:{name:'כחול',hex:'#3F6FB5',soft:'#E5EDF7'},
+  green:{name:'ירוק',hex:'#3D7A4F',soft:'#E2EEE5'},
+  amber:{name:'ענבר',hex:'#9C6A1F',soft:'#F6EBD7'},
+  red:{name:'אדום',hex:'#B23D3D',soft:'#F7E5E5'},
+  purple:{name:'סגול',hex:'#7048A0',soft:'#EBE0F4'},
+  teal:{name:'טורקיז',hex:'#2E7E7E',soft:'#D9EBEB'},
+  rose:{name:'ורוד',hex:'#B05978',soft:'#F4DDE5'},
+  slate:{name:'אפור',hex:'#5A6470',soft:'#E5E7EB'}
+};
+const projColor=p=>COLORS[p.color]||COLORS.blue;
+
+// ===== CANVAS STATE =====
+const PEN_COLORS=['#14181C','#3F6FB5','#B23D3D','#3D7A4F','#9C6A1F','#7048A0','#2E7E7E','#FFD700'];
+const canvasState={};
+function defaultCanvasState(){return{color:'#14181C',size:2.5,tool:'pen',acceptTouch:false,undoStack:[]};}
+function getCanvasState(noteId){if(!canvasState[noteId])canvasState[noteId]=defaultCanvasState();return canvasState[noteId];}
+let canvasResizeState=null;
+
+// ===== HELPERS =====
 const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
 const ap=()=>S.projects.find(p=>p.id===S.apid)||null;
-const aa=()=>{const p=ap();return p?p.areas.find(a=>a.id===S.aaid)||null:null;};
 const ptc=p=>p.areas.reduce((s,a)=>s+a.tasks.length,0);
-const pc=v=>v==='דחוף'?'r':v==='נמוך'?'gn':'am';
-function findTask(id){for(const p of S.projects)for(const a of p.areas){const t=a.tasks.find(t=>t.id===id);if(t)return{task:t,proj:p,area:a};}return null;}
-function gcalUrl(t){const ti=encodeURIComponent(t.title);const de=encodeURIComponent(stripHtml(t.content||'')||t.notes||'');let dt='';if(t.dueDate){const d=t.dueDate.replace(/-/g,'');const e=new Date(t.dueDate+'T12:00:00');e.setDate(e.getDate()+1);const es=e.toISOString().split('T')[0].replace(/-/g,'');dt='&dates='+d+'/'+es;}return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+ti+dt+'&details='+de;}
-function isOverdue(due){if(!due)return false;return new Date(due)<new Date(new Date().toDateString());}
+const ptcOpen=p=>p.areas.reduce((s,a)=>s+a.tasks.filter(t=>t.status!=='הושלם').length,0);
 const STATUSES=['פתוח','בביצוע','תלוי','הושלם'];
-let dashFilter='active',syncOk=false;
-const expandedNotes=new Set();
-function fmtCreated(iso){if(!iso)return '';if(/^\d{4}-\d{2}-\d{2}$/.test(iso)){const[y,m,d]=iso.split('-');return d+'/'+m+'/'+y;}try{const d=new Date(iso);if(isNaN(d))return iso;const dd=String(d.getDate()).padStart(2,'0');const mm=String(d.getMonth()+1).padStart(2,'0');const yy=d.getFullYear();const hh=String(d.getHours()).padStart(2,'0');const mn=String(d.getMinutes()).padStart(2,'0');return dd+'/'+mm+'/'+yy+' '+hh+':'+mn;}catch(e){return iso;}}
-let aiMsgs=[];
+const PRIORITIES=['','דחוף','בינוני','נמוך'];
+const IMPORTANCES=['','גבוהה','בינונית','נמוכה'];
 
-// API Key management - stored in localStorage only, never in code
+function findTask(id){for(const p of S.projects)for(const a of p.areas){const t=a.tasks.find(t=>t.id===id);if(t)return{task:t,proj:p,area:a};}return null;}
+function isOverdue(due){if(!due)return false;return due<TODAY;}
+function fmtDate(d){if(!d)return null;const[y,m,day]=d.split('-');const months=['ינו','פבר','מרץ','אפר','מאי','יונ','יול','אוג','ספט','אוק','נוב','דצמ'];return parseInt(day)+' '+months[parseInt(m)-1];}
+function fmtCreated(iso){if(!iso)return '';if(/^\d{4}-\d{2}-\d{2}$/.test(iso))return fmtDate(iso);try{const d=new Date(iso);if(isNaN(d))return '';return fmtDate(d.toISOString().split('T')[0]);}catch(e){return '';}}
+function stripHtml(s){if(!s)return '';const d=document.createElement('div');d.innerHTML=s;return (d.textContent||'').trim();}
+function gcalUrl(t){const ti=encodeURIComponent(t.title);const de=encodeURIComponent(stripHtml(t.content||'')||t.notes||'');let dt='';if(t.dueDate){const d=t.dueDate.replace(/-/g,'');const e=new Date(t.dueDate+'T12:00:00');e.setDate(e.getDate()+1);const es=e.toISOString().split('T')[0].replace(/-/g,'');dt='&dates='+d+'/'+es;}return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+ti+dt+'&details='+de;}
+
+// All tasks flat
+function getAllTasks(){
+  const out=[];
+  S.projects.forEach(p=>p.areas.forEach(a=>a.tasks.forEach(t=>out.push({task:t,proj:p,area:a}))));
+  return out;
+}
+function sortTasks(arr){
+  return arr.sort((a,b)=>{
+    if(a.task.status==='הושלם'&&b.task.status!=='הושלם')return 1;
+    if(b.task.status==='הושלם'&&a.task.status!=='הושלם')return -1;
+    const oa=isOverdue(a.task.dueDate)&&a.task.status!=='הושלם';
+    const ob=isOverdue(b.task.dueDate)&&b.task.status!=='הושלם';
+    if(oa&&!ob)return -1;if(ob&&!oa)return 1;
+    const ua=a.task.priority==='דחוף',ub=b.task.priority==='דחוף';
+    if(ua&&!ub)return -1;if(ub&&!ua)return 1;
+    if(a.task.dueDate&&b.task.dueDate)return a.task.dueDate.localeCompare(b.task.dueDate);
+    if(a.task.dueDate)return -1;if(b.task.dueDate)return 1;
+    return 0;
+  });
+}
+
+// ===== FIREBASE =====
+async function sv(){try{await setDoc(doc(db,'data','avihai'),{projects:S.projects,notes:S.notes,updated:Date.now()});syncOk=true;}catch(e){syncOk=false;console.error('sync err',e);}updateDot();}
+function updateDot(){const d=document.getElementById('sdot');if(d){d.className='dot'+(syncOk?'':' off');d.title=syncOk?'מסונכרן':'לא מחובר';}}
+
+// ===== API KEY =====
 function getApiKey(){return localStorage.getItem('anthropic_api_key')||'';}
 function setApiKey(k){localStorage.setItem('anthropic_api_key',k);}
 
-async function sv(){try{await setDoc(doc(db,'data','avihai'),{projects:S.projects,notes:S.notes,updated:Date.now()});syncOk=true;}catch(e){syncOk=false;}updateDot();}
-function updateDot(){const d=document.getElementById('sdot');if(d){d.className='sync-dot'+(syncOk?'':' off');d.title=syncOk?'מסונכרן':'לא מחובר';}}
-function render(){rSb();S.view==='dash'?rDash():S.view==='ai'?rAI():S.view==='notes'?rNotes():rMn();}
+// ===== RENDER =====
+function render(){TODAY=new Date().toISOString().split('T')[0];rSidebar();rMain();rDetail();}
 
-function getUrgentTasks(){const all=[];for(const p of S.projects)for(const a of p.areas)for(const t of a.tasks){const isU=t.priority==='דחוף',isH=t.importance==='גבוהה';if(isU||isH)all.push({task:t,proj:p,area:a,isU,isH});}all.sort((a,b)=>{if(a.task.status==='הושלם'&&b.task.status!=='הושלם')return 1;if(b.task.status==='הושלם'&&a.task.status!=='הושלם')return -1;const oa=isOverdue(a.task.dueDate)&&a.task.status!=='הושלם',ob=isOverdue(b.task.dueDate)&&b.task.status!=='הושלם';if(oa&&!ob)return -1;if(ob&&!oa)return 1;const wa=(a.isU?2:0)+(a.isH?1:0),wb=(b.isU?2:0)+(b.isH?1:0);if(wb!==wa)return wb-wa;if(a.task.dueDate&&b.task.dueDate)return a.task.dueDate.localeCompare(b.task.dueDate);return a.task.dueDate?-1:b.task.dueDate?1:0;});return all;}
-function getAllTasks(){const all=[];for(const p of S.projects)for(const a of p.areas)for(const t of a.tasks){const isU=t.priority==='דחוף',isH=t.importance==='גבוהה';all.push({task:t,proj:p,area:a,isU,isH});}all.sort((a,b)=>{if(a.task.status==='הושלם'&&b.task.status!=='הושלם')return 1;if(b.task.status==='הושלם'&&a.task.status!=='הושלם')return -1;const oa=isOverdue(a.task.dueDate)&&a.task.status!=='הושלם',ob=isOverdue(b.task.dueDate)&&b.task.status!=='הושלם';if(oa&&!ob)return -1;if(ob&&!oa)return 1;const wa=(a.isU?2:0)+(a.isH?1:0),wb=(b.isU?2:0)+(b.isH?1:0);if(wb!==wa)return wb-wa;if(a.task.dueDate&&b.task.dueDate)return a.task.dueDate.localeCompare(b.task.dueDate);return a.task.dueDate?-1:b.task.dueDate?1:0;});return all;}
-function toggleDone(tid,e){if(e)e.stopPropagation();const r=findTask(tid);if(!r)return;r.task.status=r.task.status==='הושלם'?'פתוח':'הושלם';sv();if(S.view==='dash')rDash();else if(S.view==='proj')rMn();rSb();}
-let draggedTaskId=null;
-function moveTask(tid,targetAreaId,e){if(e)e.stopPropagation();closeMovePop();const r=findTask(tid);if(!r)return;if(r.area.id===targetAreaId)return;const target=r.proj.areas.find(a=>a.id===targetAreaId);if(!target)return;r.area.tasks=r.area.tasks.filter(t=>t.id!==tid);target.tasks.push(r.task);sv();render();}
-function showMovePop(tid,btn,e){if(e){e.stopPropagation();e.preventDefault();}closeMovePop();const r=findTask(tid);if(!r)return;const proj=r.proj;const others=proj.areas.filter(a=>a.id!==r.area.id);if(!others.length)return;const items=others.map(a=>'<button class="move-pop-i" onclick="moveTask(\''+tid+'\',\''+a.id+'\',event)">→ '+esc(a.name)+'</button>').join('');const pop=document.createElement('div');pop.className='move-pop';pop.id='move-pop';pop.innerHTML='<div class="move-pop-h">העבר לתחום</div>'+items;document.body.appendChild(pop);const rect=btn.getBoundingClientRect();let top=rect.bottom+4;let right=window.innerWidth-rect.right;pop.style.top=top+'px';pop.style.right=right+'px';requestAnimationFrame(()=>{const pr=pop.getBoundingClientRect();if(pr.bottom>window.innerHeight-8)pop.style.top=(rect.top-pr.height-4)+'px';if(pr.left<8)pop.style.right=(window.innerWidth-pr.width-8)+'px';});setTimeout(()=>document.addEventListener('click',closeMovePop,{once:true}),0);}
-function closeMovePop(){const p=document.getElementById('move-pop');if(p)p.remove();}
-function dragStart(tid,e){draggedTaskId=tid;e.target.classList.add('dragging');try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',tid);}catch(_){}}
-function dragEnd(e){draggedTaskId=null;if(e.target.classList)e.target.classList.remove('dragging');document.querySelectorAll('.tb-wrap.drop-target').forEach(el=>el.classList.remove('drop-target'));}
-function dragOver(e){if(!draggedTaskId)return;e.preventDefault();e.dataTransfer.dropEffect='move';e.currentTarget.classList.add('drop-target');}
-function dragLeave(e){e.currentTarget.classList.remove('drop-target');}
-function dropOn(aid,e){e.preventDefault();e.currentTarget.classList.remove('drop-target');const tid=draggedTaskId||(e.dataTransfer&&e.dataTransfer.getData('text/plain'));if(tid)moveTask(tid,aid);}
+// ----- Sidebar -----
+function rSidebar(){
+  const sb=document.getElementById('sb');
+  const all=getAllTasks();
+  const open=all.filter(x=>x.task.status!=='הושלם');
+  const today7=new Date();today7.setDate(today7.getDate()+7);
+  const wkEnd=today7.toISOString().split('T')[0];
+  const counts={
+    all:open.length,
+    today:open.filter(x=>x.task.dueDate===TODAY).length,
+    week:open.filter(x=>x.task.dueDate&&x.task.dueDate>=TODAY&&x.task.dueDate<=wkEnd).length,
+    overdue:open.filter(x=>isOverdue(x.task.dueDate)).length,
+    urgent:open.filter(x=>x.task.priority==='דחוף').length,
+    notes:S.notes.filter(n=>!n.done).length
+  };
 
-function rSb(){const sb=document.getElementById('sb');const urgentActive=getUrgentTasks().filter(x=>x.isU&&x.task.status!=='הושלם').length;const activeNotes=S.notes.filter(n=>!n.done).length;const items=S.projects.map(p=>'<div class="pi'+(S.view==='proj'&&p.id===S.apid?' act':'')+'" draggable="true" onclick="selP(\''+p.id+'\')" ondragstart="projItemDragStart(\''+p.id+'\',event)" ondragend="projItemDragEnd(event)" ondragover="projDragOver(\''+p.id+'\',event)" ondragleave="projDragLeave(event)" ondrop="projDrop(\''+p.id+'\',event)" title="גרור לסידור או שחרר פתק להמרה למשימה"><span class="pi-n">'+esc(p.name)+'</span><span class="pi-c">'+ptc(p)+'</span></div>').join('');sb.innerHTML='<div class="sbh"><div style="display:flex;align-items:center;gap:9px"><svg viewBox="0 0 100 100" width="32" height="32" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><defs><linearGradient id="lglogo" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#0F766E"/><stop offset="100%" stop-color="#064E3B"/></linearGradient></defs><rect width="100" height="100" rx="20" fill="url(#lglogo)"/><path d="M 28 52 L 44 68 L 72 36" stroke="white" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg><div style="min-width:0"><div class="sbh-t">אביחי משימות</div><div class="sbh-s">ניהול תשתיות אנרגיה</div></div></div></div><div class="pi'+(S.view==='dash'?' act':'')+'" onclick="selDash()" style="padding:7px 12px"><span class="pi-n" style="font-weight:600">דשבורד</span><span class="pi-c'+(urgentActive?' pi-cred':'')+'">'+(urgentActive||'★')+'</span></div><div class="pi'+(S.view==='notes'?' act':'')+'" onclick="selNotes()" style="padding:7px 12px"><span class="pi-n" style="font-weight:600">📝 פתקים מהירים</span><span class="pi-c">'+(activeNotes||'·')+'</span></div><div class="pl-sec">פרויקטים</div><div class="pl">'+(items||'<div style="padding:12px;font-size:12px;color:var(--t3);text-align:center">אין פרויקטים</div>')+'</div><div class="sbf"><button class="ai-btn" onclick="selAI()">✦ עדכון עם AI</button><button class="sbb" onclick="mNewP()">+ פרויקט חדש</button><div class="sbr"><button class="sbb" onclick="xCSV()">CSV</button><button class="sbb" onclick="xJSON()">JSON</button></div><div class="usr"><div class="av">א</div><span>אביחי אסואן</span><div class="sync-dot'+(syncOk?'':' off')+'" id="sdot" title="'+(syncOk?'מסונכרן':'לא מחובר')+'"></div></div></div>';}
+  const navItems=[
+    {id:'dashboard',ic:IC.inbox,lbl:'מבט-על',c:counts.all},
+    {id:'today',ic:IC.bolt,lbl:'היום',c:counts.today},
+    {id:'week',ic:IC.cal,lbl:'השבוע',c:counts.week},
+    {id:'overdue',ic:IC.flag,lbl:'באיחור',c:counts.overdue,red:counts.overdue>0},
+    {id:'urgent',ic:IC.star,lbl:'דחוף',c:counts.urgent},
+    {id:'notes',ic:IC.note,lbl:'פתקים',c:counts.notes},
+    {id:'ai',ic:IC.ai,lbl:'עזר בינה'}
+  ];
+  const navHtml=navItems.map(n=>{
+    const act=S.view===n.id&&!S.apid?'act':'';
+    const cnt=n.c!==undefined?'<span class="cnt'+(n.red?' red':'')+'">'+n.c+'</span>':'';
+    return '<button class="nav-item '+act+'" onclick="selView(\''+n.id+'\')"><span class="ic">'+n.ic+'</span><span class="lbl">'+n.lbl+'</span>'+cnt+'</button>';
+  }).join('');
 
-function selDash(){S.view='dash';S.apid=null;S.aiProjId=null;render();}
-function selAI(projId){S.aiProjId=projId||null;S.view='ai';render();}
-function selNotes(){S.view='notes';render();}
-function addNote(text){const t=(text||'').trim();if(!t)return;S.notes.unshift({id:uid(),text:t,content:'',done:false,created:new Date().toISOString()});sv();rNotes();rSb();}
-function toggleNoteDone(id){const n=S.notes.find(x=>x.id===id);if(!n)return;n.done=!n.done;sv();rNotes();rSb();}
-function dNote(id){if(!confirm('למחוק פתק?'))return;S.notes=S.notes.filter(n=>n.id!==id);expandedNotes.delete(id);sv();rNotes();rSb();}
-function updNote(id,text){const n=S.notes.find(x=>x.id===id);if(!n)return;const t=(text||'').trim();if(!t){S.notes=S.notes.filter(x=>x.id!==id);expandedNotes.delete(id);sv();rNotes();rSb();return;}if(n.text===t)return;n.text=t;sv();}
-function toggleNoteExpand(id){if(expandedNotes.has(id))expandedNotes.delete(id);else expandedNotes.add(id);rNotes();}
+  const projsHtml=S.projects.map(p=>{
+    const c=ptcOpen(p);
+    const isAct=S.view==='proj'&&p.id===S.apid;
+    const col=projColor(p);
+    const dotStyle='background:'+col.hex;
+    const areasHtml=isAct?'<div class="proj-areas">'+p.areas.map(a=>{
+      const aAct=a.id===S.aaid?'act':'';
+      return '<div class="area-item '+aAct+'" onclick="selA(\''+a.id+'\')" ondragover="areaDragOver(event)" ondragleave="areaDragLeave(event)" ondrop="areaDrop(\''+a.id+'\',event)"><span style="display:flex;align-items:center;gap:6px;flex:1;min-width:0"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(a.name)+'</span></span><span class="area-edit-btn" onclick="event.stopPropagation();mEditA(\''+a.id+'\')" title="עריכת תחום">✎</span><span class="area-cnt">'+a.tasks.length+'</span></div>';
+    }).join('')+'<div class="area-item area-add" onclick="mNewA()"><span>+ תחום</span><span></span></div></div>':'';
+    return '<div><button class="proj-item '+(isAct?'act':'')+'" draggable="true" onclick="selP(\''+p.id+'\')" ondragstart="projItemDragStart(\''+p.id+'\',event)" ondragend="projItemDragEnd(event)" ondragover="projDragOver(\''+p.id+'\',event)" ondragleave="projDragLeave(event)" ondrop="projDrop(\''+p.id+'\',event)"><span class="proj-left"><span class="proj-dot" style="'+dotStyle+'" onclick="event.stopPropagation();selP(\''+p.id+'\');mEditP();" title="ערוך פרויקט וצבע"></span><span class="proj-name">'+esc(p.name)+'</span></span><span class="proj-cnt">'+c+'</span></button>'+areasHtml+'</div>';
+  }).join('');
+
+  sb.innerHTML=`
+    <div class="sb-user">
+      <div class="sb-av">א</div>
+      <div class="sb-uinfo">
+        <div class="sb-uname">אביחי אטואן</div>
+        <div class="sb-utitle">תשתיות אנרגיה</div>
+      </div>
+    </div>
+    <div class="sb-search">
+      <div class="sb-search-box">
+        ${IC.search}
+        <input type="text" id="sb-search" placeholder="חיפוש משימה..." oninput="onSearchInput(this.value)" onkeydown="if(event.key==='Escape'){this.value='';onSearchInput('');}"/>
+      </div>
+    </div>
+    <nav class="sb-nav">${navHtml}</nav>
+    <div class="sb-section"><span>פרויקטים</span><span class="add" onclick="mNewP()" title="פרויקט חדש">+</span></div>
+    <div class="sb-projects">${projsHtml||'<div style="padding:10px 8px;font-size:11px;color:var(--ink3);text-align:center">אין פרויקטים</div>'}</div>
+    <div class="sb-actions">
+      <button class="sb-btn-ai" onclick="selView('ai')">${IC.ai} עדכון עם AI</button>
+      <div class="sb-btn-row">
+        <button class="sb-btn" onclick="xCSV()">CSV</button>
+        <button class="sb-btn" onclick="xJSON()">JSON</button>
+      </div>
+    </div>
+    <div class="sb-foot">
+      <span class="dot${syncOk?'':' off'}" id="sdot" title="${syncOk?'מסונכרן':'לא מחובר'}"></span>
+      <span class="lbl">${syncOk?'מסונכרן':'לא מחובר'}</span>
+      <span class="ver">v3</span>
+    </div>
+  `;
+}
+
+// ----- Main -----
+function rMain(){
+  const mn=document.getElementById('mn');
+  if(S.view==='ai'){rAI(mn);return;}
+  if(S.view==='notes'){rNotes(mn);return;}
+  if(S.view==='proj'){rProject(mn);return;}
+  if(S.view==='dashboard'){rDashboard(mn);return;}
+  // Filter views: today, week, overdue, urgent
+  const all=getAllTasks();
+  const open=all.filter(x=>x.task.status!=='הושלם');
+  const today7=new Date();today7.setDate(today7.getDate()+7);
+  const wkEnd=today7.toISOString().split('T')[0];
+  let tasks=[],title='',subtitle='';
+  if(S.view==='today'){title='היום';subtitle='משימות שתאריך היעד שלהן הוא היום ('+TODAY+')';tasks=open.filter(x=>x.task.dueDate===TODAY);}
+  else if(S.view==='week'){title='השבוע';subtitle='משימות שתאריך היעד שלהן ב-7 הימים הקרובים';tasks=open.filter(x=>x.task.dueDate&&x.task.dueDate>=TODAY&&x.task.dueDate<=wkEnd);}
+  else if(S.view==='overdue'){title='באיחור';subtitle='משימות שעבר תאריך היעד שלהן ולא הושלמו';tasks=open.filter(x=>isOverdue(x.task.dueDate));}
+  else if(S.view==='urgent'){title='דחוף';subtitle='משימות בעדיפות דחוף שטרם הושלמו';tasks=open.filter(x=>x.task.priority==='דחוף');}
+  rFilterView(mn,title,subtitle,sortTasks(tasks));
+}
+
+function rFilterView(mn,title,subtitle,tasks){
+  const tasksHtml=tasks.length?tasks.map(x=>renderTaskRow(x.task,x.area.name,x.proj,true)).join(''):'<div class="empty-st">אין משימות להצגה</div>';
+  mn.innerHTML=`
+    <header class="mn-h">
+      <div class="mn-h-row">
+        <div class="mn-h-l">
+          <h1>${esc(title)}</h1>
+          <div class="mn-h-meta"><span>${esc(subtitle)}</span><span style="color:var(--ink3)">·</span><span>${tasks.length} משימות</span></div>
+        </div>
+      </div>
+    </header>
+    <div class="tl-wrap">
+      <div class="tl">
+        <div class="tl-head"><div></div><div>משימה</div><div>עדיפות</div><div>סטטוס</div><div>יעד</div><div></div></div>
+        ${tasksHtml}
+      </div>
+    </div>
+  `;
+}
+
+// ----- Dashboard (summary of all projects + immediate priorities) -----
+function rDashboard(mn){
+  const all=getAllTasks();
+  const open=all.filter(x=>x.task.status!=='הושלם');
+  const overdue=open.filter(x=>isOverdue(x.task.dueDate));
+  const urgent=open.filter(x=>x.task.priority==='דחוף');
+  const today=open.filter(x=>x.task.dueDate===TODAY);
+  const today7=new Date();today7.setDate(today7.getDate()+7);
+  const wkEnd=today7.toISOString().split('T')[0];
+  const week=open.filter(x=>x.task.dueDate&&x.task.dueDate>=TODAY&&x.task.dueDate<=wkEnd);
+  const done=all.filter(x=>x.task.status==='הושלם');
+
+  // Project summary cards
+  const projCards=S.projects.map(p=>{
+    const pTasks=p.areas.flatMap(a=>a.tasks);
+    const pOpen=pTasks.filter(t=>t.status!=='הושלם').length;
+    const pTotal=pTasks.length;
+    const pOverdue=pTasks.filter(t=>isOverdue(t.dueDate)&&t.status!=='הושלם').length;
+    const pUrgent=pTasks.filter(t=>t.priority==='דחוף'&&t.status!=='הושלם').length;
+    const pToday=pTasks.filter(t=>t.dueDate===TODAY&&t.status!=='הושלם').length;
+    const pProgress=pTotal>0?Math.round(((pTotal-pOpen)/pTotal)*100):0;
+    const col=projColor(p);
+    const status=pUrgent>0?'urgent':(pOverdue>0?'overdue':(pOpen===0&&pTotal>0?'done':'active'));
+    return `<div class="dash-card" onclick="selP('${p.id}')">
+      <div class="dash-card-head">
+        <span class="dash-card-dot" style="background:${col.hex}"></span>
+        <span class="dash-card-name">${esc(p.name)}</span>
+        ${pUrgent?'<span class="dash-card-badge urgent" title="דחופות">★ '+pUrgent+'</span>':''}
+        ${pOverdue?'<span class="dash-card-badge overdue" title="באיחור">⚠ '+pOverdue+'</span>':''}
+      </div>
+      <div class="dash-card-stats">
+        <div class="dash-stat"><div class="dash-stat-v">${pOpen}</div><div class="dash-stat-l">פעילות</div></div>
+        <div class="dash-stat"><div class="dash-stat-v">${pTotal}</div><div class="dash-stat-l">סה"כ</div></div>
+        <div class="dash-stat"><div class="dash-stat-v">${pToday}</div><div class="dash-stat-l">היום</div></div>
+        <div class="dash-stat"><div class="dash-stat-v">${p.areas.length}</div><div class="dash-stat-l">תחומים</div></div>
+      </div>
+      <div class="dash-card-bar"><div class="dash-card-bar-fill" style="width:${pProgress}%;background:${col.hex}"></div></div>
+      <div class="dash-card-foot">
+        <span style="font-size:10.5px;color:var(--ink3)">${pProgress}% הושלם</span>
+        <span style="font-size:10.5px;color:var(--ink3)">${status==='done'?'✓ סיום':status==='urgent'?'דחוף':status==='overdue'?'באיחור':'פעיל'}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Priority list: combine overdue + urgent + today, dedupe, top 8
+  const seen=new Set();
+  const priorityList=[];
+  [...overdue,...urgent,...today].forEach(x=>{
+    if(seen.has(x.task.id))return;
+    seen.add(x.task.id);priorityList.push(x);
+  });
+  const priorityTop=sortTasks(priorityList).slice(0,8);
+  const priorityHtml=priorityTop.length?priorityTop.map(x=>renderTaskRow(x.task,x.area.name,x.proj,true)).join(''):'<div style="padding:30px 0;text-align:center;color:var(--ink3);font-size:13px">אין משימות שדורשות תשומת לב מיידית ✓</div>';
+
+  mn.innerHTML=`
+    <header class="mn-h">
+      <div class="mn-h-row">
+        <div class="mn-h-l">
+          <h1>מבט-על</h1>
+          <div class="mn-h-meta"><span>סיכום כל הפרויקטים והמשימות</span><span style="color:var(--ink3)">·</span><span>${TODAY}</span></div>
+        </div>
+        <div class="mn-h-actions">
+          <button class="btn-ghost" onclick="selView('ai')">${IC.ai} AI</button>
+          <button class="btn-primary" onclick="mNewP()">${IC.plus} פרויקט</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="kpis">
+      <div class="kpi"><div class="kpi-l">פעילות</div><div class="kpi-row"><div class="kpi-v">${open.length}</div><div class="kpi-s">מתוך ${all.length}</div></div></div>
+      <div class="kpi ${urgent.length?'acc-r':''}"><div class="kpi-l">דחופות</div><div class="kpi-row"><div class="kpi-v">${urgent.length}</div></div></div>
+      <div class="kpi ${overdue.length?'acc-a':''}"><div class="kpi-l">באיחור</div><div class="kpi-row"><div class="kpi-v">${overdue.length}</div></div></div>
+      <div class="kpi"><div class="kpi-l">השבוע</div><div class="kpi-row"><div class="kpi-v">${week.length}</div></div></div>
+      <div class="kpi acc-g"><div class="kpi-l">הושלמו</div><div class="kpi-row"><div class="kpi-v">${done.length}</div></div></div>
+    </div>
+
+    <div class="dash-body">
+      <div class="dash-section-title">
+        <span>פרויקטים</span>
+        <span class="dash-section-cnt">${S.projects.length}</span>
+      </div>
+      <div class="dash-grid">${projCards||'<div class="empty-st">אין פרויקטים<br><button class="btn-primary" style="margin-top:10px" onclick="mNewP()">+ פרויקט חדש</button></div>'}</div>
+
+      <div class="dash-section-title" style="margin-top:22px">
+        <span>דורש תשומת לב מיידית</span>
+        <span class="dash-section-cnt">${priorityTop.length}</span>
+        ${priorityList.length>8?'<button class="btn-ghost" style="margin-right:auto;font-size:11px" onclick="selView(\'overdue\')">הצג הכל →</button>':''}
+      </div>
+      <div class="tl">
+        <div class="tl-head"><div></div><div>משימה</div><div>עדיפות</div><div>סטטוס</div><div>יעד</div><div></div></div>
+        ${priorityHtml}
+      </div>
+    </div>
+  `;
+}
+
+function rProject(mn){
+  const p=ap();
+  if(!p){mn.innerHTML='<div class="empty-st">בחר פרויקט מהרשימה<br><br><button class="btn-primary" onclick="mNewP()">+ פרויקט חדש</button></div>';return;}
+  const all=p.areas.flatMap(a=>a.tasks.map(t=>({task:t,area:a,proj:p})));
+  const total=all.length;
+  const open=all.filter(x=>x.task.status!=='הושלם').length;
+  const overdue=all.filter(x=>isOverdue(x.task.dueDate)&&x.task.status!=='הושלם').length;
+  const done=total-open;
+  const today7=new Date();today7.setDate(today7.getDate()+7);
+  const wkEnd=today7.toISOString().split('T')[0];
+  const week=all.filter(x=>x.task.dueDate&&x.task.dueDate>=TODAY&&x.task.dueDate<=wkEnd&&x.task.status!=='הושלם').length;
+
+  // Filter & group
+  let filtered=S.aaid&&S.aaid!=='__all__'?all.filter(x=>x.area.id===S.aaid):all;
+  if(S.filterStatus)filtered=filtered.filter(x=>x.task.status===S.filterStatus);
+  filtered=sortTasks(filtered.slice());
+
+  let groupsHtml='';
+  if(S.aaid&&S.aaid!=='__all__'){
+    // Single area view - no grouping needed
+    const a=p.areas.find(a=>a.id===S.aaid);
+    if(a&&filtered.length){
+      groupsHtml=filtered.map(x=>renderTaskRow(x.task,null,null,false)).join('');
+    } else {
+      groupsHtml='<div class="empty-st">אין משימות בתחום זה</div>';
+    }
+  } else if(S.grouping==='area'){
+    p.areas.forEach(a=>{
+      const items=filtered.filter(x=>x.area.id===a.id);
+      if(items.length||!S.filterStatus){
+        const col=S.collapsed[a.id]?'col':'';
+        groupsHtml+='<button class="sec-head '+col+'" onclick="toggleCollapse(\''+a.id+'\')" ondragover="areaDragOver(event)" ondragleave="areaDragLeave(event)" ondrop="areaDrop(\''+a.id+'\',event)"><span class="chev">'+IC.arrow+'</span><span>'+esc(a.name)+'</span><span class="cnt">· '+items.length+'</span><span class="ic-add" onclick="event.stopPropagation();mNewT(\''+a.id+'\')" title="הוסף משימה">+</span></button>';
+        if(!S.collapsed[a.id]){
+          if(items.length)groupsHtml+=items.map(x=>renderTaskRow(x.task,null,null,false)).join('');
+          else groupsHtml+='<div style="padding:14px 16px;font-size:12px;color:var(--ink3);text-align:center;border-bottom:.5px solid var(--rule)">אין משימות</div>';
+        }
+      }
+    });
+  } else if(S.grouping==='status'){
+    STATUSES.forEach(s=>{
+      const items=filtered.filter(x=>x.task.status===s);
+      if(!items.length)return;
+      const col=S.collapsed['s_'+s]?'col':'';
+      groupsHtml+='<button class="sec-head '+col+'" onclick="toggleCollapse(\'s_'+s+'\')"><span class="chev">'+IC.arrow+'</span><span>'+esc(s)+'</span><span class="cnt">· '+items.length+'</span></button>';
+      if(!S.collapsed['s_'+s])groupsHtml+=items.map(x=>renderTaskRow(x.task,x.area.name,null,false)).join('');
+    });
+  } else {
+    if(filtered.length)groupsHtml=filtered.map(x=>renderTaskRow(x.task,x.area.name,null,false)).join('');
+    else groupsHtml='<div class="empty-st">אין משימות</div>';
+  }
+
+  const isAllArea=!S.aaid||S.aaid==='__all__';
+  const curAreaName=isAllArea?'הכל':(p.areas.find(a=>a.id===S.aaid)?.name||'הכל');
+
+  // Status filter chips
+  const statusChips=STATUSES.filter(s=>s!=='הושלם').map(s=>'<button class="chip-filter '+(S.filterStatus===s?'on':'')+'" onclick="setFilterStatus(\''+s+'\')">'+esc(s)+(S.filterStatus===s?' '+IC.x:'')+'</button>').join('');
+
+  // Area chips inside toolbar (with edit pencil for active area)
+  const areaChips='<button class="chip-filter '+(isAllArea?'on':'')+'" onclick="selA(\'__all__\')">הכל · '+total+'</button>'+
+    p.areas.map(a=>{
+      const act=S.aaid===a.id;
+      const editBtn=act?'<button class="chip-edit-btn" onclick="event.stopPropagation();mEditA(\''+a.id+'\')" title="עריכת תחום">✎</button>':'';
+      return '<span class="chip-wrap"><button class="chip-filter '+(act?'on':'')+'" onclick="selA(\''+a.id+'\')">'+esc(a.name)+' · '+a.tasks.length+'</button>'+editBtn+'</span>';
+    }).join('')+
+    '<button class="chip-filter" onclick="mNewA()" title="תחום חדש" style="border-style:dashed">+</button>';
+
+  mn.innerHTML=`
+    <header class="mn-h">
+      <div class="mn-crumb"><span>פרויקטים</span><span class="sep">/</span><span class="cur">${esc(p.name)}</span></div>
+      <div class="mn-h-row">
+        <div class="mn-h-l">
+          <h1>${esc(p.name)}</h1>
+          <div class="mn-h-meta">
+            <span class="mn-h-code">#${esc(p.name)}</span>
+            <span style="color:var(--ink3)">·</span><span>${total} משימות · ${p.areas.length} תחומים</span>
+            <span style="color:var(--ink3)">·</span><span>${open} פעילות</span>
+          </div>
+        </div>
+        <div class="mn-h-actions">
+          <button class="btn-ghost" onclick="mEditP()">${IC.edit} עריכה</button>
+          <button class="btn-ghost" onclick="selView('ai',\'${p.id}\')">${IC.ai} AI</button>
+          <button class="btn-primary" onclick="mNewT()">${IC.plus} משימה</button>
+        </div>
+      </div>
+    </header>
+    <div class="kpis">
+      <div class="kpi"><div class="kpi-l">פתוחות</div><div class="kpi-row"><div class="kpi-v">${open}</div><div class="kpi-s">מתוך ${total}</div></div></div>
+      <div class="kpi ${overdue?'acc-r':''}"><div class="kpi-l">באיחור</div><div class="kpi-row"><div class="kpi-v">${overdue}</div></div></div>
+      <div class="kpi"><div class="kpi-l">השבוע</div><div class="kpi-row"><div class="kpi-v">${week}</div></div></div>
+      <div class="kpi acc-g"><div class="kpi-l">הושלמו</div><div class="kpi-row"><div class="kpi-v">${done}</div></div></div>
+    </div>
+    <div class="tlb">
+      ${areaChips}
+      <span class="tlb-divider"></span>
+      ${statusChips}
+      <span class="tlb-grow"></span>
+      <span class="tlb-lbl">קבץ לפי</span>
+      <select class="tlb-sel" onchange="setGrouping(this.value)" ${isAllArea?'':'disabled'}>
+        <option value="area" ${S.grouping==='area'?'selected':''}>תחום</option>
+        <option value="status" ${S.grouping==='status'?'selected':''}>סטטוס</option>
+        <option value="none" ${S.grouping==='none'?'selected':''}>ללא</option>
+      </select>
+    </div>
+    <div class="tl-wrap">
+      <div class="tl">
+        <div class="tl-head"><div></div><div>משימה · ${esc(curAreaName)}</div><div>עדיפות</div><div>סטטוס</div><div>יעד</div><div></div></div>
+        ${groupsHtml}
+        <div class="tl-add" onclick="mNewT()">+ הוסף משימה</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderTaskRow(t,areaName,proj,showProj){
+  const isDone=t.status==='הושלם';
+  const od=isOverdue(t.dueDate)&&!isDone;
+  const sel=t.id===S.selTaskId?'sel':'';
+  const due=t.dueDate?fmtDate(t.dueDate):'—';
+  // Status chip
+  let statusCls='s-open',statusLbl=t.status||'פתוח';
+  if(t.status==='בביצוע')statusCls='s-prog';
+  else if(t.status==='תלוי')statusCls='s-wait';
+  else if(t.status==='הושלם')statusCls='s-done';
+  // Priority chip
+  let priorityHtml='<span class="chip-em">—</span>';
+  if(t.priority==='דחוף')priorityHtml='<span class="chip-pr p-r"><span class="chip-pr-dot"></span>דחוף</span>';
+  else if(t.priority==='בינוני')priorityHtml='<span class="chip-pr p-a"><span class="chip-pr-dot"></span>בינוני</span>';
+  else if(t.priority==='נמוך')priorityHtml='<span class="chip-pr p-l"><span class="chip-pr-dot"></span>נמוך</span>';
+  // Mobile meta
+  const mobiMeta='<div class="tr-mobi-meta">'+
+    (t.priority?priorityHtml:'')+
+    '<span class="chip-st '+statusCls+'">'+esc(statusLbl)+'</span>'+
+    (t.dueDate?'<span class="tr-due '+(od?'od':'')+'">'+esc(due)+(od?' !':'')+'</span>':'')+
+    (areaName?'<span class="tr-area">· '+esc(areaName)+'</span>':'')+
+    '</div>';
+  return `<div class="tr ${isDone?'done':''} ${sel}" data-task-id="${t.id}" draggable="true" ondragstart="dragStart('${t.id}',event)" ondragend="dragEnd(event)" onclick="selectTask('${t.id}')">
+    <button class="cb ${isDone?'done':''}" onclick="event.stopPropagation();toggleDone('${t.id}')" title="${isDone?'בטל סימון':'סמן כהושלם'}"></button>
+    <div class="tr-title-wrap">
+      <span class="tr-title">${esc(t.title)}</span>
+      ${t.importance==='גבוהה'?'<span class="imp-tag">חשוב</span>':''}
+      ${t.assigned?'<span class="chip-as">'+esc(t.assigned)+'</span>':''}
+      ${areaName?'<span class="tr-area">· '+esc(areaName)+'</span>':''}
+      ${showProj&&proj?'<span class="tr-proj">· '+esc(proj.name)+'</span>':''}
+      ${mobiMeta}
+    </div>
+    <div class="tr-priority-cell">${priorityHtml}</div>
+    <div class="tr-status-cell"><span class="chip-st ${statusCls}">${esc(statusLbl)}</span></div>
+    <div class="tr-due-cell tr-due ${od?'od':''}">${t.dueDate?esc(due)+(od?' <span style="font-size:10px">!</span>':''):'<span style="color:var(--ink3)">—</span>'}</div>
+    <button class="tr-more" onclick="event.stopPropagation();showMovePop('${t.id}',this,event)" title="העבר תחום">${IC.more}</button>
+  </div>`;
+}
+
+// ----- Detail Panel -----
+function rDetail(){
+  // Detail panel is a sibling of #mn, render inline
+  const old=document.getElementById('dp');if(old)old.remove();
+  if(!S.selTaskId)return;
+  const r=findTask(S.selTaskId);
+  if(!r){S.selTaskId=null;return;}
+  const t=r.task;
+  const dp=document.createElement('aside');
+  dp.id='dp';
+  // Status options
+  const statusOpts=STATUSES.map(s=>{
+    let cls='';
+    if(t.status===s){
+      if(s==='בביצוע')cls='act-acc';
+      else if(s==='תלוי')cls='act-a';
+      else if(s==='הושלם')cls='act-g';
+      else cls='act-ink';
+      cls='act '+cls;
+    }
+    return '<button class="opt '+cls+'" onclick="updTask(\''+t.id+'\',{status:\''+s+'\'})">'+esc(s)+'</button>';
+  }).join('');
+  // Priority options
+  const prioOpts=[['','—',''],['דחוף','דחוף','act-r'],['בינוני','בינוני','act-a'],['נמוך','נמוך','act-l']].map(([v,lbl,cls])=>{
+    const isAct=(t.priority||'')===v;
+    return '<button class="opt '+(isAct?'act '+cls:'')+'" onclick="updTask(\''+t.id+'\',{priority:\''+v+'\'})">'+esc(lbl)+'</button>';
+  }).join('');
+  // Importance options
+  const impOpts=[['','—',''],['גבוהה','גבוהה','act-a'],['בינונית','בינונית','act-acc'],['נמוכה','נמוכה','act-l']].map(([v,lbl,cls])=>{
+    const isAct=(t.importance||'')===v;
+    return '<button class="opt '+(isAct?'act '+cls:'')+'" onclick="updTask(\''+t.id+'\',{importance:\''+v+'\'})">'+esc(lbl)+'</button>';
+  }).join('');
+  // Assignee options
+  const assignees=getAssignees();
+  const asOpts=[['','—','']].concat(assignees.map(a=>[a,a,'act-acc']));
+  const asHtml=asOpts.map(([v,lbl,cls])=>{
+    const isAct=(t.assigned||'')===v;
+    return '<button class="opt '+(isAct?'act '+cls:'')+'" onclick="updTask(\''+t.id+'\',{assigned:\''+v.replace(/\'/g,'\\\'')+'\'})">'+esc(lbl)+'</button>';
+  }).join('');
+  const hasGcal=!!t.dueDate;
+  dp.innerHTML=`
+    <div class="dp-h">
+      <span class="dp-crumb">${esc(r.proj.name)} · ${esc(r.area.name)}</span>
+      <div class="dp-h-actions">
+        <button class="dp-h-btn" onclick="showMovePop('${t.id}',this,event)" title="העבר תחום">⇄</button>
+        <button class="dp-h-btn del" onclick="dTask('${t.id}')" title="מחק">${IC.trash}</button>
+        <button class="dp-h-btn" onclick="closeDetail()" title="סגור">${IC.x}</button>
+      </div>
+    </div>
+    <div class="dp-title-wrap">
+      <input class="dp-title" id="dp-title" value="${esc(t.title)}" oninput="updTaskField('${t.id}','title',this.value)" placeholder="כותרת"/>
+    </div>
+    <div class="dp-fields">
+      <div><div class="f-l">סטטוס</div><div class="opt-grp">${statusOpts}</div></div>
+      <div><div class="f-l">עדיפות</div><div class="opt-grp">${prioOpts}</div></div>
+      <div><div class="f-l">חשיבות</div><div class="opt-grp">${impOpts}</div></div>
+      <div><div class="f-l">אחראי</div><div class="opt-grp">${asHtml}<button class="opt add" onclick="addAssigneeForTask('${t.id}')">+ חדש</button></div></div>
+      <div><div class="f-l">תאריך יעד</div><input type="date" class="dp-input" value="${esc(t.dueDate||'')}" onchange="updTask('${t.id}',{dueDate:this.value})"/></div>
+      <div>
+        <div class="f-l">תוכן</div>
+        <div class="rt-tools">
+          <button class="rt-btn" onmousedown="event.preventDefault();" onclick="fmtCmd('bold')" title="מודגש"><b>B</b></button>
+          <button class="rt-btn" onmousedown="event.preventDefault();" onclick="fmtCmd('italic')" title="נטוי"><i>I</i></button>
+          <button class="rt-btn" onmousedown="event.preventDefault();" onclick="fmtCmd('underline')" title="קו תחתון"><u>U</u></button>
+          <button class="rt-btn" onmousedown="event.preventDefault();" onclick="fmtCmd('insertUnorderedList')" title="רשימה">•</button>
+          <button class="rt-btn" onmousedown="event.preventDefault();" onclick="fmtCmd('insertOrderedList')" title="ממוספרת">1.</button>
+          <button class="rt-btn" onmousedown="event.preventDefault();" onclick="fmtCmd('removeFormat')" title="נקה">×</button>
+        </div>
+        <div id="dp-content" class="rt-content" contenteditable="true" data-placeholder="הערות, פירוט, קישורים..." onblur="updTask('${t.id}',{content:this.innerHTML})">${t.content||''}</div>
+      </div>
+    </div>
+    <div class="dp-act">
+      <div class="dp-act-l">פעילות</div>
+      <div class="act-row"><span class="ic">${IC.plus}</span><span class="lbl">נוצרה</span><span class="v">${esc(fmtCreated(t.created)||'—')}</span></div>
+      ${t.dueDate?'<div class="act-row"><span class="ic">'+IC.cal+'</span><span class="lbl">תאריך יעד</span><span class="v">'+esc(fmtDate(t.dueDate))+'</span></div>':''}
+      <div class="dp-foot-actions">
+        <a class="gcal-link ${hasGcal?'':'dis'}" ${hasGcal?'href="'+gcalUrl(t)+'" target="_blank"':''}>${IC.cal} יומן גוגל</a>
+      </div>
+    </div>
+  `;
+  // Insert before #mr
+  const root=document.getElementById('root');
+  root.appendChild(dp);
+}
+
+// ----- Notes view -----
+function rNotes(mn){
+  const active=S.notes.filter(n=>!n.done);
+  const done=S.notes.filter(n=>n.done);
+  const itemHtml=n=>{
+    const isOpen=expandedNotes.has(n.id);
+    const hasContent=!!(n.content&&n.content.trim());
+    const hasCanvas=!!(n.canvasData&&n.canvasData.length>200);
+    const sizeOpts=['1','2','3','4','5','6','7'];
+    const sizeNames={'1':'קטן מאוד','2':'קטן','3':'רגיל','4':'בינוני','5':'גדול','6':'ענק','7':'ענק מאוד'};
+    const colors=['#14181C','#3F6FB5','#3D7A4F','#9C6A1F','#B23D3D','#7048A0','#2E7E7E','#5A6470'];
+    const bgColors=['#FFEB3B','#FFE0B2','#C8E6C9','#BBDEFB','#F8BBD0','#E1BEE7','#FFCCBC','transparent'];
+    const colorBtns=colors.map(c=>'<button type="button" class="note-rt-color" style="background:'+c+';width:18px;height:18px" onmousedown="event.preventDefault();" onclick="fmtNoteCmd(\''+n.id+'\',\'foreColor\',\''+c+'\')" title="צבע טקסט"></button>').join('');
+    const bgBtns=bgColors.map(c=>'<button type="button" class="note-rt-color" style="background:'+c+';width:18px;height:18px;border:1px solid var(--rule2)" onmousedown="event.preventDefault();" onclick="fmtNoteCmd(\''+n.id+'\',\'hiliteColor\',\''+c+'\')" title="הדגשה"></button>').join('');
+    const richTools=isOpen?`
+      <div class="note-rt-tools">
+        <button type="button" class="note-rt-btn sz-input" onmousedown="event.preventDefault();">
+          <select onchange="fmtNoteCmd('${n.id}','fontSize',this.value);this.selectedIndex=2;" title="גודל גופן">
+            <option value="" disabled>גודל</option>
+            ${sizeOpts.map(s=>'<option value="'+s+'">'+sizeNames[s]+'</option>').join('')}
+          </select>
+        </button>
+        <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="fmtNoteCmd('${n.id}','formatBlock','h2')" title="כותרת"><b>H1</b></button>
+        <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="fmtNoteCmd('${n.id}','formatBlock','h3')" title="כותרת משנה"><b>H2</b></button>
+        <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="fmtNoteCmd('${n.id}','formatBlock','p')" title="פסקה">¶</button>
+        <span style="width:1px;background:var(--rule2);margin:2px 4px"></span>
+        <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="fmtNoteCmd('${n.id}','bold')" title="מודגש"><b>B</b></button>
+        <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="fmtNoteCmd('${n.id}','italic')" title="נטוי"><i>I</i></button>
+        <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="fmtNoteCmd('${n.id}','underline')" title="קו תחתון"><u>U</u></button>
+        <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="fmtNoteCmd('${n.id}','strikeThrough')" title="קו חוצה"><s>S</s></button>
+        <span style="width:1px;background:var(--rule2);margin:2px 4px"></span>
+        <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="fmtNoteCmd('${n.id}','insertUnorderedList')" title="רשימה">•</button>
+        <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="fmtNoteCmd('${n.id}','insertOrderedList')" title="ממוספרת">1.</button>
+        <span style="width:1px;background:var(--rule2);margin:2px 4px"></span>
+        <span style="display:flex;gap:3px;align-items:center" title="צבע טקסט">${colorBtns}</span>
+        <span style="width:1px;background:var(--rule2);margin:2px 4px"></span>
+        <span style="display:flex;gap:3px;align-items:center" title="הדגשה">${bgBtns}</span>
+        <span style="width:1px;background:var(--rule2);margin:2px 4px"></span>
+        <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="fmtNoteCmd('${n.id}','removeFormat')" title="נקה עיצוב">×</button>
+      </div>`:'';
+    // Canvas section
+    const canvasH=n.canvasHeight||280;
+    const canvasOpen=n.canvasOpen||hasCanvas;
+    const canvasSection=isOpen?`
+      <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:11px;color:var(--ink3);font-weight:600;letter-spacing:.06em">לוח כתיבה ${hasCanvas?'<span style="color:var(--green)">●</span>':''}</div>
+        <button class="note-rt-btn" style="padding:5px 11px;border:.5px solid var(--rule2);font-size:11.5px" onclick="toggleNoteCanvas('${n.id}')">${canvasOpen?'סגור לוח':(hasCanvas?'פתח לוח':'+ פתח לוח כתיבה')}</button>
+      </div>
+      ${canvasOpen?`<div class="note-canvas-section" id="note-canvas-section-${n.id}">
+        <div class="note-canvas-toolbar">
+          <button class="note-canvas-tool" data-tool="pen" onclick="setCanvasTool('${n.id}','pen')" title="עט">✎</button>
+          <button class="note-canvas-tool" data-tool="highlight" onclick="setCanvasTool('${n.id}','highlight')" title="טוש מדגיש" style="font-size:16px">▤</button>
+          <button class="note-canvas-tool" data-tool="eraser" onclick="setCanvasTool('${n.id}','eraser')" title="מחק">⌫</button>
+          <span class="note-canvas-divider"></span>
+          <span class="note-canvas-colors">
+            ${PEN_COLORS.map(c=>'<button class="note-canvas-color" data-color="'+c+'" style="background:'+c+'" onclick="setCanvasColor(\''+n.id+'\',\''+c+'\')" title="צבע"></button>').join('')}
+          </span>
+          <span class="note-canvas-divider"></span>
+          <span class="note-canvas-sizes">
+            <button class="note-canvas-size s1" data-size="1.5" onclick="setCanvasPenSize('${n.id}',1.5)" title="עט דק"><span class="dot"></span></button>
+            <button class="note-canvas-size s2" data-size="2.5" onclick="setCanvasPenSize('${n.id}',2.5)" title="עט רגיל"><span class="dot"></span></button>
+            <button class="note-canvas-size s3" data-size="4" onclick="setCanvasPenSize('${n.id}',4)" title="עט עבה"><span class="dot"></span></button>
+            <button class="note-canvas-size s4" data-size="6.5" onclick="setCanvasPenSize('${n.id}',6.5)" title="עט עבה מאוד"><span class="dot"></span></button>
+          </span>
+          <span class="note-canvas-divider"></span>
+          <button class="note-canvas-tool" onclick="canvasUndo('${n.id}')" title="ביטול פעולה (אחרון)">↶</button>
+          <button class="note-canvas-tool" onclick="canvasClear('${n.id}')" title="נקה הכל" style="color:var(--red);margin-right:auto">⌫⌫</button>
+          <button class="note-canvas-tool" onclick="toggleCanvasTouch('${n.id}')" title="ציור באצבע" data-touch>🖐</button>
+        </div>
+        <div class="note-canvas-wrap" id="note-canvas-wrap-${n.id}" style="height:${canvasH}px">
+          <canvas id="note-canvas-${n.id}" class="note-canvas"></canvas>
+        </div>
+        <div class="note-canvas-handle" onpointerdown="startCanvasResize('${n.id}',event)" title="גרור למעלה / מטה לשינוי גובה">
+          <span class="note-canvas-handle-label">גרור לשינוי גודל</span>
+          <div class="note-canvas-handle-bar"></div>
+        </div>
+      </div>`:''}
+    `:'';
+    return `<div class="note ${n.done?'done':''}">
+      <div class="note-row" draggable="true" ondragstart="noteDragStart('${n.id}',event)" ondragend="noteDragEnd(event)">
+        <button class="cb ${n.done?'done':''}" onclick="toggleNoteDone('${n.id}')" title="${n.done?'בטל':'סמן'}"></button>
+        <input class="note-input" value="${esc(n.text)}" onblur="updNote('${n.id}',this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"/>
+        ${hasCanvas?'<span title="יש כתב יד" style="color:var(--accent);font-size:13px">✎</span>':''}
+        <button class="note-tg ${isOpen?'open':''} ${hasContent||hasCanvas?'has':''}" onclick="toggleNoteExpand('${n.id}')" title="${hasContent||hasCanvas?'יש תוכן מורחב':'הוסף תוכן'}">▾</button>
+        <button class="note-x" onclick="dNote('${n.id}')" title="מחק">${IC.x}</button>
+      </div>
+      ${isOpen?`<div class="note-extra open">${richTools}<div id="note-content-${n.id}" class="note-content" contenteditable="true" data-placeholder="טקסט חופשי, פירוט..." onblur="updNoteContent('${n.id}',this.innerHTML)">${n.content||''}</div>${canvasSection}</div>`:''}
+    </div>`;
+  };
+  const empty=S.notes.length===0?'<div class="empty-st">אין פתקים<br><span style="font-size:11px">הוסף פתק למעלה.<br>גרור פתק לפרויקט בסיידבר → הופך למשימה</span></div>':'';
+  mn.innerHTML=`
+    <header class="mn-h">
+      <div class="mn-h-row">
+        <div class="mn-h-l">
+          <h1>פתקים מהירים</h1>
+          <div class="mn-h-meta"><span>${active.length} פעילים · ${S.notes.length} סה"כ</span><span style="color:var(--ink3)">·</span><span>גרור פתק לפרויקט בסיידבר להמרה למשימה</span></div>
+        </div>
+      </div>
+    </header>
+    <div class="notes-add">
+      <input id="new-note" type="text" placeholder="הוסף פתק... (Enter לשמירה)" onkeydown="if(event.key==='Enter'){addNote(this.value);this.value='';}"/>
+      <button class="btn-primary" onclick="const i=document.getElementById('new-note');addNote(i.value);i.value='';i.focus();">${IC.plus} הוסף</button>
+    </div>
+    <div class="notes-list">
+      ${empty}
+      ${active.map(itemHtml).join('')}
+      ${done.length?'<div class="notes-sep">— הושלמו ('+done.length+') —</div>':''}
+      ${done.map(itemHtml).join('')}
+    </div>
+  `;
+  setTimeout(()=>{
+    const i=document.getElementById('new-note');
+    if(i&&!document.activeElement.tagName.match(/INPUT|TEXTAREA/))i.focus();
+    mountAllCanvases();
+  },10);
+}
+
+function fmtNoteCmd(noteId,cmd,arg){
+  const el=document.getElementById('note-content-'+noteId);
+  if(el)el.focus();
+  document.execCommand(cmd,false,arg||null);
+}
+
+// ===== CANVAS (handwriting) =====
+function mountAllCanvases(){
+  S.notes.forEach(n=>{
+    if(!expandedNotes.has(n.id))return;
+    const cv=document.getElementById('note-canvas-'+n.id);
+    if(cv&&!cv.dataset.mounted){mountNoteCanvas(cv,n);cv.dataset.mounted='1';}
+    // Update active states for tool/color/size
+    refreshCanvasUI(n.id);
+  });
+}
+
+function refreshCanvasUI(noteId){
+  const sec=document.getElementById('note-canvas-section-'+noteId);
+  if(!sec)return;
+  const st=getCanvasState(noteId);
+  sec.querySelectorAll('.note-canvas-tool[data-tool]').forEach(b=>b.classList.toggle('act',b.dataset.tool===st.tool));
+  sec.querySelectorAll('.note-canvas-color[data-color]').forEach(b=>b.classList.toggle('act',b.dataset.color===st.color));
+  sec.querySelectorAll('.note-canvas-size[data-size]').forEach(b=>b.classList.toggle('act',parseFloat(b.dataset.size)===st.size));
+  const tb=sec.querySelector('[data-touch]');
+  if(tb){tb.classList.toggle('act',st.acceptTouch);tb.style.color=st.acceptTouch?'var(--accent)':'var(--ink2)';}
+  const cv=sec.querySelector('.note-canvas');
+  if(cv)cv.classList.toggle('tool-eraser',st.tool==='eraser');
+}
+
+function mountNoteCanvas(canvas,note){
+  const wrap=canvas.parentElement;
+  const ctx=canvas.getContext('2d');
+  const dpr=window.devicePixelRatio||1;
+  let cssW=0,cssH=0;
+  let drawing=false,lastX=0,lastY=0,lastP=0.5;
+
+  function setupSize(preserve){
+    const oldData=preserve?canvas.toDataURL('image/png'):null;
+    cssW=Math.max(1,wrap.clientWidth);
+    cssH=Math.max(1,wrap.clientHeight);
+    canvas.style.width=cssW+'px';
+    canvas.style.height=cssH+'px';
+    canvas.width=Math.floor(cssW*dpr);
+    canvas.height=Math.floor(cssH*dpr);
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.scale(dpr,dpr);
+    ctx.lineCap='round';
+    ctx.lineJoin='round';
+    if(oldData){
+      const img=new Image();
+      img.onload=()=>{ctx.drawImage(img,0,0,cssW,cssH);};
+      img.src=oldData;
+    } else if(note.canvasData){
+      const img=new Image();
+      img.onload=()=>{ctx.drawImage(img,0,0,cssW,cssH);};
+      img.src=note.canvasData;
+    }
+  }
+  setupSize(false);
+
+  // Watch for container resize (handle drag)
+  const ro=new ResizeObserver(()=>setupSize(true));
+  ro.observe(wrap);
+
+  function snapshot(){
+    const st=getCanvasState(note.id);
+    st.undoStack.push(canvas.toDataURL('image/png'));
+    if(st.undoStack.length>15)st.undoStack.shift();
+  }
+
+  function shouldAccept(e){
+    const st=getCanvasState(note.id);
+    if(e.pointerType==='touch'&&!st.acceptTouch)return false;
+    return true;
+  }
+
+  canvas.addEventListener('pointerdown',(e)=>{
+    if(!shouldAccept(e))return;
+    e.preventDefault();
+    try{canvas.setPointerCapture(e.pointerId);}catch(_){}
+    drawing=true;
+    snapshot();
+    const r=canvas.getBoundingClientRect();
+    lastX=e.clientX-r.left;
+    lastY=e.clientY-r.top;
+    lastP=e.pressure>0?e.pressure:0.5;
+    // Single tap dot
+    const st=getCanvasState(note.id);
+    ctx.save();
+    if(st.tool==='eraser'){
+      ctx.globalCompositeOperation='destination-out';
+      ctx.fillStyle='rgba(0,0,0,1)';
+      ctx.beginPath();ctx.arc(lastX,lastY,st.size*2,0,Math.PI*2);ctx.fill();
+    } else {
+      ctx.globalCompositeOperation='source-over';
+      ctx.fillStyle=st.tool==='highlight'?st.color+'66':st.color;
+      const r2=st.tool==='highlight'?st.size*2:st.size*(0.5+lastP)*0.6;
+      ctx.beginPath();ctx.arc(lastX,lastY,Math.max(0.6,r2),0,Math.PI*2);ctx.fill();
+    }
+    ctx.restore();
+  });
+
+  canvas.addEventListener('pointermove',(e)=>{
+    if(!drawing||!shouldAccept(e))return;
+    e.preventDefault();
+    const r=canvas.getBoundingClientRect();
+    const x=e.clientX-r.left;
+    const y=e.clientY-r.top;
+    const p=e.pressure>0?e.pressure:0.5;
+    const st=getCanvasState(note.id);
+    ctx.save();
+    if(st.tool==='eraser'){
+      ctx.globalCompositeOperation='destination-out';
+      ctx.lineWidth=st.size*4;
+      ctx.strokeStyle='rgba(0,0,0,1)';
+    } else if(st.tool==='highlight'){
+      ctx.globalCompositeOperation='source-over';
+      ctx.strokeStyle=st.color+'55';
+      ctx.lineWidth=st.size*4;
+      ctx.lineCap='butt';
+    } else {
+      ctx.globalCompositeOperation='source-over';
+      ctx.strokeStyle=st.color;
+      const avgP=(p+lastP)/2;
+      const w=e.pointerType==='pen'?st.size*(0.4+avgP*1.4):st.size;
+      ctx.lineWidth=Math.max(0.5,w);
+    }
+    ctx.beginPath();
+    ctx.moveTo(lastX,lastY);
+    ctx.lineTo(x,y);
+    ctx.stroke();
+    ctx.restore();
+    lastX=x;lastY=y;lastP=p;
+  });
+
+  function endStroke(e){
+    if(!drawing)return;
+    drawing=false;
+    try{if(e&&e.pointerId)canvas.releasePointerCapture(e.pointerId);}catch(_){}
+    saveCanvasData(note.id);
+  }
+  canvas.addEventListener('pointerup',endStroke);
+  canvas.addEventListener('pointercancel',endStroke);
+  canvas.addEventListener('pointerleave',(e)=>{if(drawing)endStroke(e);});
+}
+
+function saveCanvasData(noteId){
+  const cv=document.getElementById('note-canvas-'+noteId);
+  if(!cv)return;
+  const n=S.notes.find(x=>x.id===noteId);
+  if(!n)return;
+  // Check if canvas has any content
+  try{
+    const data=cv.toDataURL('image/png');
+    n.canvasData=data;
+    n.canvasOpen=true;
+    clearTimeout(window._cvsv);
+    window._cvsv=setTimeout(()=>sv(),600);
+  }catch(e){console.error('Canvas save err',e);}
+}
+
+function setCanvasTool(noteId,tool){
+  getCanvasState(noteId).tool=tool;
+  refreshCanvasUI(noteId);
+}
+function setCanvasColor(noteId,color){
+  const st=getCanvasState(noteId);
+  st.color=color;
+  if(st.tool==='eraser')st.tool='pen';
+  refreshCanvasUI(noteId);
+}
+function setCanvasPenSize(noteId,size){
+  getCanvasState(noteId).size=parseFloat(size);
+  refreshCanvasUI(noteId);
+}
+function toggleCanvasTouch(noteId){
+  const st=getCanvasState(noteId);
+  st.acceptTouch=!st.acceptTouch;
+  refreshCanvasUI(noteId);
+}
+function canvasUndo(noteId){
+  const st=getCanvasState(noteId);
+  if(!st.undoStack.length)return;
+  const data=st.undoStack.pop();
+  const cv=document.getElementById('note-canvas-'+noteId);
+  if(!cv)return;
+  const ctx=cv.getContext('2d');
+  const dpr=window.devicePixelRatio||1;
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.clearRect(0,0,cv.width,cv.height);
+  ctx.scale(dpr,dpr);
+  if(data){
+    const img=new Image();
+    img.onload=()=>{
+      ctx.drawImage(img,0,0,cv.width/dpr,cv.height/dpr);
+      saveCanvasData(noteId);
+    };
+    img.src=data;
+  } else {
+    const n=S.notes.find(x=>x.id===noteId);
+    if(n){n.canvasData='';sv();}
+  }
+}
+function canvasClear(noteId){
+  if(!confirm('לנקות את כל לוח הכתיבה?'))return;
+  const cv=document.getElementById('note-canvas-'+noteId);
+  if(!cv)return;
+  const ctx=cv.getContext('2d');
+  const dpr=window.devicePixelRatio||1;
+  // Save snapshot for undo
+  const st=getCanvasState(noteId);
+  st.undoStack.push(cv.toDataURL('image/png'));
+  if(st.undoStack.length>15)st.undoStack.shift();
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.clearRect(0,0,cv.width,cv.height);
+  ctx.scale(dpr,dpr);
+  const n=S.notes.find(x=>x.id===noteId);
+  if(n){n.canvasData='';sv();}
+}
+function toggleNoteCanvas(noteId){
+  const n=S.notes.find(x=>x.id===noteId);
+  if(!n)return;
+  n.canvasOpen=!n.canvasOpen;
+  sv();render();
+}
+
+// Resize handle
+function startCanvasResize(noteId,e){
+  e.preventDefault();
+  const wrap=document.getElementById('note-canvas-wrap-'+noteId);
+  if(!wrap)return;
+  canvasResizeState={noteId,startY:e.clientY,startH:wrap.clientHeight,wrap};
+  document.body.style.cursor='ns-resize';
+  document.body.style.userSelect='none';
+  try{e.target.setPointerCapture(e.pointerId);}catch(_){}
+}
+document.addEventListener('pointermove',(e)=>{
+  if(!canvasResizeState)return;
+  const dy=e.clientY-canvasResizeState.startY;
+  const newH=Math.max(150,Math.min(1200,canvasResizeState.startH+dy));
+  canvasResizeState.wrap.style.height=newH+'px';
+});
+document.addEventListener('pointerup',()=>{
+  if(!canvasResizeState)return;
+  const finalH=canvasResizeState.wrap.clientHeight;
+  const n=S.notes.find(x=>x.id===canvasResizeState.noteId);
+  if(n){n.canvasHeight=finalH;sv();}
+  canvasResizeState=null;
+  document.body.style.cursor='';
+  document.body.style.userSelect='';
+});
+
+// ----- AI view -----
+function rAI(mn){
+  const hasKey=!!getApiKey();
+  if(!hasKey){
+    mn.innerHTML=`
+      <header class="mn-h">
+        <div class="mn-h-row">
+          <div class="mn-h-l">
+            <h1>${IC.ai} עזר בינה</h1>
+            <div class="mn-h-meta"><span>הגדר מפתח API להתחלה</span></div>
+          </div>
+        </div>
+      </header>
+      <div class="ai-no-key">
+        <div style="font-size:32px">🔑</div>
+        <p>כדי להשתמש בעדכון עם AI נדרש מפתח Anthropic API.<br>המפתח נשמר אצלך בלבד — לא בשרת ולא בקוד.</p>
+        <button class="btn-primary" onclick="mSetKey()">הגדר מפתח API</button>
+      </div>
+    `;
+    return;
+  }
+  const projCtx=S.aiProjId?S.projects.find(p=>p.id===S.aiProjId):null;
+  const subtitle=projCtx?'בהקשר פרויקט: '+projCtx.name:'מדבר ישירות עם הפרויקטים שלך';
+  const msgs=aiMsgs.map(m=>`<div class="ai-msg ${m.role==='user'?'user':'ai'}${m.loading?' loading':''}">${esc(m.content)}</div>`).join('');
+  const welcome=aiMsgs.length===0?(projCtx?`<div class="ai-welcome">צ'אט בהקשר הפרויקט "${esc(projCtx.name)}"<br>לדוגמה: "תוסיף משימה דחופה לבדוק אישור הזמנת רכש"</div>`:`<div class="ai-welcome">כתוב בשפה חופשית מה לעדכן<br>לדוגמה: "הוסף משימה לפרויקט 2253 להזמין מגופים"</div>`):'';
+  mn.innerHTML=`
+    <header class="mn-h">
+      <div class="mn-h-row">
+        <div class="mn-h-l">
+          <h1>עזר בינה</h1>
+          <div class="mn-h-meta"><span>${esc(subtitle)}</span></div>
+        </div>
+        <div class="mn-h-actions">
+          <button class="btn-ghost" onclick="mSetKey()">🔑 מפתח</button>
+          <button class="btn-ghost" onclick="clearAI()">נקה</button>
+        </div>
+      </div>
+    </header>
+    <div class="ai-msgs" id="ai-msgs">${welcome}${msgs}</div>
+    <div class="ai-foot">
+      <textarea class="ai-text" id="ai-input" placeholder="מה לעדכן? (Enter לשליחה)" onkeydown="aiKeyDown(event)"></textarea>
+      <button class="btn-accent" id="ai-send-btn" onclick="sendAI()">שלח</button>
+    </div>
+  `;
+  setTimeout(()=>{const el=document.getElementById('ai-msgs');if(el)el.scrollTop=el.scrollHeight;const inp=document.getElementById('ai-input');if(inp)inp.focus();},10);
+}
+
+// ===== ACTIONS =====
+function selView(v,projId){
+  S.view=v;S.apid=null;S.aaid=null;S.selTaskId=null;
+  if(v==='ai')S.aiProjId=projId||null;
+  else S.aiProjId=null;
+  closeMobileSB();render();
+}
+function selP(id){S.apid=id;S.view='proj';S.aaid='__all__';S.selTaskId=null;closeMobileSB();render();}
+function selA(id){S.aaid=id;render();}
+function setFilterStatus(s){S.filterStatus=S.filterStatus===s?null:s;render();}
+function setGrouping(g){S.grouping=g;render();}
+function toggleCollapse(id){S.collapsed[id]=!S.collapsed[id];render();}
+
+function selectTask(id){S.selTaskId=id;rDetail();
+  // Highlight in list
+  document.querySelectorAll('.tr.sel').forEach(el=>el.classList.remove('sel'));
+  document.querySelectorAll('.tr').forEach(el=>{if(el.outerHTML.includes("'"+id+"'"))el.classList.add('sel');});
+}
+function closeDetail(){S.selTaskId=null;rDetail();document.querySelectorAll('.tr.sel').forEach(el=>el.classList.remove('sel'));}
+
+function toggleDone(id){const r=findTask(id);if(!r)return;r.task.status=r.task.status==='הושלם'?'פתוח':'הושלם';sv();render();}
+function updTask(id,patch){const r=findTask(id);if(!r)return;Object.assign(r.task,patch);sv();render();}
+function updTaskField(id,field,value){const r=findTask(id);if(!r)return;r.task[field]=value;clearTimeout(window._upd);window._upd=setTimeout(()=>{sv();},400);}
+function dTask(id){if(!confirm('למחוק משימה?'))return;for(const p of S.projects)p.areas.forEach(a=>{a.tasks=a.tasks.filter(t=>t.id!==id);});if(S.selTaskId===id)S.selTaskId=null;sv();render();}
+
+// Search
+let searchTimeout;
+function onSearchInput(v){clearTimeout(searchTimeout);searchTimeout=setTimeout(()=>doSearch(v),250);}
+function doSearch(q){
+  q=(q||'').trim().toLowerCase();
+  if(!q){render();return;}
+  const matches=[];
+  S.projects.forEach(p=>p.areas.forEach(a=>a.tasks.forEach(t=>{
+    if(t.title.toLowerCase().includes(q)||stripHtml(t.content||'').toLowerCase().includes(q)||(t.notes||'').toLowerCase().includes(q))matches.push({task:t,proj:p,area:a});
+  })));
+  const mn=document.getElementById('mn');
+  const tasksHtml=matches.length?matches.map(x=>renderTaskRow(x.task,x.area.name,x.proj,true)).join(''):'<div class="empty-st">לא נמצאו תוצאות עבור "'+esc(q)+'"</div>';
+  mn.innerHTML=`
+    <header class="mn-h">
+      <div class="mn-h-row">
+        <div class="mn-h-l">
+          <h1>חיפוש: "${esc(q)}"</h1>
+          <div class="mn-h-meta"><span>${matches.length} תוצאות</span></div>
+        </div>
+        <div class="mn-h-actions"><button class="btn-ghost" onclick="document.getElementById('sb-search').value='';render();">סגור</button></div>
+      </div>
+    </header>
+    <div class="tl-wrap"><div class="tl">
+      <div class="tl-head"><div></div><div>משימה</div><div>עדיפות</div><div>סטטוס</div><div>יעד</div><div></div></div>
+      ${tasksHtml}
+    </div></div>
+  `;
+}
+
+// Notes
+function addNote(text){const t=(text||'').trim();if(!t)return;S.notes.unshift({id:uid(),text:t,content:'',done:false,created:new Date().toISOString()});sv();render();}
+function toggleNoteDone(id){const n=S.notes.find(x=>x.id===id);if(!n)return;n.done=!n.done;sv();render();}
+function dNote(id){if(!confirm('למחוק פתק?'))return;S.notes=S.notes.filter(n=>n.id!==id);expandedNotes.delete(id);sv();render();}
+function updNote(id,text){const n=S.notes.find(x=>x.id===id);if(!n)return;const t=(text||'').trim();if(!t){S.notes=S.notes.filter(x=>x.id!==id);expandedNotes.delete(id);sv();render();return;}if(n.text===t)return;n.text=t;sv();}
+function toggleNoteExpand(id){if(expandedNotes.has(id))expandedNotes.delete(id);else expandedNotes.add(id);render();}
 function updNoteContent(id,content){const n=S.notes.find(x=>x.id===id);if(!n)return;const c=content||'';if((n.content||'')===c)return;n.content=c;sv();}
-let draggedNoteId=null;
-let draggedProjId=null;
-function noteDragStart(id,e){draggedNoteId=id;try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain','note:'+id);}catch(_){}e.target.classList.add('dragging');}
-function noteDragEnd(e){draggedNoteId=null;if(e.target.classList)e.target.classList.remove('dragging');document.querySelectorAll('.pi.drop-target,.pi.drop-before,.pi.drop-after').forEach(el=>el.classList.remove('drop-target','drop-before','drop-after'));}
+
+// ===== DRAG & DROP =====
+function dragStart(tid,e){draggedTaskId=tid;e.target.classList.add('dragging');try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain','task:'+tid);}catch(_){}}
+function dragEnd(e){draggedTaskId=null;if(e.target.classList)e.target.classList.remove('dragging');document.querySelectorAll('.drop-target').forEach(el=>el.classList.remove('drop-target'));}
+function areaDragOver(e){if(!draggedTaskId)return;e.preventDefault();e.currentTarget.classList.add('drop-target');}
+function areaDragLeave(e){e.currentTarget.classList.remove('drop-target');}
+function areaDrop(aid,e){e.preventDefault();e.currentTarget.classList.remove('drop-target');const tid=draggedTaskId||(e.dataTransfer&&e.dataTransfer.getData('text/plain')||'').replace('task:','');if(!tid)return;moveTask(tid,aid);}
+function moveTask(tid,targetAreaId){closeMovePop();const r=findTask(tid);if(!r)return;if(r.area.id===targetAreaId)return;const target=r.proj.areas.find(a=>a.id===targetAreaId);if(!target)return;r.area.tasks=r.area.tasks.filter(t=>t.id!==tid);target.tasks.push(r.task);sv();render();}
+
+function showMovePop(tid,btn,e){if(e){e.stopPropagation();e.preventDefault();}closeMovePop();const r=findTask(tid);if(!r)return;const proj=r.proj;const others=proj.areas.filter(a=>a.id!==r.area.id);if(!others.length){alert('אין תחומים אחרים בפרויקט');return;}const items=others.map(a=>'<button class="move-pop-i" onclick="moveTask(\''+tid+'\',\''+a.id+'\')">→ '+esc(a.name)+'</button>').join('');const pop=document.createElement('div');pop.className='move-pop';pop.id='move-pop';pop.innerHTML='<div class="move-pop-h">העבר לתחום</div>'+items;document.body.appendChild(pop);const rect=btn.getBoundingClientRect();pop.style.top=(rect.bottom+4)+'px';pop.style.right=(window.innerWidth-rect.right)+'px';requestAnimationFrame(()=>{const pr=pop.getBoundingClientRect();if(pr.bottom>window.innerHeight-8)pop.style.top=(rect.top-pr.height-4)+'px';if(pr.left<8){pop.style.right='auto';pop.style.left='8px';}});setTimeout(()=>document.addEventListener('click',closeMovePop,{once:true}),0);}
+function closeMovePop(){const p=document.getElementById('move-pop');if(p)p.remove();}
+
+// Notes drag
+function noteDragStart(id,e){draggedNoteId=id;try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain','note:'+id);}catch(_){}e.currentTarget.classList.add('dragging');}
+function noteDragEnd(e){draggedNoteId=null;if(e.currentTarget.classList)e.currentTarget.classList.remove('dragging');document.querySelectorAll('.proj-item.drop-target,.proj-item.drop-before,.proj-item.drop-after').forEach(el=>el.classList.remove('drop-target','drop-before','drop-after'));}
+
+// Project drag
 function projItemDragStart(pid,e){draggedProjId=pid;try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain','proj:'+pid);}catch(_){}e.currentTarget.classList.add('dragging');}
-function projItemDragEnd(e){draggedProjId=null;if(e.currentTarget.classList)e.currentTarget.classList.remove('dragging');document.querySelectorAll('.pi.drop-target,.pi.drop-before,.pi.drop-after').forEach(el=>el.classList.remove('drop-target','drop-before','drop-after'));}
+function projItemDragEnd(e){draggedProjId=null;if(e.currentTarget.classList)e.currentTarget.classList.remove('dragging');document.querySelectorAll('.proj-item.drop-target,.proj-item.drop-before,.proj-item.drop-after').forEach(el=>el.classList.remove('drop-target','drop-before','drop-after'));}
 function projDragOver(pid,e){if(draggedNoteId){e.preventDefault();e.dataTransfer.dropEffect='move';e.currentTarget.classList.add('drop-target');return;}if(draggedProjId&&draggedProjId!==pid){e.preventDefault();e.dataTransfer.dropEffect='move';const rect=e.currentTarget.getBoundingClientRect();const isTopHalf=(e.clientY-rect.top)<rect.height/2;e.currentTarget.classList.remove('drop-before','drop-after');e.currentTarget.classList.add(isTopHalf?'drop-before':'drop-after');}}
 function projDragLeave(e){e.currentTarget.classList.remove('drop-target','drop-before','drop-after');}
 function projDrop(pid,e){e.preventDefault();const target=e.currentTarget;if(draggedNoteId){target.classList.remove('drop-target');const id=draggedNoteId;const n=S.notes.find(x=>x.id===id);if(!n)return;const proj=S.projects.find(p=>p.id===pid);if(!proj||!proj.areas.length){alert('הפרויקט אינו מכיל תחומים');return;}const area=proj.areas.find(a=>a.name==='כללי')||proj.areas[0];const noteContentHtml=n.content&&n.content.trim()?esc(n.content).replace(/\n/g,'<br>'):'';area.tasks.push({id:uid(),title:n.text,content:noteContentHtml,notes:'',priority:'',importance:'',status:n.done?'הושלם':'פתוח',assigned:'',dueDate:'',inCal:false,created:new Date().toISOString()});S.notes=S.notes.filter(x=>x.id!==id);expandedNotes.delete(id);sv();render();return;}if(draggedProjId&&draggedProjId!==pid){const rect=target.getBoundingClientRect();const isTopHalf=(e.clientY-rect.top)<rect.height/2;target.classList.remove('drop-before','drop-after');const fromIdx=S.projects.findIndex(p=>p.id===draggedProjId);if(fromIdx<0)return;const[moved]=S.projects.splice(fromIdx,1);let toIdx=S.projects.findIndex(p=>p.id===pid);if(toIdx<0){S.projects.push(moved);}else{if(!isTopHalf)toIdx++;S.projects.splice(toIdx,0,moved);}sv();render();}}
-function rNotes(){const mn=document.getElementById('mn');const active=S.notes.filter(n=>!n.done);const done=S.notes.filter(n=>n.done);const item=n=>{const isOpen=expandedNotes.has(n.id);const hasContent=!!(n.content&&n.content.trim());return '<div class="note'+(n.done?' done':'')+'"><div class="note-row" draggable="true" ondragstart="noteDragStart(\''+n.id+'\',event)" ondragend="noteDragEnd(event)"><button class="cb'+(n.done?' done':'')+'" onclick="toggleNoteDone(\''+n.id+'\')" title="'+(n.done?'בטל':'סמן כהושלם')+'"></button><input class="note-input" value="'+esc(n.text)+'" onblur="updNote(\''+n.id+'\',this.value)" onkeydown="if(event.key===\'Enter\'){event.preventDefault();this.blur();}"/><button class="note-toggle'+(isOpen?' open':'')+(hasContent?' has-text':'')+'" onclick="toggleNoteExpand(\''+n.id+'\')" title="'+(hasContent?'יש טקסט מורחב — לחץ לפתיחה':'הוסף טקסט מורחב')+'">▾</button><button class="note-x" onclick="dNote(\''+n.id+'\')" title="מחק">✕</button></div>'+(isOpen?'<div class="note-extra open"><textarea class="note-textarea" placeholder="טקסט חופשי / תוכן ארוך..." onblur="updNoteContent(\''+n.id+'\',this.value)">'+esc(n.content||'')+'</textarea></div>':'')+'</div>';};const empty=active.length===0&&done.length===0?'<div class="emp">אין פתקים<br><span style="font-size:11px">הוסף פתק למעלה.<br>גרור פתק לפרויקט בסיידבר → הופך למשימה</span></div>':'';mn.innerHTML='<div class="mnh"><div style="min-width:0"><div class="mnh-t">📝 פתקים מהירים</div><div class="mnh-s">'+active.length+' פעילים · '+S.notes.length+' סה"כ · גרור לפרויקט להמרה למשימה</div></div><button class="hb" onclick="selDash()">← דשבורד</button></div><div class="notes-add"><input id="new-note" type="text" placeholder="הוסף פתק... (Enter לשמירה)" onkeydown="if(event.key===\'Enter\'){addNote(this.value);this.value=\'\';}"/></div><div class="notes-list">'+empty+(active.length?active.map(item).join(''):'')+(done.length?'<div class="notes-sep">— הושלמו ('+done.length+') —</div>'+done.map(item).join(''):'')+'</div>';setTimeout(()=>{const i=document.getElementById('new-note');if(i)i.focus();},0);}
 
-// AI View
-function rAI(){
-  const mn=document.getElementById('mn');
-  const hasKey=!!getApiKey();
-  if(!hasKey){
-    mn.innerHTML=`<div class="ai-hd"><div><div class="mnh-t">✦ עדכון עם AI</div><div class="mnh-s">הגדר מפתח API להתחיל</div></div><button class="hb" onclick="selDash()">← חזור</button></div>
-    <div class="ai-no-key">
-      <div style="font-size:32px">🔑</div>
-      <p>כדי להשתמש בעדכון עם AI<br>נדרש מפתח Anthropic API.<br>המפתח נשמר אצלך בלבד — לא בשרת.</p>
-      <button class="bp" onclick="mSetKey()">הגדר מפתח API</button>
-    </div>`;
-    return;
-  }
-  const msgs=aiMsgs.map(m=>`<div class="msg ${m.role==='user'?'user':'ai'}${m.loading?' loading':''}" style="white-space:pre-wrap">${esc(m.content)}</div>`).join('');
-  const projCtx=S.aiProjId?S.projects.find(p=>p.id===S.aiProjId):null;
-  const subtitle=projCtx?'בפרויקט: '+esc(projCtx.name):'מדבר ישירות עם הפרויקטים שלך';
-  const backBtn=projCtx?'<button class="hb" onclick="selP(\''+S.aiProjId+'\')">← חזור לפרויקט</button>':'<button class="hb" onclick="selDash()">← חזור</button>';
-  const welcome=aiMsgs.length===0?(projCtx?`<div class="ai-welcome">צ'אט בהקשר הפרויקט "${esc(projCtx.name)}"<br>לדוגמה: "תוסיף משימה דחופה לבדוק אישור הזמנת רכש"</div>`:`<div class="ai-welcome">כתוב בשפה חופשית מה לעדכן<br>לדוגמה: "הוסף משימה לפרויקט 2253 להזמין מגופים"</div>`):'';
-  mn.innerHTML=`<div class="ai-hd"><div><div class="mnh-t">✦ עדכון עם AI</div><div class="mnh-s">${subtitle}</div></div><div style="display:flex;gap:6px"><button class="hb" onclick="mSetKey()">🔑</button><button class="hb" onclick="clearAI()">נקה</button>${backBtn}</div></div>
-  <div class="ai-msgs" id="ai-msgs">${welcome}${msgs}</div>
-  <div class="ai-foot">
-    <textarea class="ai-text" id="ai-input" placeholder="מה לעדכן? (Enter לשליחה)" onkeydown="aiKeyDown(event)"></textarea>
-    <button class="ai-send" id="ai-send-btn" onclick="sendAI()">שלח</button>
-  </div>`;
-  const el=document.getElementById('ai-msgs');
-  if(el)el.scrollTop=el.scrollHeight;
+// ===== MODALS =====
+function sm(html){const mr=document.getElementById('mr');mr.className='on';mr.innerHTML='<div class="mbg" onclick="if(event.target.classList.contains(\'mbg\'))cm()"><div class="mc">'+html+'</div></div>';setTimeout(()=>{const f=document.querySelector('#mr input');if(f)f.focus();},20);}
+function cm(){const mr=document.getElementById('mr');mr.className='';mr.innerHTML='';}
+
+function colorPickerHtml(curColor){
+  return '<div class="mf"><label>צבע</label><div class="color-pick">'+
+    Object.keys(COLORS).map(k=>{
+      const c=COLORS[k];
+      const isAct=(curColor||'blue')===k;
+      return '<button type="button" class="color-sw '+(isAct?'act':'')+'" style="background:'+c.hex+'" onclick="pickColor(\''+k+'\',this)" title="'+c.name+'"></button>';
+    }).join('')+
+    '</div></div>';
 }
+let pickedColor='blue';
+function pickColor(k,btn){pickedColor=k;document.querySelectorAll('.color-sw').forEach(el=>el.classList.remove('act'));btn.classList.add('act');}
 
-function aiKeyDown(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendAI();}}
+function mNewP(){pickedColor='blue';sm(`<h2>פרויקט חדש</h2><div class="mf"><label>שם הפרויקט</label><input id="v1" placeholder="לדוגמה: 2500"/></div>${colorPickerHtml('blue')}<div class="mc-actions"><button class="btn-primary" onclick="cP()">צור</button><button class="btn-ghost" onclick="cm()">ביטול</button></div>`);}
+function cP(){const n=document.getElementById('v1').value.trim();if(!n)return;const id=uid();const defs=[{id:uid(),name:'כללי',tasks:[]},{id:uid(),name:'ביצוע',tasks:[]},{id:uid(),name:'הזמנות רכש',tasks:[]},{id:uid(),name:'חשבונות',tasks:[]}];S.projects.push({id,name:n,color:pickedColor,areas:defs});S.apid=id;S.aaid='__all__';S.view='proj';sv();cm();render();}
 
-function clearAI(){aiMsgs=[];render();}
+function mEditP(){const p=ap();if(!p)return;pickedColor=p.color||'blue';sm(`<h2>עריכת פרויקט</h2><div class="mf"><label>שם</label><input id="v1" value="${esc(p.name)}"/></div>${colorPickerHtml(p.color||'blue')}<div class="mc-actions"><button class="btn-primary" onclick="sPn()">שמור</button><button class="btn-ghost btn-danger" onclick="dP()">מחק</button><button class="btn-ghost" onclick="cm()">ביטול</button></div>`);}
+function sPn(){const p=ap();if(!p)return;const n=document.getElementById('v1').value.trim();if(!n)return;p.name=n;p.color=pickedColor;sv();cm();render();}
+function dP(){const p=ap();if(!p||!confirm('למחוק את כל הפרויקט "'+p.name+'"?'))return;S.projects=S.projects.filter(x=>x.id!==S.apid);S.apid=null;S.aaid=null;S.view='dashboard';sv();cm();render();}
+
+function mNewA(){sm(`<h2>תחום חדש</h2><div class="mf"><label>שם התחום</label><input id="v1" placeholder="לדוגמה: אדריכלות"/></div><div class="mc-actions"><button class="btn-primary" onclick="cA()">צור</button><button class="btn-ghost" onclick="cm()">ביטול</button></div>`);}
+function cA(){const n=document.getElementById('v1').value.trim();if(!n)return;const p=ap();if(!p)return;const id=uid();p.areas.push({id,name:n,tasks:[]});S.aaid=id;sv();cm();render();}
+function mEditA(id){const p=ap();if(!p)return;const a=p.areas.find(x=>x.id===id);if(!a)return;sm(`<h2>עריכת תחום</h2><div class="mf"><label>שם</label><input id="v1" value="${esc(a.name)}"/></div>${a.tasks.length?`<div style="font-size:11px;color:var(--ink3);margin-top:-6px;margin-bottom:8px">בתחום זה ${a.tasks.length} משימות</div>`:''}<div class="mc-actions"><button class="btn-primary" onclick="sA('${id}')">שמור</button>${p.areas.length>1?'<button class="btn-ghost btn-danger" onclick="dA(\''+id+'\')">מחק</button>':''}<button class="btn-ghost" onclick="cm()">ביטול</button></div>`);}
+function sA(id){const p=ap();if(!p)return;const a=p.areas.find(x=>x.id===id);if(!a)return;const n=document.getElementById('v1').value.trim();if(!n)return;a.name=n;sv();cm();render();}
+function dA(id){const p=ap();if(!p)return;const a=p.areas.find(x=>x.id===id);if(!a)return;if(a.tasks.length&&!confirm('למחוק את התחום "'+a.name+'" ו-'+a.tasks.length+' משימות?'))return;if(!a.tasks.length&&!confirm('למחוק את התחום "'+a.name+'"?'))return;p.areas=p.areas.filter(x=>x.id!==id);if(S.aaid===id)S.aaid='__all__';sv();cm();render();}
+
+function mNewT(areaId){
+  const proj=ap();
+  if(!proj){alert('בחר פרויקט תחילה');return;}
+  if(!proj.areas.length){alert('צור תחום לפני הוספת משימה');return;}
+  const targetAreaId=areaId||(S.aaid&&S.aaid!=='__all__'?S.aaid:proj.areas[0].id);
+  const areaSel='<div class="mf"><label>תחום</label><select id="v9">'+proj.areas.map(a=>'<option value="'+a.id+'" '+(a.id===targetAreaId?'selected':'')+'>'+esc(a.name)+'</option>').join('')+'</select></div>';
+  const prioOpts=['','דחוף','בינוני','נמוך'].map(v=>'<option value="'+v+'">'+(v||'ללא')+'</option>').join('');
+  const impOpts=['','גבוהה','בינונית','נמוכה'].map(v=>'<option value="'+v+'">'+(v||'ללא')+'</option>').join('');
+  sm(`<h2>משימה חדשה</h2>
+    <div class="mf"><label>כותרת</label><input id="v1" placeholder="תיאור המשימה"/></div>
+    ${areaSel}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="mf"><label>עדיפות</label><select id="v2">${prioOpts}</select></div>
+      <div class="mf"><label>חשיבות</label><select id="v3">${impOpts}</select></div>
+    </div>
+    <div class="mf"><label>תאריך יעד</label><input type="date" id="v4"/></div>
+    <div class="mc-actions"><button class="btn-primary" onclick="cT()">צור</button><button class="btn-ghost" onclick="cm()">ביטול</button></div>`);
+}
+function cT(){
+  const t=document.getElementById('v1').value.trim();if(!t)return;
+  const aid=document.getElementById('v9').value;
+  const proj=ap();if(!proj)return;
+  const area=proj.areas.find(a=>a.id===aid);if(!area)return;
+  const task={id:uid(),title:t,content:'',notes:'',priority:document.getElementById('v2').value,importance:document.getElementById('v3').value,status:'פתוח',assigned:'',dueDate:document.getElementById('v4').value,inCal:false,created:new Date().toISOString()};
+  area.tasks.push(task);S.selTaskId=task.id;sv();cm();render();
+}
 
 function mSetKey(){
   const cur=getApiKey();
   sm(`<h2>מפתח Anthropic API</h2>
-  <div class="f"><label>המפתח נשמר במכשיר שלך בלבד — לא בשרת ולא בקוד</label>
-  <input id="v1" type="password" value="${cur?'sk-...מוגדר...':''}" placeholder="sk-ant-..." autocomplete="off"/></div>
-  <div style="font-size:11px;color:var(--t3);margin-bottom:8px">קבל מפתח ב: console.anthropic.com</div>
-  <div class="ma"><button class="bp" onclick="saveKey()">שמור</button>${cur?'<button class="bs bd-del" onclick="delKey()">מחק מפתח</button>':''}<button class="bs" onclick="cm()">ביטול</button></div>`);
+  <div class="mf"><label>המפתח נשמר במכשיר שלך בלבד — לא בשרת ולא בקוד</label><input id="v1" type="password" value="${cur?'sk-...מוגדר...':''}" placeholder="sk-ant-..." autocomplete="off"/></div>
+  <div style="font-size:11px;color:var(--ink3);margin-bottom:8px">קבל מפתח ב: console.anthropic.com</div>
+  <div class="mc-actions"><button class="btn-primary" onclick="saveKey()">שמור</button>${cur?'<button class="btn-ghost btn-danger" onclick="delKey()">מחק מפתח</button>':''}<button class="btn-ghost" onclick="cm()">ביטול</button></div>`);
 }
+function saveKey(){const inp=document.getElementById('v1');const v=inp.value.trim();if(v&&v!=='sk-...מוגדר...')setApiKey(v);cm();if(S.view==='ai')render();}
+function delKey(){localStorage.removeItem('anthropic_api_key');cm();if(S.view==='ai')render();}
 
-function saveKey(){
-  const inp=document.getElementById('v1');
-  const v=inp.value.trim();
-  if(v&&v!=='sk-...מוגדר...'){setApiKey(v);}
-  cm();
-  if(S.view==='ai')rAI();
-}
+// Assignees
+function getAssignees(){const set=new Set();S.projects.forEach(p=>p.areas.forEach(a=>a.tasks.forEach(t=>{if(t.assigned&&t.assigned.trim())set.add(t.assigned.trim());})));return Array.from(set).sort();}
+function addAssigneeForTask(tid){const name=prompt('שם האחראי החדש:');if(!name||!name.trim())return;updTask(tid,{assigned:name.trim()});}
 
-function delKey(){
-  localStorage.removeItem('anthropic_api_key');
-  cm();
-  if(S.view==='ai')rAI();
-}
+// Rich text
+function fmtCmd(cmd){document.execCommand(cmd,false,null);const el=document.getElementById('dp-content');if(el)el.focus();}
+
+// ===== AI CHAT =====
+function aiKeyDown(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendAI();}}
+function clearAI(){aiMsgs=[];render();}
 
 async function sendAI(){
   const inp=document.getElementById('ai-input');
@@ -359,27 +1582,25 @@ async function sendAI(){
   if(!msg)return;
   const key=getApiKey();
   if(!key){mSetKey();return;}
-
   inp.value='';
   if(btn)btn.disabled=true;
 
   aiMsgs.push({role:'user',content:msg});
   aiMsgs.push({role:'ai',content:'חושב...',loading:true});
-  rAI();
+  render();
 
-  // Build context about current projects - INCLUDING all areas (even empty ones)
   const projSummary=S.projects.map(p=>{
     const areas=p.areas.map(a=>{
-      const tasks=a.tasks.map(t=>`    - ${t.title} (${t.status}${t.priority?', '+t.priority:''}${t.importance?', '+t.importance:''})`);
-      return `  תחום "${a.name}":${a.tasks.length?'\n'+tasks.join('\n'):' (ריק)'}`;
+      const tasks=a.tasks.map(t=>'    - '+t.title+' ('+t.status+(t.priority?', '+t.priority:'')+(t.importance?', '+t.importance:'')+')');
+      return '  תחום "'+a.name+'":'+(a.tasks.length?'\n'+tasks.join('\n'):' (ריק)');
     }).join('\n');
-    return `פרויקט "${p.name}":\n${areas}`;
+    return 'פרויקט "'+p.name+'":\n'+areas;
   }).join('\n\n');
 
   const projCtxAI=S.aiProjId?S.projects.find(p=>p.id===S.aiProjId):null;
   const projHint=projCtxAI?`\n⚠️ חשוב: המשתמש כרגע נמצא בפרויקט "${projCtxAI.name}". אם הוא לא מציין פרויקט אחר במפורש, ההנחה היא שהוא מתכוון לפרויקט הזה.\n`:'';
 
-  const systemPrompt=`אתה עוזר לניהול פרויקטים בתשתיות אנרגיה עבור אביחי אסואן.${projHint}
+  const systemPrompt=`אתה עוזר לניהול פרויקטים בתשתיות אנרגיה עבור אביחי אטואן.${projHint}
 
 מבנה הנתונים הנוכחי (כולל תחומים ריקים):
 ${projSummary}
@@ -419,16 +1640,13 @@ status: פתוח/בביצוע/תלוי/הושלם.
       body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:systemPrompt,messages})
     });
     const data=await res.json();
-    if(data.error){throw new Error(data.error.message);}
+    if(data.error)throw new Error(data.error.message);
     const reply=data.content[0].text;
 
-    // Remove loading message
     aiMsgs=aiMsgs.filter(m=>!m.loading);
 
-    // Extract ALL actions (global flag supports multiple actions per reply)
     const actionMatches=[...reply.matchAll(/<ACTION>([\s\S]*?)<\/ACTION>/g)];
     let displayReply=reply.replace(/<ACTION>[\s\S]*?<\/ACTION>/g,'').trim();
-
     const results=[];
     const norm=s=>(s||'').toString().trim();
 
@@ -437,97 +1655,64 @@ status: פתוח/בביצוע/תלוי/הושלם.
         const action=JSON.parse(match[1].trim());
         if(action.type==='add_task'){
           const proj=S.projects.find(p=>norm(p.name)===norm(action.project));
-          if(!proj){results.push(`❌ פרויקט "${action.project}" לא נמצא`);continue;}
+          if(!proj){results.push('❌ פרויקט "'+action.project+'" לא נמצא');continue;}
           let area=proj.areas.find(a=>norm(a.name)===norm(action.area));
           let isNewArea=false;
           if(!area){area={id:uid(),name:action.area||'כללי',tasks:[]};proj.areas.push(area);isNewArea=true;}
           area.tasks.push({id:uid(),title:action.title,content:'',notes:action.notes||'',priority:action.priority||'',importance:action.importance||'',status:action.status||'פתוח',assigned:action.assigned||'',dueDate:action.dueDate||'',inCal:false,created:new Date().toISOString()});
-          results.push(`✅ נוספה משימה "${action.title}" → ${proj.name} › ${area.name}${isNewArea?' (תחום חדש!)':''}`);
+          results.push('✅ נוספה משימה "'+action.title+'" → '+proj.name+' › '+area.name+(isNewArea?' (תחום חדש!)':''));
         } else if(action.type==='update_status'){
           const proj=S.projects.find(p=>norm(p.name)===norm(action.project));
-          if(!proj){results.push(`❌ פרויקט "${action.project}" לא נמצא`);continue;}
+          if(!proj){results.push('❌ פרויקט "'+action.project+'" לא נמצא');continue;}
           let found=false;
           for(const a of proj.areas){
             const t=a.tasks.find(t=>norm(t.title)===norm(action.taskTitle));
-            if(t){t.status=action.status;results.push(`✅ "${action.taskTitle}" → ${action.status}`);found=true;break;}
+            if(t){t.status=action.status;results.push('✅ "'+action.taskTitle+'" → '+action.status);found=true;break;}
           }
-          if(!found)results.push(`❌ משימה "${action.taskTitle}" לא נמצאה ב-${proj.name}`);
+          if(!found)results.push('❌ משימה "'+action.taskTitle+'" לא נמצאה ב-'+proj.name);
         } else if(action.type==='add_project'){
           const exists=S.projects.find(p=>norm(p.name)===norm(action.name));
-          if(exists){results.push(`❌ פרויקט "${action.name}" כבר קיים`);continue;}
+          if(exists){results.push('❌ פרויקט "'+action.name+'" כבר קיים');continue;}
           const id=uid();
           const defs=[{id:uid(),name:'כללי',tasks:[]},{id:uid(),name:'ביצוע',tasks:[]},{id:uid(),name:'הזמנות רכש',tasks:[]},{id:uid(),name:'חשבונות',tasks:[]}];
           S.projects.push({id,name:action.name,areas:defs});
-          results.push(`✅ נוסף פרויקט "${action.name}"`);
+          results.push('✅ נוסף פרויקט "'+action.name+'"');
         } else if(action.type==='delete_task'){
           const proj=S.projects.find(p=>norm(p.name)===norm(action.project));
-          if(!proj){results.push(`❌ פרויקט "${action.project}" לא נמצא`);continue;}
+          if(!proj){results.push('❌ פרויקט "'+action.project+'" לא נמצא');continue;}
           let found=false;
           for(const a of proj.areas){
             const idx=a.tasks.findIndex(t=>norm(t.title)===norm(action.taskTitle));
-            if(idx>=0){a.tasks.splice(idx,1);results.push(`✅ נמחקה "${action.taskTitle}"`);found=true;break;}
+            if(idx>=0){a.tasks.splice(idx,1);results.push('✅ נמחקה "'+action.taskTitle+'"');found=true;break;}
           }
-          if(!found)results.push(`❌ משימה "${action.taskTitle}" לא נמצאה`);
+          if(!found)results.push('❌ משימה "'+action.taskTitle+'" לא נמצאה');
         } else {
-          results.push(`❌ סוג פקודה לא מוכר: ${action.type}`);
+          results.push('❌ סוג פקודה לא מוכר: '+action.type);
         }
-      }catch(e){
-        results.push('❌ שגיאה בפענוח פקודה');
-        console.error('Action parse error',e,match[1]);
-      }
+      }catch(e){results.push('❌ שגיאה בפענוח פקודה');console.error(e);}
     }
-
     if(results.length){await sv();displayReply=(displayReply?displayReply+'\n\n':'')+results.join('\n');}
-
     aiMsgs.push({role:'ai',content:displayReply||'(אין תשובה)'});
   }catch(e){
     aiMsgs=aiMsgs.filter(m=>!m.loading);
     aiMsgs.push({role:'ai',content:'שגיאה: '+(e.message||'בעיה בחיבור ל-API')});
   }
-  rAI();
+  render();
   if(btn)btn.disabled=false;
 }
 
-function rDash(){const mn=document.getElementById('mn');const all=getAllTasks();const active=all.filter(x=>x.task.status!=='הושלם');const urgent=active.filter(x=>x.isU);const highOnly=active.filter(x=>!x.isU&&x.isH);const overdue=active.filter(x=>isOverdue(x.task.dueDate));const done=all.filter(x=>x.task.status==='הושלם');const totalTasks=all.length;const filtered=dashFilter==='active'?active:dashFilter==='urgent'?urgent:dashFilter==='high'?active.filter(x=>x.isH):dashFilter==='overdue'?overdue:dashFilter==='done'?done:all;const cards=filtered.length?filtered.map(x=>{const t=x.task;const _tx=stripHtml(t.content||'')||t.notes||'';const n=_tx?_tx.split('\n')[0]:'';const od=isOverdue(t.dueDate)&&t.status!=='הושלם';const isDone=t.status==='הושלם';const btns=STATUSES.map(s=>'<button class="sb-btn'+(t.status===s?' cur'+(s==='הושלם'?' done':''):'')+'" onclick="quickStatus(\''+t.id+'\',\''+s+'\')">'+s+'</button>').join('');return '<div class="dk '+(isDone?'done':x.isU?'u':x.isH?'h':'')+'" id="dk-'+t.id+'"><div class="dk-top"><button class="cb'+(isDone?' done':'')+'" onclick="toggleDone(\''+t.id+'\',event)" title="'+(isDone?'בטל סימון':'סמן כהושלם')+'"></button><div class="dk-b" onclick="toggleSB(\''+t.id+'\')" style="cursor:pointer"><div class="dk-t">'+esc(t.title)+'</div>'+(n?'<div class="dk-notes">'+esc(n)+'</div>':'')+'<div class="dk-meta">'+(x.isU?'<span class="bd r">דחוף</span>':'')+(x.isH?'<span class="bd am">↑ גבוהה</span>':'')+(t.status&&t.status!=='פתוח'?'<span class="bd '+(isDone?'gn':'gy')+'">'+esc(t.status)+'</span>':'')+(t.assigned?'<span class="bd bl">'+esc(t.assigned)+'</span>':'')+'<span class="dk-proj">'+esc(x.proj.name)+' › '+esc(x.area.name)+'</span>'+(t.dueDate?'<span class="bd gy'+(od?' od-mark':'')+'">'+esc(t.dueDate)+(od?' ⚠':'')+'</span>':'')+'</div></div><button class="dk-edit-btn" onclick="event.stopPropagation();openFullEdit(\''+t.id+'\')">עריכה</button></div><div class="dk-sb" id="dsb-'+t.id+'"><span class="sb-lbl">סטטוס:</span>'+btns+'</div></div>';}).join(''):'<div class="dash-empty">אין משימות בתצוגה זו</div>';mn.innerHTML='<div class="mnh"><div style="min-width:0"><div class="mnh-t">דשבורד</div><div class="mnh-s">'+active.length+' פעילות · '+totalTasks+' סה"כ</div></div></div><div class="dash-wrap"><div class="dash-body"><div class="dash-stats"><div class="sc"><div class="sc-n">'+active.length+'</div><div class="sc-l">פעילות</div></div><div class="sc red"><div class="sc-n">'+urgent.length+'</div><div class="sc-l">דחופות</div></div><div class="sc od"><div class="sc-n">'+overdue.length+'</div><div class="sc-l">באיחור</div></div><div class="sc"><div class="sc-n">'+done.length+'</div><div class="sc-l">הושלמו</div></div></div><div class="dash-filter"><button class="fb'+(dashFilter==='active'?' on':'')+'" onclick="setFilt(\'active\')">פעיל ('+active.length+')</button><button class="fb'+(dashFilter==='all'?' on':'')+'" onclick="setFilt(\'all\')">הכל ('+all.length+')</button><button class="fb'+(dashFilter==='urgent'?' on':'')+'" onclick="setFilt(\'urgent\')">דחוף ('+urgent.length+')</button><button class="fb'+(dashFilter==='high'?' on':'')+'" onclick="setFilt(\'high\')">חשיבות גבוהה ('+active.filter(x=>x.isH).length+')</button><button class="fb'+(dashFilter==='overdue'?' on':'')+'" onclick="setFilt(\'overdue\')">באיחור ('+overdue.length+')</button><button class="fb'+(dashFilter==='done'?' on':'')+'" onclick="setFilt(\'done\')">הושלמו ('+done.length+')</button></div>'+cards+'</div></div>';}
-function toggleSB(id){const el=document.getElementById('dsb-'+id);if(el)el.classList.toggle('open');}
-function quickStatus(tid,s){const r=findTask(tid);if(!r)return;r.task.status=s;sv();rDash();rSb();const el=document.getElementById('dsb-'+tid);if(el)el.classList.add('open');}
-function openFullEdit(id){const r=findTask(id);if(!r)return;S.apid=r.proj.id;S.aaid=r.area.id;S.view='proj';mEditT(id);}
-function setFilt(f){dashFilter=f;rDash();}
-function rMn(){const mn=document.getElementById('mn');const proj=ap();if(!proj){mn.innerHTML='<div class="nop"><div>בחר פרויקט מהרשימה</div><button class="bp" onclick="mNewP()">+ פרויקט חדש</button></div>';return;}const isAllView=S.aaid==='__all__';const totalCount=ptc(proj);const allTab='<div class="tb-wrap all'+(isAllView?' act':'')+'"><div class="tb" onclick="selA(\'__all__\')">★ הכל'+(totalCount?'<span class="tb-b">'+totalCount+'</span>':'')+'</div></div>';const areaTabs=proj.areas.map(a=>'<div class="tb-wrap'+(a.id===S.aaid?' act':'')+'" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropOn(\''+a.id+'\',event)"><div class="tb" onclick="selA(\''+a.id+'\')">'+esc(a.name)+(a.tasks.length?'<span class="tb-b">'+a.tasks.length+'</span>':'')+'</div><button class="tb-edit" onclick="mEditA(\''+a.id+'\')" title="ערוך">&#9998;</button></div>').join('');const tabs=allTab+areaTabs;let tasksToShow=[];if(isAllView){proj.areas.forEach(a=>a.tasks.forEach(t=>tasksToShow.push({task:t,area:a})));}else{const area=proj.areas.find(a=>a.id===S.aaid);if(area)tasksToShow=area.tasks.map(t=>({task:t,area:area}));}const cards=tasksToShow.map(({task:t,area:ta})=>{const _tx=stripHtml(t.content||'')||t.notes||'';const n=_tx?_tx.split('\n')[0]:'';const isDone=t.status==='הושלם';const areaTag=isAllView?'<span class="tc-area-tag">'+esc(ta.name)+'</span>':'';const createdStr=t.created?fmtCreated(t.created):'';return '<div class="tc'+(isDone?' done':'')+'" draggable="true" ondragstart="dragStart(\''+t.id+'\',event)" ondragend="dragEnd(event)" onclick="mEditT(\''+t.id+'\')"><div class="tc-l"><button class="cb'+(isDone?' done':'')+'" onclick="toggleDone(\''+t.id+'\',event)" title="'+(isDone?'בטל סימון':'סמן כהושלם')+'"></button><button class="tc-move" onclick="showMovePop(\''+t.id+'\',this,event)" title="העבר תחום">⇄</button><button class="tc-x" onclick="event.stopPropagation();dTask(\''+t.id+'\')">✕</button></div><div class="tc-b"><div class="tc-t">'+esc(t.title)+'</div>'+(n?'<div class="tc-notes">'+esc(n)+'</div>':'')+'<div class="tc-bds">'+areaTag+(t.priority?'<span class="bd '+pc(t.priority)+'">'+esc(t.priority)+'</span>':'')+(t.importance?'<span class="bd am">↑ '+esc(t.importance)+'</span>':'')+(t.status&&t.status!=='פתוח'?'<span class="bd '+(isDone?'gn':'gy')+'">'+esc(t.status)+'</span>':'')+(t.assigned?'<span class="bd bl">'+esc(t.assigned)+'</span>':'')+(t.dueDate?'<span class="bd gy">'+esc(t.dueDate)+(t.inCal?'<span class="cal-dot"></span>':'')+'</span>':'')+'</div>'+(createdStr?'<div class="tc-created">נוצר: '+esc(createdStr)+'</div>':'')+'</div></div>';}).join('');const emptyMsg=isAllView?'<div class="emp">אין משימות בפרויקט<br><span style="font-size:12px">לחץ "+ הוסף משימה" למטה</span></div>':'<div class="emp">אין משימות<br><span style="font-size:12px">לחץ "+ הוסף משימה" למטה</span></div>';const noAreaMsg=(!isAllView&&!proj.areas.find(a=>a.id===S.aaid))?'<div class="emp">לחץ על תחום למעלה</div>':(cards||emptyMsg);mn.innerHTML='<div class="mnh"><div style="min-width:0"><div class="mnh-t">'+esc(proj.name)+'</div><div class="mnh-s">'+ptc(proj)+' משימות ב-'+proj.areas.length+' תחומים</div></div><button class="hb" onclick="mEditP()">עריכת פרויקט</button></div><div class="tabs">'+tabs+'<div class="tb-add" onclick="mNewA()">+</div></div><div class="tl">'+noAreaMsg+'</div><div class="ab"><div class="ab-row"><button class="ab-task" onclick="mNewT()">+ משימה חדשה</button><button class="ab-ai" onclick="selAI(\''+proj.id+'\')">✦ AI לפרויקט</button></div></div>';}
-function selP(id){S.apid=id;S.view='proj';const p=S.projects.find(x=>x.id===id);if(p&&p.areas.length){if(S.aaid!=='__all__'&&!p.areas.find(a=>a.id===S.aaid))S.aaid='__all__';}else S.aaid='__all__';render();}
-function selA(id){S.aaid=id;render();}
-function sm(html){const mr=document.getElementById('mr');mr.className='on';mr.innerHTML='<div class="mbg" onclick="if(event.target.classList.contains(\'mbg\'))cm()"><div class="mc">'+html+'</div></div>';}
-function cm(){const mr=document.getElementById('mr');mr.className='';mr.innerHTML='';render();}
-function mNewP(){sm('<h2>פרויקט חדש</h2><div class="f"><label>שם הפרויקט</label><input id="v1" placeholder="פרויקט 2500"/></div><div class="ma"><button class="bp" onclick="cP()">צור פרויקט</button><button class="bs" onclick="cm()">ביטול</button></div>');}
-function cP(){const n=document.getElementById('v1').value.trim();if(!n)return;const id=uid();const defs=[{id:uid(),name:'כללי',tasks:[]},{id:uid(),name:'ביצוע',tasks:[]},{id:uid(),name:'הזמנות רכש',tasks:[]},{id:uid(),name:'חשבונות',tasks:[]}];S.projects.push({id,name:n,areas:defs});S.apid=id;S.aaid='__all__';S.view='proj';sv();cm();}
-function mEditP(){const p=ap();if(!p)return;sm('<h2>עריכת פרויקט</h2><div class="f"><label>שם</label><input id="v1" value="'+esc(p.name)+'"/></div><div class="ma"><button class="bp" onclick="sPn()">שמור</button><button class="bs bd-del" onclick="dP()">מחק</button><button class="bs" onclick="cm()">ביטול</button></div>');}
-function sPn(){const p=ap();if(!p)return;const n=document.getElementById('v1').value.trim();if(!n)return;p.name=n;sv();cm();}
-function dP(){const p=ap();if(!p||!confirm('למחוק?'))return;S.projects=S.projects.filter(x=>x.id!==S.apid);S.apid=null;S.aaid=null;S.view='dash';sv();cm();}
-function mNewA(){sm('<h2>תחום חדש</h2><div class="f"><label>שם</label><input id="v1" placeholder="חשבונות"/></div><div class="ma"><button class="bp" onclick="cA()">צור</button><button class="bs" onclick="cm()">ביטול</button></div>');}
-function cA(){const n=document.getElementById('v1').value.trim();if(!n)return;const p=ap();if(!p)return;const id=uid();p.areas.push({id,name:n,tasks:[]});S.aaid=id;sv();cm();}
-function mEditA(id){const p=ap();if(!p)return;const a=p.areas.find(x=>x.id===id);if(!a)return;sm('<h2>עריכת תחום</h2><div class="f"><label>שם</label><input id="v1" value="'+esc(a.name)+'"/></div>'+(a.tasks.length?'<div style="font-size:11px;color:var(--t3);margin-top:4px">לתחום זה '+a.tasks.length+' משימות</div>':'')+'<div class="ma"><button class="bp" onclick="sA(\''+id+'\')">שמור</button><button class="bs bd-del" onclick="dA(\''+id+'\')" '+(p.areas.length>1?'':'disabled')+'>מחק</button><button class="bs" onclick="cm()">ביטול</button></div>');}
-function sA(id){const p=ap();if(!p)return;const a=p.areas.find(x=>x.id===id);if(!a)return;const n=document.getElementById('v1').value.trim();if(!n)return;a.name=n;sv();cm();}
-function dA(id){const p=ap();if(!p)return;const a=p.areas.find(x=>x.id===id);if(!a||!confirm('למחוק?'))return;p.areas=p.areas.filter(x=>x.id!==id);if(S.aaid===id)S.aaid='__all__';sv();cm();}
-function stripHtml(s){if(!s)return '';const d=document.createElement('div');d.innerHTML=s;return (d.textContent||'').trim();}
-function getAssignees(){const set=new Set();S.projects.forEach(p=>p.areas.forEach(a=>a.tasks.forEach(t=>{if(t.assigned&&t.assigned.trim())set.add(t.assigned.trim());})));return Array.from(set).sort();}
-function fmtCmd(cmd){document.execCommand(cmd,false,null);const el=document.getElementById('v2');if(el)el.focus();}
-function optSel(btn){const grp=btn.parentElement;grp.querySelectorAll('.opt').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
-function addAssignee(){const name=prompt('שם האחראי החדש:');if(!name||!name.trim())return;const v=name.trim();const grp=document.getElementById('v7');if(!grp)return;const existing=Array.from(grp.querySelectorAll('.opt')).find(b=>b.dataset.val===v);if(existing){optSel(existing);return;}const addBtn=grp.querySelector('.opt-add');const newBtn=document.createElement('button');newBtn.type='button';newBtn.className='opt opt-bl';newBtn.dataset.val=v;newBtn.textContent=v;newBtn.onclick=function(){optSel(this);};grp.insertBefore(newBtn,addBtn);optSel(newBtn);}
-function tForm(t){const cur={priority:t?.priority||'',importance:t?.importance||'',status:t?.status||'פתוח',assigned:t?.assigned||''};const mkBtns=(opts,curVal)=>opts.map(o=>'<button type="button" class="opt '+o.c+(curVal===o.v?' active':'')+'" data-val="'+esc(o.v)+'" onclick="optSel(this)">'+esc(o.l)+'</button>').join('');const prio=mkBtns([{v:'',l:'ללא',c:'opt-none'},{v:'דחוף',l:'דחוף',c:'opt-r'},{v:'בינוני',l:'בינוני',c:'opt-am'},{v:'נמוך',l:'נמוך',c:'opt-gn'}],cur.priority);const imp=mkBtns([{v:'',l:'ללא',c:'opt-none'},{v:'גבוהה',l:'↑ גבוהה',c:'opt-am'},{v:'בינונית',l:'בינונית',c:'opt-bl'},{v:'נמוכה',l:'נמוכה',c:'opt-gy'}],cur.importance);const stat=mkBtns([{v:'פתוח',l:'פתוח',c:'opt-gy'},{v:'בביצוע',l:'בביצוע',c:'opt-bl'},{v:'תלוי',l:'תלוי',c:'opt-am'},{v:'הושלם',l:'✓ הושלם',c:'opt-gn'}],cur.status);const assignees=getAssignees();const assignOpts=[{v:'',l:'ללא',c:'opt-none'}].concat(assignees.map(a=>({v:a,l:a,c:'opt-bl'})));const assign=mkBtns(assignOpts,cur.assigned);const contentHtml=t?.content||'';return '<div class="f"><label>כותרת *</label><input id="v1" value="'+esc(t?.title||'')+'" placeholder="תיאור המשימה"/></div>'+
-'<div class="f"><label>תוכן / תיאור</label><div class="rt-toolbar"><button type="button" class="rt-btn" onclick="fmtCmd(\'bold\')" title="מודגש"><b>B</b></button><button type="button" class="rt-btn" onclick="fmtCmd(\'italic\')" title="נטוי"><i>I</i></button><button type="button" class="rt-btn" onclick="fmtCmd(\'underline\')" title="קו תחתון"><u>U</u></button><button type="button" class="rt-btn" onclick="fmtCmd(\'insertUnorderedList\')" title="רשימה">•</button><button type="button" class="rt-btn" onclick="fmtCmd(\'insertOrderedList\')" title="ממוספרת">1.</button><button type="button" class="rt-btn" onclick="fmtCmd(\'removeFormat\')" title="נקה עיצוב">×</button></div><div id="v2" class="rt-content" contenteditable="true" data-placeholder="כתוב תוכן ארוך כאן... (השתמש בסרגל הכלים לעיצוב)">'+contentHtml+'</div></div>'+
-'<div class="f"><label>עדיפות</label><div class="opt-grp" id="v4">'+prio+'</div></div>'+
-'<div class="f"><label>חשיבות</label><div class="opt-grp" id="v5">'+imp+'</div></div>'+
-'<div class="f"><label>סטטוס</label><div class="opt-grp" id="v6">'+stat+'</div></div>'+
-'<div class="f"><label>אחראי</label><div class="opt-grp" id="v7">'+assign+'<button type="button" class="opt opt-add" onclick="addAssignee()">+ חדש</button></div></div>'+
-'<div class="f"><label>תאריך יעד</label><input type="date" id="v8" value="'+esc(t?.dueDate||'')+'"/></div>';}
-function gcalSection(t){const has=t?.dueDate;return '<hr class="divider"/><div class="gcal-box"><div class="gcal-box-title">ייצוא ליומן גוגל</div><div class="gcal-note">'+(has?'לחץ לפתוח ביומן גוגל.':'הוסף תאריך יעד כדי לאפשר.')+'</div><a '+(has?'href="'+gcalUrl(t)+'" target="_blank"':'href="#" onclick="event.preventDefault()"')+' class="gcal-btn" style="'+(has?'':'opacity:.4;cursor:not-allowed')+'">פתח ביומן גוגל</a></div>';}
-function mNewT(){const proj=ap();if(!proj)return;const isAllView=S.aaid==='__all__';if(!isAllView&&!aa())return;if(isAllView&&!proj.areas.length){alert('צור תחום לפני הוספת משימה');return;}let areaSel='';if(isAllView){areaSel='<div class="f"><label>תחום *</label><select id="v9">'+proj.areas.map(a=>'<option value="'+a.id+'">'+esc(a.name)+'</option>').join('')+'</select></div>';}sm('<h2>משימה חדשה</h2>'+areaSel+tForm(null)+gcalSection(null)+'<div class="ma"><button class="bp" onclick="sT(\'\')">שמור</button><button class="bs" onclick="cm()">ביטול</button></div>');}
-function mEditT(id){const r=findTask(id);if(!r)return;const t=r.task;sm('<h2>עריכת משימה</h2>'+tForm(t)+gcalSection(t)+'<div class="ma"><button class="bp" onclick="sT(\''+id+'\')">שמור</button><button class="bs bd-del" onclick="dTask(\''+id+'\');cm()">מחק</button><button class="bs" onclick="cm()">ביטול</button></div>');}
-function sT(eid){const n=document.getElementById('v1').value.trim();if(!n)return;const proj=ap();if(!proj)return;let area,ex={};if(eid){const r=findTask(eid);if(!r)return;area=r.area;ex=r.task;}else if(S.aaid==='__all__'){const sel=document.getElementById('v9');if(!sel)return;area=proj.areas.find(a=>a.id===sel.value);}else{area=aa();}if(!area)return;const getOpt=id=>{const sel=document.querySelector('#'+id+' .opt.active');return sel?sel.dataset.val:'';};const contentEl=document.getElementById('v2');const content=contentEl?contentEl.innerHTML.trim():'';const task={id:eid||uid(),title:n,content:content,notes:ex.notes||'',priority:getOpt('v4'),importance:getOpt('v5'),status:getOpt('v6')||'פתוח',assigned:getOpt('v7'),dueDate:document.getElementById('v8').value,inCal:ex.inCal||false,created:ex.created||new Date().toISOString()};if(eid)area.tasks=area.tasks.map(t=>t.id===eid?task:t);else area.tasks.push(task);sv();cm();}
-function dTask(id){if(!confirm('למחוק?'))return;for(const p of S.projects)p.areas.forEach(a=>{a.tasks=a.tasks.filter(t=>t.id!==id);});sv();render();}
-function xCSV(){const p=ap();if(!p){alert('בחר פרויקט');return;}let rows=[['פרויקט','תחום','כותרת','הערות','עדיפות','חשיבות','סטטוס','אחראי','תאריך יעד']];p.areas.forEach(a=>a.tasks.forEach(t=>rows.push([p.name,a.name,t.title,t.notes,t.priority,t.importance,t.status,t.assigned,t.dueDate])));const csv=rows.map(r=>r.map(x=>'"'+(x||'').toString().replace(/"/g,'""')+'"').join(',')).join('\n');const el=document.createElement('a');el.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv'}));el.download=p.name+'.csv';el.click();}
+// ===== EXPORTS =====
+function xCSV(){const p=ap();if(!p){alert('בחר פרויקט');return;}let rows=[['פרויקט','תחום','כותרת','הערות','עדיפות','חשיבות','סטטוס','אחראי','תאריך יעד']];p.areas.forEach(a=>a.tasks.forEach(t=>rows.push([p.name,a.name,t.title,stripHtml(t.content||'')||t.notes||'',t.priority,t.importance,t.status,t.assigned,t.dueDate])));const csv=rows.map(r=>r.map(x=>'"'+(x||'').toString().replace(/"/g,'""')+'"').join(',')).join('\n');const el=document.createElement('a');el.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv'}));el.download=p.name+'.csv';el.click();}
 function xJSON(){const p=ap();if(!p){alert('בחר פרויקט');return;}const el=document.createElement('a');el.href=URL.createObjectURL(new Blob([JSON.stringify(p,null,2)],{type:'application/json'}));el.download=p.name+'.json';el.click();}
-window.selP=selP;window.selA=selA;window.selDash=selDash;window.selAI=selAI;window.selNotes=selNotes;window.mNewP=mNewP;window.mEditP=mEditP;window.mNewA=mNewA;window.mEditA=mEditA;window.mNewT=mNewT;window.mEditT=mEditT;window.sT=sT;window.dTask=dTask;window.cP=cP;window.sPn=sPn;window.dP=dP;window.cA=cA;window.sA=sA;window.dA=dA;window.cm=cm;window.toggleSB=toggleSB;window.quickStatus=quickStatus;window.openFullEdit=openFullEdit;window.setFilt=setFilt;window.xCSV=xCSV;window.xJSON=xJSON;window.mSetKey=mSetKey;window.saveKey=saveKey;window.delKey=delKey;window.sendAI=sendAI;window.clearAI=clearAI;window.aiKeyDown=aiKeyDown;window.toggleDone=toggleDone;window.moveTask=moveTask;window.showMovePop=showMovePop;window.closeMovePop=closeMovePop;window.dragStart=dragStart;window.dragEnd=dragEnd;window.dragOver=dragOver;window.dragLeave=dragLeave;window.dropOn=dropOn;window.addNote=addNote;window.toggleNoteDone=toggleNoteDone;window.dNote=dNote;window.updNote=updNote;window.toggleNoteExpand=toggleNoteExpand;window.updNoteContent=updNoteContent;window.noteDragStart=noteDragStart;window.noteDragEnd=noteDragEnd;window.projItemDragStart=projItemDragStart;window.projItemDragEnd=projItemDragEnd;window.projDragOver=projDragOver;window.projDragLeave=projDragLeave;window.projDrop=projDrop;window.fmtCmd=fmtCmd;window.optSel=optSel;window.addAssignee=addAssignee;
+
+// ===== MOBILE =====
+function toggleSB(){document.getElementById('sb').classList.toggle('open');}
+function closeMobileSB(){document.getElementById('sb').classList.remove('open');}
+
+// ===== EXPOSE =====
+Object.assign(window,{selView,selP,selA,selectTask,closeDetail,toggleDone,updTask,updTaskField,dTask,setFilterStatus,setGrouping,toggleCollapse,onSearchInput,addNote,toggleNoteDone,dNote,updNote,toggleNoteExpand,updNoteContent,dragStart,dragEnd,areaDragOver,areaDragLeave,areaDrop,moveTask,showMovePop,closeMovePop,noteDragStart,noteDragEnd,projItemDragStart,projItemDragEnd,projDragOver,projDragLeave,projDrop,sm,cm,mNewP,cP,mEditP,sPn,dP,mNewA,cA,mEditA,sA,dA,mNewT,cT,mSetKey,saveKey,delKey,addAssigneeForTask,fmtCmd,aiKeyDown,clearAI,sendAI,xCSV,xJSON,toggleSB,closeMobileSB,pickColor,fmtNoteCmd,setCanvasTool,setCanvasColor,setCanvasPenSize,toggleCanvasTouch,canvasUndo,canvasClear,toggleNoteCanvas,startCanvasResize});
+
+// ===== INIT =====
 onSnapshot(doc(db,'data','avihai'),async(snap)=>{
   if(snap.exists()){
     S.projects=snap.data().projects||[];
@@ -535,19 +1720,25 @@ onSnapshot(doc(db,'data','avihai'),async(snap)=>{
     syncOk=true;
     let migrated=false;
     S.projects.forEach(p=>p.areas.forEach(a=>a.tasks.forEach(t=>{
-      if(t.notes&&!t.content){
-        t.content=esc(t.notes).replace(/\n/g,'<br>');
-        t.notes='';
-        migrated=true;
-      }
+      if(t.notes&&!t.content){t.content=esc(t.notes).replace(/\n/g,'<br>');t.notes='';migrated=true;}
     })));
     if(migrated)await sv();
+  } else {
+    S.projects=SEED;S.notes=[];await sv();
   }
-  else{S.projects=SEED;S.notes=[];await sv();}
-  if(!S.apid&&S.projects.length){S.apid=S.projects[0].id;S.aaid='__all__';}
   render();
 });
-if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
+
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+
+// Close mobile sidebar on outside click
+document.addEventListener('click',(e)=>{
+  const sb=document.getElementById('sb');
+  const burger=document.getElementById('burger');
+  if(sb.classList.contains('open')&&!sb.contains(e.target)&&!burger.contains(e.target))sb.classList.remove('open');
+});
 </script>
 </body>
 </html>
