@@ -660,7 +660,7 @@ function rSidebar(){
     <div class="sb-foot">
       <span class="dot${syncOk?'':' off'}" id="sdot" title="${syncOk?'מסונכרן':'לא מחובר'}"></span>
       <span class="lbl">${syncOk?'מסונכרן':'לא מחובר'}</span>
-      <span class="ver">v5</span>
+      <span class="ver">v6</span>
     </div>
   `;
 }
@@ -2079,7 +2079,16 @@ async function sendAI(){
   const projCtxAI=S.aiProjId?S.projects.find(p=>p.id===S.aiProjId):null;
   const projHint=projCtxAI?`\n⚠️ חשוב: המשתמש כרגע נמצא בפרויקט "${projCtxAI.name}". אם הוא לא מציין פרויקט אחר במפורש, ההנחה היא שהוא מתכוון לפרויקט הזה.\n`:'';
 
-  const systemPrompt=`אתה עוזר לניהול פרויקטים בתשתיות אנרגיה עבור אביחי אטואן.${projHint}
+  const now=new Date();
+  const weekdayHe=['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'][now.getDay()];
+  const monthHe=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'][now.getMonth()];
+  const dateLine=`היום יום ${weekdayHe}, ${now.getDate()} ב${monthHe} ${now.getFullYear()} (${TODAY}). השעה כעת ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}.`;
+  const tomorrow=new Date(now);tomorrow.setDate(tomorrow.getDate()+1);
+  const tomorrowStr=tomorrow.getFullYear()+'-'+String(tomorrow.getMonth()+1).padStart(2,'0')+'-'+String(tomorrow.getDate()).padStart(2,'0');
+  const dateHint=`\nכאשר המשתמש מזכיר תאריכים יחסיים השתמש בערכים האלה לשדה dueDate:\n- "היום" → ${TODAY}\n- "מחר" → ${tomorrowStr}\n- "השבוע" / "השבוע הבא" / "בעוד שבוע" → חשב מתאריך היום.\nתאריך הוא תמיד בפורמט YYYY-MM-DD.\n`;
+
+  const systemPrompt=`אתה עוזר לניהול פרויקטים בתשתיות אנרגיה עבור אביחי אטואן.
+${dateLine}${dateHint}${projHint}
 
 מבנה הנתונים הנוכחי (כולל תחומים ריקים):
 ${projSummary}
