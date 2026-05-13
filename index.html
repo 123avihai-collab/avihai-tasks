@@ -9,6 +9,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="משימות"/>
 <link rel="manifest" href="manifest.json"/>
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png"/>
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png"/>
 <link rel="apple-touch-icon" href="icon-192.png"/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -635,7 +637,7 @@ function rSidebar(){
 
   sb.innerHTML=`
     <div class="sb-user">
-      <div class="sb-av">א</div>
+      <div class="sb-av"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#FF8C1E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4 4 10-10"/></svg></div>
       <div class="sb-uinfo">
         <div class="sb-uname">אביחי אטואן</div>
         <div class="sb-utitle">תשתיות אנרגיה</div>
@@ -660,7 +662,7 @@ function rSidebar(){
     <div class="sb-foot">
       <span class="dot${syncOk?'':' off'}" id="sdot" title="${syncOk?'מסונכרן':'לא מחובר'}"></span>
       <span class="lbl">${syncOk?'מסונכרן':'לא מחובר'}</span>
-      <span class="ver">v6</span>
+      <span class="ver">v7</span>
     </div>
   `;
 }
