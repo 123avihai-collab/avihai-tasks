@@ -280,7 +280,12 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 .act-row .v{color:var(--ink);font-feature-settings:"tnum"}
 .gcal-link{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;padding:5px 10px;border-radius:4px;border:.5px solid var(--rule2);background:var(--panel);color:var(--ink2);text-decoration:none}
 .gcal-link:hover{background:var(--greenSoft);color:var(--green);border-color:var(--green)}
-.gcal-link.dis{opacity:.4;pointer-events:none}
+.gcal-link.dis{opacity:.6;pointer-events:none;cursor:not-allowed}
+.gcal-btn{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;padding:5px 10px;border-radius:4px;border:.5px solid var(--rule2);background:var(--panel);color:var(--ink2);cursor:pointer;font-family:inherit}
+.gcal-btn:hover{background:var(--accentSoft);color:var(--accent);border-color:var(--accent)}
+.gcal-btn.synced{background:var(--greenSoft);color:var(--green);border-color:var(--green)}
+.gcal-btn.synced:hover{background:var(--accentSoft);color:var(--accent);border-color:var(--accent)}
+.gcal-btn.remove:hover{background:var(--redSoft);color:var(--red);border-color:var(--red)}
 .dp-foot-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
 .area-pop{position:relative;display:inline-block}
 .area-pop-menu{position:absolute;background:var(--panel);border:.5px solid var(--rule2);border-radius:4px;padding:4px;box-shadow:0 4px 14px rgba(0,0,0,.15);z-index:50;min-width:140px;top:calc(100% + 4px);right:0}
@@ -655,7 +660,7 @@ function rSidebar(){
     <div class="sb-foot">
       <span class="dot${syncOk?'':' off'}" id="sdot" title="${syncOk?'מסונכרן':'לא מחובר'}"></span>
       <span class="lbl">${syncOk?'מסונכרן':'לא מחובר'}</span>
-      <span class="ver">v4</span>
+      <span class="ver">v5</span>
     </div>
   `;
 }
@@ -989,6 +994,11 @@ function rDetail(){
     return '<button class="opt '+(isAct?'act '+cls:'')+'" onclick="updTask(\''+t.id+'\',{assigned:\''+v.replace(/\'/g,'\\\'')+'\'})">'+esc(lbl)+'</button>';
   }).join('');
   const hasGcal=!!t.dueDate;
+  const isSynced=!!t.gcalEventId;
+  const syncBtnHtml=hasGcal?(isSynced?
+    `<button class="gcal-btn synced" onclick="syncTaskToCal('${t.id}')" title="עדכן את האירוע ביומן Google">${IC.cal} מסונכרן · עדכן</button><button class="gcal-btn remove" onclick="unsyncTaskFromCal('${t.id}')" title="הסר מהיומן">${IC.trash} הסר מהיומן</button>`:
+    `<button class="gcal-btn" onclick="syncTaskToCal('${t.id}')" title="שלח כאירוע ליומן המשימות ב-Google">${IC.cal} שלח ליומן Google</button>`)
+    :'<span class="gcal-link dis">'+IC.cal+' הוסף תאריך יעד כדי לשלוח ליומן</span>';
   dp.innerHTML=`
     <div class="dp-h">
       <span class="dp-crumb">${esc(r.proj.name)} · ${esc(r.area.name)}</span>
@@ -1006,7 +1016,7 @@ function rDetail(){
       <div><div class="f-l">עדיפות</div><div class="opt-grp">${prioOpts}</div></div>
       <div><div class="f-l">חשיבות</div><div class="opt-grp">${impOpts}</div></div>
       <div><div class="f-l">אחראי</div><div class="opt-grp">${asHtml}<button class="opt add" onclick="addAssigneeForTask('${t.id}')">+ חדש</button></div></div>
-      <div><div class="f-l">תאריך יעד</div><input type="date" class="dp-input" value="${esc(t.dueDate||'')}" onchange="updTask('${t.id}',{dueDate:this.value})"/></div>
+      <div><div class="f-l">תאריך יעד · שעה</div><div style="display:grid;grid-template-columns:1.4fr 1fr;gap:6px"><input type="date" class="dp-input" value="${esc(t.dueDate||'')}" onchange="updTask('${t.id}',{dueDate:this.value})"/><input type="time" class="dp-input" value="${esc(t.dueTime||'')}" onchange="updTask('${t.id}',{dueTime:this.value})" placeholder="שעה"/></div></div>
       <div>
         <div class="f-l">תוכן</div>
         <div class="rt-tools">
@@ -1023,10 +1033,9 @@ function rDetail(){
     <div class="dp-act">
       <div class="dp-act-l">פעילות</div>
       <div class="act-row"><span class="ic">${IC.plus}</span><span class="lbl">נוצרה</span><span class="v">${esc(fmtCreated(t.created)||'—')}</span></div>
-      ${t.dueDate?'<div class="act-row"><span class="ic">'+IC.cal+'</span><span class="lbl">תאריך יעד</span><span class="v">'+esc(fmtDate(t.dueDate))+'</span></div>':''}
-      <div class="dp-foot-actions">
-        <a class="gcal-link ${hasGcal?'':'dis'}" ${hasGcal?'href="'+gcalUrl(t)+'" target="_blank"':''}>${IC.cal} יומן גוגל</a>
-      </div>
+      ${t.dueDate?'<div class="act-row"><span class="ic">'+IC.cal+'</span><span class="lbl">תאריך יעד</span><span class="v">'+esc(fmtDate(t.dueDate))+(t.dueTime?' · '+esc(t.dueTime):'')+'</span></div>':''}
+      ${isSynced?'<div class="act-row"><span class="ic">✓</span><span class="lbl">ביומן Google</span><span class="v" style="color:var(--green)">מסונכרן</span></div>':''}
+      <div class="dp-foot-actions">${syncBtnHtml}</div>
     </div>
   `;
   // Insert before #mr
@@ -1408,10 +1417,12 @@ document.addEventListener('pointerup',()=>{
 // ===== GOOGLE CALENDAR =====
 const GCAL_DISC='https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest';
 const GCAL_SCOPE='https://www.googleapis.com/auth/calendar';
+const TASKS_CAL_NAME='משימות (אביחי)';
+let gcalCachedCalendarId=null;
 
 function getGcalConfig(){return {clientId:localStorage.getItem('gcal_client_id')||'',apiKey:localStorage.getItem('gcal_api_key')||''};}
 function setGcalConfig(clientId,apiKey){localStorage.setItem('gcal_client_id',clientId);localStorage.setItem('gcal_api_key',apiKey);}
-function clearGcalConfig(){localStorage.removeItem('gcal_client_id');localStorage.removeItem('gcal_api_key');sessionStorage.removeItem('gcal_token');}
+function clearGcalConfig(){localStorage.removeItem('gcal_client_id');localStorage.removeItem('gcal_api_key');localStorage.removeItem('gcal_calendar_id');sessionStorage.removeItem('gcal_token');gcalCachedCalendarId=null;}
 
 function loadGScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.async=true;s.onload=res;s.onerror=()=>rej(new Error('failed to load '+src));document.head.appendChild(s);});}
 
@@ -1448,16 +1459,35 @@ function gcalSignOut(){
   if(gcalAccessToken&&window.google&&google.accounts)google.accounts.oauth2.revoke(gcalAccessToken,()=>{});
   if(window.gapi&&gapi.client)gapi.client.setToken('');
   gcalAccessToken=null;
+  gcalCachedCalendarId=null;
   sessionStorage.removeItem('gcal_token');
 }
 
-async function gcalListEvents(timeMin,timeMax){
-  const resp=await gapi.client.calendar.events.list({calendarId:'primary',timeMin:timeMin.toISOString(),timeMax:timeMax.toISOString(),singleEvents:true,orderBy:'startTime',maxResults:250});
+async function ensureTasksCalendar(){
+  if(gcalCachedCalendarId)return gcalCachedCalendarId;
+  let id=localStorage.getItem('gcal_calendar_id')||'';
+  if(id){
+    try{await gapi.client.calendar.calendars.get({calendarId:id});gcalCachedCalendarId=id;return id;}
+    catch(e){if(e.status===404||e.status===410){localStorage.removeItem('gcal_calendar_id');id='';}else throw e;}
+  }
+  const lst=await gapi.client.calendar.calendarList.list({maxResults:250});
+  const existing=(lst.result.items||[]).find(c=>c.summary===TASKS_CAL_NAME);
+  if(existing){localStorage.setItem('gcal_calendar_id',existing.id);gcalCachedCalendarId=existing.id;return existing.id;}
+  let tz='Asia/Jerusalem';
+  try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||tz;}catch(_){}
+  const created=await gapi.client.calendar.calendars.insert({resource:{summary:TASKS_CAL_NAME,description:'נוצר אוטומטית על ידי אפליקציית המשימות. אירועי משימות מסונכרנים לכאן בלבד.',timeZone:tz}});
+  localStorage.setItem('gcal_calendar_id',created.result.id);
+  gcalCachedCalendarId=created.result.id;
+  return created.result.id;
+}
+
+async function gcalListEvents(calId,timeMin,timeMax){
+  const resp=await gapi.client.calendar.events.list({calendarId:calId,timeMin:timeMin.toISOString(),timeMax:timeMax.toISOString(),singleEvents:true,orderBy:'startTime',maxResults:250});
   return resp.result.items||[];
 }
-async function gcalCreateEvent(ev){const r=await gapi.client.calendar.events.insert({calendarId:'primary',resource:ev});return r.result;}
-async function gcalUpdateEvent(id,ev){const r=await gapi.client.calendar.events.patch({calendarId:'primary',eventId:id,resource:ev});return r.result;}
-async function gcalDeleteEvent(id){return gapi.client.calendar.events.delete({calendarId:'primary',eventId:id});}
+async function gcalCreateEvent(calId,ev){const r=await gapi.client.calendar.events.insert({calendarId:calId,resource:ev});return r.result;}
+async function gcalUpdateEvent(calId,id,ev){const r=await gapi.client.calendar.events.patch({calendarId:calId,eventId:id,resource:ev});return r.result;}
+async function gcalDeleteEvent(calId,id){return gapi.client.calendar.events.delete({calendarId:calId,eventId:id});}
 
 function gcalGridRange(){
   const y=calCursor.getFullYear(),m=calCursor.getMonth();
@@ -1474,8 +1504,9 @@ async function loadCalEvents(){
   try{
     await gcalInit();
     if(!gcalAccessToken){calStatus='signedout';if(S.view==='calendar')renderCalendarMonth(document.getElementById('mn'));return;}
+    const calId=await ensureTasksCalendar();
     const {gridStart,gridEnd}=gcalGridRange();
-    calEvents=await gcalListEvents(gridStart,gridEnd);
+    calEvents=await gcalListEvents(calId,gridStart,gridEnd);
     calStatus='ready';
   }catch(e){
     if(e&&e.status===401){gcalAccessToken=null;sessionStorage.removeItem('gcal_token');calStatus='signedout';}
@@ -1495,7 +1526,7 @@ function rCalendar(mn){
       </header>
       <div class="ai-no-key">
         <div style="font-size:32px">📅</div>
-        <p>לסנכרון עם Google Calendar נדרשים <b>Client ID</b> ו-<b>API Key</b> מ-Google Cloud.<br>הפרטים נשמרים במכשיר שלך בלבד — לא בשרת ולא בקוד.</p>
+        <p>האפליקציה תיצור עבורך יומן <b>נפרד</b> בשם "${esc(TASKS_CAL_NAME)}" ב-Google Calendar, ותעבוד רק עליו — היומן הראשי שלך לא ייגע.<br>נדרשים <b>Client ID</b> ו-<b>API Key</b> מ-Google Cloud. הפרטים נשמרים במכשיר שלך בלבד.</p>
         <button class="btn-primary" onclick="mGcalConfig()">הגדר חיבור</button>
         <div class="cal-help">
           <b>הגדרה מהירה ב-Google Cloud Console:</b><br>
@@ -1503,7 +1534,8 @@ function rCalendar(mn){
           2. הפעילו את <code>Google Calendar API</code><br>
           3. ב-<code>APIs &amp; Services → Credentials</code> צרו <code>OAuth 2.0 Client ID</code> מסוג Web application. הוסיפו ל-Authorized JavaScript origins: <code>${esc(location.origin)}</code><br>
           4. באותו עמוד צרו <code>API Key</code> והגבילו אותו ל-Calendar API.<br>
-          5. הזינו את שניהם בטופס ההגדרות.
+          5. הזינו את שניהם בטופס ההגדרות.<br>
+          <span style="color:var(--ink2)">בפעם הראשונה שתתחבר — האפליקציה תיצור אוטומטית יומן בשם "${esc(TASKS_CAL_NAME)}" בחשבון שלך.</span>
         </div>
       </div>`;
     return;
@@ -1716,7 +1748,8 @@ async function saveEvent(id){
     body.end={dateTime:endD.toISOString()};
   }
   try{
-    if(id)await gcalUpdateEvent(id,body); else await gcalCreateEvent(body);
+    const calId=await ensureTasksCalendar();
+    if(id)await gcalUpdateEvent(calId,id,body); else await gcalCreateEvent(calId,body);
     cm();calStatus='idle';await loadCalEvents();
   }catch(err){
     const msg=err&&err.result&&err.result.error&&err.result.error.message||err.message||String(err);
@@ -1725,11 +1758,80 @@ async function saveEvent(id){
 }
 async function deleteEvent(id){
   if(!confirm('למחוק את האירוע?'))return;
-  try{await gcalDeleteEvent(id);cm();calStatus='idle';await loadCalEvents();}
+  try{const calId=await ensureTasksCalendar();await gcalDeleteEvent(calId,id);cm();calStatus='idle';await loadCalEvents();}
   catch(err){
     const msg=err&&err.result&&err.result.error&&err.result.error.message||err.message||String(err);
     alert('שגיאה במחיקה: '+msg);
   }
+}
+
+// ===== TASK <-> CALENDAR SYNC =====
+async function syncTaskToCal(taskId){
+  const r=findTask(taskId);if(!r)return;
+  const t=r.task;
+  if(!t.dueDate){alert('הוסף תאריך יעד למשימה לפני סנכרון ליומן');return;}
+  try{
+    await gcalInit();
+    if(!gcalAccessToken){await gcalSignIn();}
+  }catch(e){
+    if(e.message==='NO_CONFIG'){alert('הגדר תחילה את החיבור ל-Google Calendar בלשונית "יומן Google"');return;}
+    alert('שגיאה בהתחברות: '+(e.message||e));return;
+  }
+  const body={summary:t.title||'(ללא כותרת)',description:stripHtml(t.content||'')||t.notes||''};
+  if(t.dueTime&&/^\d{2}:\d{2}$/.test(t.dueTime)){
+    const start=new Date(t.dueDate+'T'+t.dueTime+':00');
+    const end=new Date(start.getTime()+60*60*1000);
+    body.start={dateTime:start.toISOString()};
+    body.end={dateTime:end.toISOString()};
+  }else{
+    body.start={date:t.dueDate};
+    const p=t.dueDate.split('-').map(Number);
+    const next=new Date(Date.UTC(p[0],p[1]-1,p[2]+1));
+    body.end={date:next.getUTCFullYear()+'-'+String(next.getUTCMonth()+1).padStart(2,'0')+'-'+String(next.getUTCDate()).padStart(2,'0')};
+  }
+  try{
+    const calId=await ensureTasksCalendar();
+    let result;
+    if(t.gcalEventId){
+      try{result=await gcalUpdateEvent(calId,t.gcalEventId,body);}
+      catch(e){
+        if(e.status===404||e.status===410){result=await gcalCreateEvent(calId,body);}
+        else throw e;
+      }
+    }else{
+      result=await gcalCreateEvent(calId,body);
+    }
+    t.gcalEventId=result.id;
+    t.inCal=true;
+    sv();
+    if(S.view==='calendar'){calStatus='idle';loadCalEvents();}else{render();}
+  }catch(e){
+    const msg=e&&e.result&&e.result.error&&e.result.error.message||e.message||String(e);
+    alert('שגיאה בסנכרון ליומן: '+msg);
+  }
+}
+
+async function unsyncTaskFromCal(taskId){
+  const r=findTask(taskId);if(!r)return;
+  const t=r.task;
+  if(!t.gcalEventId&&!t.inCal){return;}
+  if(!confirm('להסיר את האירוע מ-Google Calendar?'))return;
+  try{
+    if(t.gcalEventId){
+      await gcalInit();
+      if(!gcalAccessToken){await gcalSignIn();}
+      const calId=await ensureTasksCalendar();
+      try{await gcalDeleteEvent(calId,t.gcalEventId);}
+      catch(e){if(e.status!==404&&e.status!==410)throw e;}
+    }
+  }catch(e){
+    const msg=e&&e.result&&e.result.error&&e.result.error.message||e.message||String(e);
+    alert('שגיאה במחיקה מהיומן: '+msg);return;
+  }
+  delete t.gcalEventId;
+  t.inCal=false;
+  sv();
+  if(S.view==='calendar'){calStatus='idle';loadCalEvents();}else{render();}
 }
 function mDayEvents(dateStr){
   const evs=calEvents.filter(ev=>{const sd=ev.start.date||(ev.start.dateTime||'').slice(0,10);return sd===dateStr;});
@@ -1915,7 +2017,10 @@ function mNewT(areaId){
       <div class="mf"><label>עדיפות</label><select id="v2">${prioOpts}</select></div>
       <div class="mf"><label>חשיבות</label><select id="v3">${impOpts}</select></div>
     </div>
-    <div class="mf"><label>תאריך יעד</label><input type="date" id="v4"/></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="mf"><label>תאריך יעד</label><input type="date" id="v4"/></div>
+      <div class="mf"><label>שעה (אופציונלי)</label><input type="time" id="v5"/></div>
+    </div>
     <div class="mc-actions"><button class="btn-primary" onclick="cT()">צור</button><button class="btn-ghost" onclick="cm()">ביטול</button></div>`);
 }
 function cT(){
@@ -1923,7 +2028,7 @@ function cT(){
   const aid=document.getElementById('v9').value;
   const proj=ap();if(!proj)return;
   const area=proj.areas.find(a=>a.id===aid);if(!area)return;
-  const task={id:uid(),title:t,content:'',notes:'',priority:document.getElementById('v2').value,importance:document.getElementById('v3').value,status:'פתוח',assigned:'',dueDate:document.getElementById('v4').value,inCal:false,created:new Date().toISOString()};
+  const task={id:uid(),title:t,content:'',notes:'',priority:document.getElementById('v2').value,importance:document.getElementById('v3').value,status:'פתוח',assigned:'',dueDate:document.getElementById('v4').value,dueTime:document.getElementById('v5').value,inCal:false,created:new Date().toISOString()};
   area.tasks.push(task);S.selTaskId=task.id;sv();cm();render();
 }
 
@@ -2084,7 +2189,7 @@ function toggleSB(){document.getElementById('sb').classList.toggle('open');}
 function closeMobileSB(){document.getElementById('sb').classList.remove('open');}
 
 // ===== EXPOSE =====
-Object.assign(window,{selView,selP,selA,selectTask,closeDetail,toggleDone,updTask,updTaskField,dTask,setFilterStatus,setGrouping,toggleCollapse,onSearchInput,addNote,toggleNoteDone,dNote,updNote,toggleNoteExpand,updNoteContent,dragStart,dragEnd,areaDragOver,areaDragLeave,areaDrop,moveTask,showMovePop,closeMovePop,noteDragStart,noteDragEnd,projItemDragStart,projItemDragEnd,projDragOver,projDragLeave,projDrop,sm,cm,mNewP,cP,mEditP,sPn,dP,mNewA,cA,mEditA,sA,dA,mNewT,cT,mSetKey,saveKey,delKey,addAssigneeForTask,fmtCmd,aiKeyDown,clearAI,sendAI,xCSV,xJSON,toggleSB,closeMobileSB,pickColor,fmtNoteCmd,setCanvasTool,setCanvasColor,setCanvasPenSize,toggleCanvasTouch,canvasUndo,canvasClear,toggleNoteCanvas,startCanvasResize,gcalPrev,gcalNext,gcalGoToday,gcalDoSignIn,gcalDoSignOut,loadCalEvents,mGcalConfig,saveGcalConfig,delGcalConfig,mNewEvent,mNewEventOnDay,mEditEvent,toggleAllDay,saveEvent,deleteEvent,mDayEvents});
+Object.assign(window,{selView,selP,selA,selectTask,closeDetail,toggleDone,updTask,updTaskField,dTask,setFilterStatus,setGrouping,toggleCollapse,onSearchInput,addNote,toggleNoteDone,dNote,updNote,toggleNoteExpand,updNoteContent,dragStart,dragEnd,areaDragOver,areaDragLeave,areaDrop,moveTask,showMovePop,closeMovePop,noteDragStart,noteDragEnd,projItemDragStart,projItemDragEnd,projDragOver,projDragLeave,projDrop,sm,cm,mNewP,cP,mEditP,sPn,dP,mNewA,cA,mEditA,sA,dA,mNewT,cT,mSetKey,saveKey,delKey,addAssigneeForTask,fmtCmd,aiKeyDown,clearAI,sendAI,xCSV,xJSON,toggleSB,closeMobileSB,pickColor,fmtNoteCmd,setCanvasTool,setCanvasColor,setCanvasPenSize,toggleCanvasTouch,canvasUndo,canvasClear,toggleNoteCanvas,startCanvasResize,gcalPrev,gcalNext,gcalGoToday,gcalDoSignIn,gcalDoSignOut,loadCalEvents,mGcalConfig,saveGcalConfig,delGcalConfig,mNewEvent,mNewEventOnDay,mEditEvent,toggleAllDay,saveEvent,deleteEvent,mDayEvents,syncTaskToCal,unsyncTaskFromCal});
 
 // ===== INIT =====
 onSnapshot(doc(db,'data','avihai'),async(snap)=>{
