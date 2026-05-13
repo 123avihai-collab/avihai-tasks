@@ -405,6 +405,31 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 .move-pop-i{display:block;width:100%;text-align:right;padding:7px 10px;font-size:12px;color:var(--ink);border-radius:3px;direction:rtl}
 .move-pop-i:hover{background:var(--rail2)}
 
+/* ===== CALENDAR ===== */
+.cal-wrap{flex:1;overflow:auto;padding:14px 22px;display:flex;flex-direction:column}
+.cal-grid{display:flex;flex-direction:column;flex:1;min-height:520px}
+.cal-wd-row{display:grid;grid-template-columns:repeat(7,1fr);background:var(--rail);border:.5px solid var(--rule);border-radius:6px 6px 0 0}
+.cal-wd{padding:7px 8px;font-size:11px;font-weight:600;color:var(--ink2);text-align:center;letter-spacing:.06em;border-left:.5px solid var(--rule)}
+.cal-wd:last-child{border-left:none}
+.cal-days{flex:1;display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:minmax(84px,1fr);border:.5px solid var(--rule);border-top:none;border-radius:0 0 6px 6px;background:var(--panel)}
+.cal-day{border-left:.5px solid var(--rule);border-top:.5px solid var(--rule);padding:5px 6px;display:flex;flex-direction:column;gap:2px;overflow:hidden;cursor:pointer;min-height:0}
+.cal-day:hover{background:var(--rail2)}
+.cal-day.other{background:var(--rail);color:var(--ink3)}
+.cal-day.other .cal-d-num{color:var(--ink3)}
+.cal-d-num{font-size:11px;color:var(--ink2);font-family:var(--mono);text-align:left;direction:ltr;padding:1px 3px;align-self:flex-start}
+.cal-day.today .cal-d-num{background:var(--accent);color:#fff;border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-weight:600;padding:0}
+.cal-ev{font-size:10.5px;padding:2px 5px;background:var(--accentSoft);color:var(--accent);border-radius:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;border:.5px solid transparent;line-height:1.35}
+.cal-ev:hover{border-color:var(--accent)}
+.cal-ev.allday{background:var(--accent);color:#fff}
+.cal-more{font-size:10px;color:var(--ink3);padding:1px 5px;cursor:pointer}
+.cal-more:hover{color:var(--ink)}
+.cal-nav{display:flex;align-items:center;gap:2px}
+.cal-nav .btn-ghost{padding:6px 9px;font-size:13px;line-height:1}
+.cal-msg{font-size:11px;padding:1px 6px;border-radius:3px}
+.cal-msg.err{background:var(--redSoft);color:var(--red)}
+.cal-help{font-size:11px;color:var(--ink3);max-width:520px;line-height:1.7;text-align:right;direction:rtl;background:var(--rail2);border:.5px solid var(--rule);border-radius:5px;padding:10px 14px;margin-top:6px}
+.cal-help code{font-family:var(--mono);font-size:10.5px;background:var(--panel);padding:1px 5px;border-radius:3px;color:var(--ink)}
+
 /* Mobile burger */
 .mb-burger{display:none;position:fixed;top:14px;right:14px;z-index:50;width:36px;height:36px;border-radius:5px;background:var(--panel);border:.5px solid var(--rule2);align-items:center;justify-content:center;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.06)}
 .mb-burger svg{width:18px;height:18px;color:var(--ink)}
@@ -419,6 +444,10 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
   .tlb{padding:14px 16px 10px}
   .tl-wrap{padding:0 16px 22px}
   .ai-msgs{padding:16px}
+  .cal-wrap{padding:8px}
+  .cal-days{grid-auto-rows:minmax(56px,1fr)}
+  .cal-day{padding:3px 4px}
+  .cal-ev{font-size:9.5px;padding:1px 4px}
   .notes-add{padding:14px 16px 8px}
   .notes-list{padding:4px 16px 22px}
   .kpi{min-width:0}
@@ -478,6 +507,13 @@ const expandedNotes=new Set();
 let aiMsgs=[];
 let draggedTaskId=null,draggedNoteId=null,draggedProjId=null;
 let TODAY=new Date().toISOString().split('T')[0];
+
+// Calendar state
+let calCursor=new Date();
+let calEvents=[];
+let calStatus='idle'; // idle|loading|ready|error|signedout
+let calError='';
+let gcalLoadPromise=null, gcalTokenClient=null, gcalAccessToken=null;
 
 // ===== COLORS =====
 const COLORS={
@@ -571,6 +607,7 @@ function rSidebar(){
     {id:'overdue',ic:IC.flag,lbl:'באיחור',c:counts.overdue,red:counts.overdue>0},
     {id:'urgent',ic:IC.star,lbl:'דחוף',c:counts.urgent},
     {id:'notes',ic:IC.note,lbl:'פתקים',c:counts.notes},
+    {id:'calendar',ic:IC.cal,lbl:'יומן Google'},
     {id:'ai',ic:IC.ai,lbl:'עזר בינה'}
   ];
   const navHtml=navItems.map(n=>{
@@ -618,7 +655,7 @@ function rSidebar(){
     <div class="sb-foot">
       <span class="dot${syncOk?'':' off'}" id="sdot" title="${syncOk?'מסונכרן':'לא מחובר'}"></span>
       <span class="lbl">${syncOk?'מסונכרן':'לא מחובר'}</span>
-      <span class="ver">v3</span>
+      <span class="ver">v4</span>
     </div>
   `;
 }
@@ -627,6 +664,7 @@ function rSidebar(){
 function rMain(){
   const mn=document.getElementById('mn');
   if(S.view==='ai'){rAI(mn);return;}
+  if(S.view==='calendar'){rCalendar(mn);return;}
   if(S.view==='notes'){rNotes(mn);return;}
   if(S.view==='proj'){rProject(mn);return;}
   if(S.view==='dashboard'){rDashboard(mn);return;}
@@ -1367,6 +1405,342 @@ document.addEventListener('pointerup',()=>{
 });
 
 // ----- AI view -----
+// ===== GOOGLE CALENDAR =====
+const GCAL_DISC='https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest';
+const GCAL_SCOPE='https://www.googleapis.com/auth/calendar';
+
+function getGcalConfig(){return {clientId:localStorage.getItem('gcal_client_id')||'',apiKey:localStorage.getItem('gcal_api_key')||''};}
+function setGcalConfig(clientId,apiKey){localStorage.setItem('gcal_client_id',clientId);localStorage.setItem('gcal_api_key',apiKey);}
+function clearGcalConfig(){localStorage.removeItem('gcal_client_id');localStorage.removeItem('gcal_api_key');sessionStorage.removeItem('gcal_token');}
+
+function loadGScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.async=true;s.onload=res;s.onerror=()=>rej(new Error('failed to load '+src));document.head.appendChild(s);});}
+
+async function gcalInit(){
+  if(gcalLoadPromise)return gcalLoadPromise;
+  const cfg=getGcalConfig();
+  if(!cfg.clientId||!cfg.apiKey)throw new Error('NO_CONFIG');
+  gcalLoadPromise=(async()=>{
+    if(!window.gapi)await loadGScript('https://apis.google.com/js/api.js');
+    if(!window.google||!window.google.accounts||!window.google.accounts.oauth2)await loadGScript('https://accounts.google.com/gsi/client');
+    await new Promise((res,rej)=>gapi.load('client',{callback:res,onerror:rej}));
+    await gapi.client.init({apiKey:cfg.apiKey,discoveryDocs:[GCAL_DISC]});
+    gcalTokenClient=google.accounts.oauth2.initTokenClient({client_id:cfg.clientId,scope:GCAL_SCOPE,callback:()=>{}});
+    const saved=sessionStorage.getItem('gcal_token');
+    if(saved){try{const p=JSON.parse(saved);if(p.expires>Date.now()){gcalAccessToken=p.token;gapi.client.setToken({access_token:p.token});}}catch(_){}}
+  })();
+  return gcalLoadPromise;
+}
+
+function gcalSignIn(){
+  return new Promise((res,rej)=>{
+    if(!gcalTokenClient)return rej(new Error('not initialized'));
+    gcalTokenClient.callback=(resp)=>{
+      if(resp.error)return rej(new Error(resp.error_description||resp.error));
+      gcalAccessToken=resp.access_token;
+      sessionStorage.setItem('gcal_token',JSON.stringify({token:gcalAccessToken,expires:Date.now()+((parseInt(resp.expires_in)||3500)*1000)-60000}));
+      res();
+    };
+    gcalTokenClient.requestAccessToken({prompt:gcalAccessToken?'':'consent'});
+  });
+}
+
+function gcalSignOut(){
+  if(gcalAccessToken&&window.google&&google.accounts)google.accounts.oauth2.revoke(gcalAccessToken,()=>{});
+  if(window.gapi&&gapi.client)gapi.client.setToken('');
+  gcalAccessToken=null;
+  sessionStorage.removeItem('gcal_token');
+}
+
+async function gcalListEvents(timeMin,timeMax){
+  const resp=await gapi.client.calendar.events.list({calendarId:'primary',timeMin:timeMin.toISOString(),timeMax:timeMax.toISOString(),singleEvents:true,orderBy:'startTime',maxResults:250});
+  return resp.result.items||[];
+}
+async function gcalCreateEvent(ev){const r=await gapi.client.calendar.events.insert({calendarId:'primary',resource:ev});return r.result;}
+async function gcalUpdateEvent(id,ev){const r=await gapi.client.calendar.events.patch({calendarId:'primary',eventId:id,resource:ev});return r.result;}
+async function gcalDeleteEvent(id){return gapi.client.calendar.events.delete({calendarId:'primary',eventId:id});}
+
+function gcalGridRange(){
+  const y=calCursor.getFullYear(),m=calCursor.getMonth();
+  const first=new Date(y,m,1);
+  const gridStart=new Date(y,m,1-first.getDay());
+  const gridEnd=new Date(gridStart);gridEnd.setDate(gridStart.getDate()+42);
+  return {gridStart,gridEnd};
+}
+function ymdLocal(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+
+async function loadCalEvents(){
+  calStatus='loading';
+  if(S.view==='calendar')renderCalendarMonth(document.getElementById('mn'));
+  try{
+    await gcalInit();
+    if(!gcalAccessToken){calStatus='signedout';if(S.view==='calendar')renderCalendarMonth(document.getElementById('mn'));return;}
+    const {gridStart,gridEnd}=gcalGridRange();
+    calEvents=await gcalListEvents(gridStart,gridEnd);
+    calStatus='ready';
+  }catch(e){
+    if(e&&e.status===401){gcalAccessToken=null;sessionStorage.removeItem('gcal_token');calStatus='signedout';}
+    else{calStatus='error';calError=(e&&(e.result?.error?.message||e.message))||String(e);}
+  }
+  if(S.view==='calendar')renderCalendarMonth(document.getElementById('mn'));
+}
+
+function rCalendar(mn){
+  const cfg=getGcalConfig();
+  if(!cfg.clientId||!cfg.apiKey){
+    mn.innerHTML=`
+      <header class="mn-h">
+        <div class="mn-h-row">
+          <div class="mn-h-l"><h1>יומן Google</h1><div class="mn-h-meta"><span>סנכרון עם Google Calendar</span></div></div>
+        </div>
+      </header>
+      <div class="ai-no-key">
+        <div style="font-size:32px">📅</div>
+        <p>לסנכרון עם Google Calendar נדרשים <b>Client ID</b> ו-<b>API Key</b> מ-Google Cloud.<br>הפרטים נשמרים במכשיר שלך בלבד — לא בשרת ולא בקוד.</p>
+        <button class="btn-primary" onclick="mGcalConfig()">הגדר חיבור</button>
+        <div class="cal-help">
+          <b>הגדרה מהירה ב-Google Cloud Console:</b><br>
+          1. צרו פרויקט חדש ב-<code>console.cloud.google.com</code><br>
+          2. הפעילו את <code>Google Calendar API</code><br>
+          3. ב-<code>APIs &amp; Services → Credentials</code> צרו <code>OAuth 2.0 Client ID</code> מסוג Web application. הוסיפו ל-Authorized JavaScript origins: <code>${esc(location.origin)}</code><br>
+          4. באותו עמוד צרו <code>API Key</code> והגבילו אותו ל-Calendar API.<br>
+          5. הזינו את שניהם בטופס ההגדרות.
+        </div>
+      </div>`;
+    return;
+  }
+  if(calStatus==='idle'){loadCalEvents();}
+  renderCalendarMonth(mn);
+}
+
+function renderCalendarMonth(mn){
+  if(!mn)return;
+  const months=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+  const weekdays=['א׳','ב׳','ג׳','ד׳','ה׳','ו׳','ש׳'];
+  const y=calCursor.getFullYear(),m=calCursor.getMonth();
+  const first=new Date(y,m,1);
+  const startOffset=first.getDay();
+  const todayStr=ymdLocal(new Date());
+
+  let statusEl='';
+  if(calStatus==='loading')statusEl='<span class="cal-msg">טוען אירועים...</span>';
+  else if(calStatus==='error')statusEl='<span class="cal-msg err" title="'+esc(calError)+'">שגיאה: '+esc(calError.slice(0,60))+'</span>';
+  else if(calStatus==='ready')statusEl='<span>'+calEvents.length+' אירועים</span>';
+  else if(calStatus==='signedout')statusEl='<span style="color:var(--ink3)">לא מחובר</span>';
+
+  const cells=[];
+  for(let i=0;i<42;i++){
+    const d=new Date(y,m,1-startOffset+i);
+    const ds=ymdLocal(d);
+    const isOther=d.getMonth()!==m;
+    const isToday=ds===todayStr;
+    const evs=calEvents.filter(ev=>{
+      const sd=ev.start.date||(ev.start.dateTime||'').slice(0,10);
+      return sd===ds;
+    });
+    const chips=evs.slice(0,3).map(ev=>{
+      const allDay=!!ev.start.date;
+      const time=allDay?'':(ev.start.dateTime?new Date(ev.start.dateTime).toTimeString().slice(0,5)+' ':'');
+      return `<div class="cal-ev${allDay?' allday':''}" onclick="event.stopPropagation();mEditEvent('${esc(ev.id)}')" title="${esc(ev.summary||'')}">${esc(time)}${esc(ev.summary||'(ללא כותרת)')}</div>`;
+    }).join('');
+    const more=evs.length>3?`<div class="cal-more" onclick="event.stopPropagation();mDayEvents('${ds}')">+ ${evs.length-3} נוספים</div>`:'';
+    cells.push(`<div class="cal-day${isOther?' other':''}${isToday?' today':''}" onclick="mNewEventOnDay('${ds}')"><div class="cal-d-num">${d.getDate()}</div>${chips}${more}</div>`);
+  }
+  const weekHdr=weekdays.map(w=>`<div class="cal-wd">${w}</div>`).join('');
+
+  const signedIn=!!gcalAccessToken;
+  const actionsHtml=signedIn?`
+        <div class="cal-nav">
+          <button class="btn-ghost" onclick="gcalPrev()" title="חודש קודם">›</button>
+          <button class="btn-ghost" onclick="gcalGoToday()">היום</button>
+          <button class="btn-ghost" onclick="gcalNext()" title="חודש הבא">‹</button>
+        </div>
+        <button class="btn-ghost" onclick="loadCalEvents()" title="רענן">↻</button>
+        <button class="btn-primary" onclick="mNewEvent()">${IC.plus} אירוע</button>
+        <button class="btn-ghost" onclick="mGcalConfig()" title="הגדרות">⚙</button>`:`
+        <button class="btn-primary" onclick="gcalDoSignIn()">התחבר ל-Google</button>
+        <button class="btn-ghost" onclick="mGcalConfig()" title="הגדרות">⚙</button>`;
+
+  const body=signedIn?`
+    <div class="cal-wrap">
+      <div class="cal-grid">
+        <div class="cal-wd-row">${weekHdr}</div>
+        <div class="cal-days">${cells.join('')}</div>
+      </div>
+    </div>`:`
+    <div class="ai-no-key">
+      <div style="font-size:32px">🔗</div>
+      <p>התחבר ל-Google כדי לצפות באירועי היומן, להוסיף ולערוך אותם מכאן.<br>הגישה מבוקשת ל-Google Calendar בלבד.</p>
+      <button class="btn-primary" onclick="gcalDoSignIn()">התחבר ל-Google Calendar</button>
+    </div>`;
+
+  mn.innerHTML=`
+    <header class="mn-h">
+      <div class="mn-h-row">
+        <div class="mn-h-l">
+          <h1>יומן Google</h1>
+          <div class="mn-h-meta"><span>${months[m]} ${y}</span><span style="color:var(--ink3)">·</span>${statusEl}</div>
+        </div>
+        <div class="mn-h-actions">${actionsHtml}</div>
+      </div>
+    </header>
+    ${body}`;
+}
+
+function gcalPrev(){calCursor=new Date(calCursor.getFullYear(),calCursor.getMonth()-1,1);calStatus='idle';calEvents=[];render();}
+function gcalNext(){calCursor=new Date(calCursor.getFullYear(),calCursor.getMonth()+1,1);calStatus='idle';calEvents=[];render();}
+function gcalGoToday(){calCursor=new Date();calStatus='idle';calEvents=[];render();}
+
+async function gcalDoSignIn(){
+  try{await gcalInit();await gcalSignIn();calStatus='idle';await loadCalEvents();}
+  catch(e){
+    if(e.message==='NO_CONFIG'){mGcalConfig();return;}
+    alert('שגיאה בהתחברות: '+(e.message||e));
+  }
+}
+
+async function gcalDoSignOut(){gcalSignOut();calEvents=[];calStatus='signedout';cm();render();}
+
+function mGcalConfig(){
+  const cfg=getGcalConfig();
+  const cidPreview=cfg.clientId?cfg.clientId.slice(0,12)+'...':'';
+  const akPreview=cfg.apiKey?cfg.apiKey.slice(0,8)+'...':'';
+  sm(`<h2>חיבור Google Calendar</h2>
+    <div style="font-size:11px;color:var(--ink3);margin-bottom:10px;line-height:1.7">
+      צרו פרויקט ב-Google Cloud Console, הפעילו Calendar API, ויצרו OAuth Client ID (Web) ו-API Key.<br>
+      Authorized JavaScript origins: <code style="font-family:var(--mono);background:var(--rail);padding:1px 5px;border-radius:3px">${esc(location.origin)}</code>
+    </div>
+    <div class="mf"><label>OAuth Client ID${cidPreview?' (קיים: '+esc(cidPreview)+')':''}</label><input id="vGCID" value="${esc(cfg.clientId)}" placeholder="xxxxx.apps.googleusercontent.com" autocomplete="off"/></div>
+    <div class="mf"><label>API Key${akPreview?' (קיים: '+esc(akPreview)+')':''}</label><input id="vGAK" value="${esc(cfg.apiKey)}" placeholder="AIza..." autocomplete="off"/></div>
+    <div class="mc-actions">
+      <button class="btn-primary" onclick="saveGcalConfig()">שמור</button>
+      ${gcalAccessToken?'<button class="btn-ghost" onclick="gcalDoSignOut()">התנתק</button>':''}
+      ${cfg.clientId?'<button class="btn-ghost btn-danger" onclick="delGcalConfig()">מחק הגדרות</button>':''}
+      <button class="btn-ghost" onclick="cm()">ביטול</button>
+    </div>`);
+}
+function saveGcalConfig(){
+  const cid=document.getElementById('vGCID').value.trim();
+  const ak=document.getElementById('vGAK').value.trim();
+  if(!cid||!ak){alert('יש להזין Client ID ו-API Key');return;}
+  setGcalConfig(cid,ak);
+  gcalLoadPromise=null;gcalTokenClient=null;gcalAccessToken=null;sessionStorage.removeItem('gcal_token');
+  cm();calStatus='idle';calEvents=[];render();
+}
+function delGcalConfig(){
+  if(!confirm('למחוק הגדרות חיבור ולהתנתק?'))return;
+  if(gcalAccessToken)gcalSignOut();
+  clearGcalConfig();gcalLoadPromise=null;gcalTokenClient=null;
+  calStatus='idle';calEvents=[];cm();render();
+}
+
+// ===== EVENT MODAL =====
+function dtLocalNow(addHours){
+  const d=new Date();d.setMinutes(0,0,0);d.setHours(d.getHours()+(addHours||0));
+  const tz=d.getTimezoneOffset()*60000;
+  return new Date(d.getTime()-tz).toISOString().slice(0,16);
+}
+function mNewEvent(){
+  if(!gcalAccessToken){gcalDoSignIn();return;}
+  sm(eventModalHtml(null,{summary:'',description:'',start:dtLocalNow(1),end:dtLocalNow(2),allDay:false}));
+}
+function mNewEventOnDay(dateStr){
+  if(!gcalAccessToken){gcalDoSignIn();return;}
+  sm(eventModalHtml(null,{summary:'',description:'',start:dateStr+'T09:00',end:dateStr+'T10:00',allDay:false}));
+}
+function mEditEvent(id){
+  const ev=calEvents.find(e=>e.id===id);if(!ev)return;
+  const allDay=!!ev.start.date;
+  let start,end;
+  if(allDay){
+    start=ev.start.date;
+    const p=(ev.end.date||ev.start.date).split('-').map(Number);
+    const dt=new Date(Date.UTC(p[0],p[1]-1,p[2]-1));
+    end=dt.getUTCFullYear()+'-'+String(dt.getUTCMonth()+1).padStart(2,'0')+'-'+String(dt.getUTCDate()).padStart(2,'0');
+    if(end<start)end=start;
+  }
+  else{start=(ev.start.dateTime||'').slice(0,16);end=(ev.end.dateTime||'').slice(0,16);}
+  sm(eventModalHtml(id,{summary:ev.summary||'',description:ev.description||'',start,end,allDay,htmlLink:ev.htmlLink}));
+}
+function eventModalHtml(id,e){
+  const title=id?'עריכת אירוע':'אירוע חדש';
+  const dtType=e.allDay?'date':'datetime-local';
+  return `<h2>${title}</h2>
+    <div class="mf"><label>כותרת</label><input id="vE1" value="${esc(e.summary)}" placeholder="כותרת האירוע"/></div>
+    <div class="mf"><label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="vEAD" ${e.allDay?'checked':''} onchange="toggleAllDay()"/> <span>אירוע של יום שלם</span></label></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="mf"><label>התחלה</label><input id="vE2" type="${dtType}" value="${esc(e.start)}"/></div>
+      <div class="mf"><label>סיום</label><input id="vE3" type="${dtType}" value="${esc(e.end)}"/></div>
+    </div>
+    <div class="mf"><label>תיאור</label><textarea id="vE4" rows="3" style="width:100%;padding:7px 9px;border:.5px solid var(--rule2);border-radius:4px;background:var(--panel);color:var(--ink);font-family:inherit;font-size:13px;resize:vertical" placeholder="הערות (אופציונלי)">${esc(e.description)}</textarea></div>
+    ${e.htmlLink?'<div style="font-size:11px;color:var(--ink3);margin-top:-4px;margin-bottom:8px"><a href="'+esc(e.htmlLink)+'" target="_blank" style="color:var(--accent)">פתח ב-Google Calendar ↗</a></div>':''}
+    <div class="mc-actions">
+      <button class="btn-primary" onclick="saveEvent('${id||''}')">שמור</button>
+      ${id?'<button class="btn-ghost btn-danger" onclick="deleteEvent(\''+id+'\')">מחק</button>':''}
+      <button class="btn-ghost" onclick="cm()">ביטול</button>
+    </div>`;
+}
+function toggleAllDay(){
+  const ad=document.getElementById('vEAD').checked;
+  const s=document.getElementById('vE2'),e=document.getElementById('vE3');
+  const today=new Date().toISOString().split('T')[0];
+  if(ad){
+    const sd=(s.value||'').split('T')[0]||today;
+    const ed=(e.value||'').split('T')[0]||sd;
+    s.type='date';e.type='date';s.value=sd;e.value=ed;
+  }else{
+    const sd=s.value||today;
+    s.type='datetime-local';e.type='datetime-local';
+    s.value=sd+'T09:00';e.value=sd+'T10:00';
+  }
+}
+async function saveEvent(id){
+  const title=document.getElementById('vE1').value.trim();
+  if(!title){alert('הזן כותרת');return;}
+  const allDay=document.getElementById('vEAD').checked;
+  const sVal=document.getElementById('vE2').value;
+  const eVal=document.getElementById('vE3').value;
+  if(!sVal||!eVal){alert('הזן תאריכי התחלה וסיום');return;}
+  const desc=document.getElementById('vE4').value;
+  const body={summary:title,description:desc};
+  if(allDay){
+    body.start={date:sVal};
+    const ed=eVal<sVal?sVal:eVal;
+    const parts=ed.split('-').map(Number);
+    const dt=new Date(Date.UTC(parts[0],parts[1]-1,parts[2]+1));
+    const endDate=dt.getUTCFullYear()+'-'+String(dt.getUTCMonth()+1).padStart(2,'0')+'-'+String(dt.getUTCDate()).padStart(2,'0');
+    body.end={date:endDate};
+  }else{
+    const startD=new Date(sVal),endD=new Date(eVal);
+    if(endD<=startD){alert('שעת הסיום חייבת להיות אחרי ההתחלה');return;}
+    body.start={dateTime:startD.toISOString()};
+    body.end={dateTime:endD.toISOString()};
+  }
+  try{
+    if(id)await gcalUpdateEvent(id,body); else await gcalCreateEvent(body);
+    cm();calStatus='idle';await loadCalEvents();
+  }catch(err){
+    const msg=err&&err.result&&err.result.error&&err.result.error.message||err.message||String(err);
+    alert('שגיאה בשמירה: '+msg);
+  }
+}
+async function deleteEvent(id){
+  if(!confirm('למחוק את האירוע?'))return;
+  try{await gcalDeleteEvent(id);cm();calStatus='idle';await loadCalEvents();}
+  catch(err){
+    const msg=err&&err.result&&err.result.error&&err.result.error.message||err.message||String(err);
+    alert('שגיאה במחיקה: '+msg);
+  }
+}
+function mDayEvents(dateStr){
+  const evs=calEvents.filter(ev=>{const sd=ev.start.date||(ev.start.dateTime||'').slice(0,10);return sd===dateStr;});
+  const list=evs.map(ev=>{
+    const allDay=!!ev.start.date;
+    const time=allDay?'יום שלם':new Date(ev.start.dateTime).toTimeString().slice(0,5);
+    return `<button class="move-pop-i" onclick="cm();mEditEvent('${esc(ev.id)}')"><span style="color:var(--ink3);font-family:var(--mono);font-size:11px">${esc(time)}</span> · ${esc(ev.summary||'(ללא כותרת)')}</button>`;
+  }).join('');
+  sm(`<h2>אירועים · ${esc(dateStr)}</h2><div style="display:flex;flex-direction:column;gap:2px;max-height:60vh;overflow-y:auto">${list||'<div style="color:var(--ink3);padding:14px;text-align:center">אין אירועים</div>'}</div><div class="mc-actions"><button class="btn-primary" onclick="cm();mNewEventOnDay('${dateStr}')">${IC.plus} אירוע חדש</button><button class="btn-ghost" onclick="cm()">סגור</button></div>`);
+}
+
 function rAI(mn){
   const hasKey=!!getApiKey();
   if(!hasKey){
@@ -1710,7 +2084,7 @@ function toggleSB(){document.getElementById('sb').classList.toggle('open');}
 function closeMobileSB(){document.getElementById('sb').classList.remove('open');}
 
 // ===== EXPOSE =====
-Object.assign(window,{selView,selP,selA,selectTask,closeDetail,toggleDone,updTask,updTaskField,dTask,setFilterStatus,setGrouping,toggleCollapse,onSearchInput,addNote,toggleNoteDone,dNote,updNote,toggleNoteExpand,updNoteContent,dragStart,dragEnd,areaDragOver,areaDragLeave,areaDrop,moveTask,showMovePop,closeMovePop,noteDragStart,noteDragEnd,projItemDragStart,projItemDragEnd,projDragOver,projDragLeave,projDrop,sm,cm,mNewP,cP,mEditP,sPn,dP,mNewA,cA,mEditA,sA,dA,mNewT,cT,mSetKey,saveKey,delKey,addAssigneeForTask,fmtCmd,aiKeyDown,clearAI,sendAI,xCSV,xJSON,toggleSB,closeMobileSB,pickColor,fmtNoteCmd,setCanvasTool,setCanvasColor,setCanvasPenSize,toggleCanvasTouch,canvasUndo,canvasClear,toggleNoteCanvas,startCanvasResize});
+Object.assign(window,{selView,selP,selA,selectTask,closeDetail,toggleDone,updTask,updTaskField,dTask,setFilterStatus,setGrouping,toggleCollapse,onSearchInput,addNote,toggleNoteDone,dNote,updNote,toggleNoteExpand,updNoteContent,dragStart,dragEnd,areaDragOver,areaDragLeave,areaDrop,moveTask,showMovePop,closeMovePop,noteDragStart,noteDragEnd,projItemDragStart,projItemDragEnd,projDragOver,projDragLeave,projDrop,sm,cm,mNewP,cP,mEditP,sPn,dP,mNewA,cA,mEditA,sA,dA,mNewT,cT,mSetKey,saveKey,delKey,addAssigneeForTask,fmtCmd,aiKeyDown,clearAI,sendAI,xCSV,xJSON,toggleSB,closeMobileSB,pickColor,fmtNoteCmd,setCanvasTool,setCanvasColor,setCanvasPenSize,toggleCanvasTouch,canvasUndo,canvasClear,toggleNoteCanvas,startCanvasResize,gcalPrev,gcalNext,gcalGoToday,gcalDoSignIn,gcalDoSignOut,loadCalEvents,mGcalConfig,saveGcalConfig,delGcalConfig,mNewEvent,mNewEventOnDay,mEditEvent,toggleAllDay,saveEvent,deleteEvent,mDayEvents});
 
 // ===== INIT =====
 onSnapshot(doc(db,'data','avihai'),async(snap)=>{
