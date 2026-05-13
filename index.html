@@ -662,7 +662,7 @@ function rSidebar(){
     <div class="sb-foot">
       <span class="dot${syncOk?'':' off'}" id="sdot" title="${syncOk?'מסונכרן':'לא מחובר'}"></span>
       <span class="lbl">${syncOk?'מסונכרן':'לא מחובר'}</span>
-      <span class="ver">v7</span>
+      <span class="ver">v8</span>
     </div>
   `;
 }
@@ -1768,49 +1768,79 @@ async function deleteEvent(id){
 }
 
 // ===== TASK <-> CALENDAR SYNC =====
-async function syncTaskToCal(taskId){
-  const r=findTask(taskId);if(!r)return;
-  const t=r.task;
-  if(!t.dueDate){alert('הוסף תאריך יעד למשימה לפני סנכרון ליומן');return;}
-  try{
-    await gcalInit();
-    if(!gcalAccessToken){await gcalSignIn();}
-  }catch(e){
-    if(e.message==='NO_CONFIG'){alert('הגדר תחילה את החיבור ל-Google Calendar בלשונית "יומן Google"');return;}
-    alert('שגיאה בהתחברות: '+(e.message||e));return;
-  }
-  const body={summary:t.title||'(ללא כותרת)',description:stripHtml(t.content||'')||t.notes||''};
-  if(t.dueTime&&/^\d{2}:\d{2}$/.test(t.dueTime)){
-    const start=new Date(t.dueDate+'T'+t.dueTime+':00');
+async function _syncTaskCore(task){
+  if(!task.dueDate)throw new Error('NO_DATE');
+  await gcalInit();
+  if(!gcalAccessToken)await gcalSignIn();
+  const body={summary:task.title||'(ללא כותרת)',description:stripHtml(task.content||'')||task.notes||''};
+  if(task.dueTime&&/^\d{2}:\d{2}$/.test(task.dueTime)){
+    const start=new Date(task.dueDate+'T'+task.dueTime+':00');
     const end=new Date(start.getTime()+60*60*1000);
     body.start={dateTime:start.toISOString()};
     body.end={dateTime:end.toISOString()};
   }else{
-    body.start={date:t.dueDate};
-    const p=t.dueDate.split('-').map(Number);
+    body.start={date:task.dueDate};
+    const p=task.dueDate.split('-').map(Number);
     const next=new Date(Date.UTC(p[0],p[1]-1,p[2]+1));
     body.end={date:next.getUTCFullYear()+'-'+String(next.getUTCMonth()+1).padStart(2,'0')+'-'+String(next.getUTCDate()).padStart(2,'0')};
   }
-  try{
-    const calId=await ensureTasksCalendar();
-    let result;
-    if(t.gcalEventId){
-      try{result=await gcalUpdateEvent(calId,t.gcalEventId,body);}
-      catch(e){
-        if(e.status===404||e.status===410){result=await gcalCreateEvent(calId,body);}
-        else throw e;
-      }
-    }else{
-      result=await gcalCreateEvent(calId,body);
-    }
-    t.gcalEventId=result.id;
-    t.inCal=true;
-    sv();
-    if(S.view==='calendar'){calStatus='idle';loadCalEvents();}else{render();}
-  }catch(e){
-    const msg=e&&e.result&&e.result.error&&e.result.error.message||e.message||String(e);
-    alert('שגיאה בסנכרון ליומן: '+msg);
+  const calId=await ensureTasksCalendar();
+  let result;
+  if(task.gcalEventId){
+    try{result=await gcalUpdateEvent(calId,task.gcalEventId,body);}
+    catch(e){if(e.status===404||e.status===410)result=await gcalCreateEvent(calId,body);else throw e;}
+  }else{
+    result=await gcalCreateEvent(calId,body);
   }
+  task.gcalEventId=result.id;
+  task.inCal=true;
+  return result;
+}
+
+async function _unsyncTaskCore(task){
+  if(task.gcalEventId){
+    await gcalInit();
+    if(!gcalAccessToken)await gcalSignIn();
+    const calId=await ensureTasksCalendar();
+    try{await gcalDeleteEvent(calId,task.gcalEventId);}
+    catch(e){if(e.status!==404&&e.status!==410)throw e;}
+  }
+  delete task.gcalEventId;
+  task.inCal=false;
+}
+
+async function _createCalEventCore({title,date,time,durationMinutes,description}){
+  if(!date)throw new Error('NO_DATE');
+  await gcalInit();
+  if(!gcalAccessToken)await gcalSignIn();
+  const body={summary:title||'(ללא כותרת)',description:description||''};
+  if(time&&/^\d{2}:\d{2}$/.test(time)){
+    const start=new Date(date+'T'+time+':00');
+    const dur=parseInt(durationMinutes)||60;
+    const end=new Date(start.getTime()+dur*60000);
+    body.start={dateTime:start.toISOString()};
+    body.end={dateTime:end.toISOString()};
+  }else{
+    body.start={date:date};
+    const p=date.split('-').map(Number);
+    const next=new Date(Date.UTC(p[0],p[1]-1,p[2]+1));
+    body.end={date:next.getUTCFullYear()+'-'+String(next.getUTCMonth()+1).padStart(2,'0')+'-'+String(next.getUTCDate()).padStart(2,'0')};
+  }
+  const calId=await ensureTasksCalendar();
+  return await gcalCreateEvent(calId,body);
+}
+
+async function syncTaskToCal(taskId){
+  const r=findTask(taskId);if(!r)return;
+  try{await _syncTaskCore(r.task);}
+  catch(e){
+    if(e.message==='NO_DATE'){alert('הוסף תאריך יעד למשימה לפני סנכרון ליומן');return;}
+    if(e.message==='NO_CONFIG'){alert('הגדר תחילה את החיבור ל-Google Calendar בלשונית "יומן Google"');return;}
+    const msg=e&&e.result&&e.result.error&&e.result.error.message||e.message||String(e);
+    alert('שגיאה בסנכרון ליומן: '+msg);return;
+  }
+  sv();
+  if(S.view==='calendar'){calStatus='idle';loadCalEvents();}else{render();}
 }
 
 async function unsyncTaskFromCal(taskId){
@@ -1818,20 +1848,11 @@ async function unsyncTaskFromCal(taskId){
   const t=r.task;
   if(!t.gcalEventId&&!t.inCal){return;}
   if(!confirm('להסיר את האירוע מ-Google Calendar?'))return;
-  try{
-    if(t.gcalEventId){
-      await gcalInit();
-      if(!gcalAccessToken){await gcalSignIn();}
-      const calId=await ensureTasksCalendar();
-      try{await gcalDeleteEvent(calId,t.gcalEventId);}
-      catch(e){if(e.status!==404&&e.status!==410)throw e;}
-    }
-  }catch(e){
+  try{await _unsyncTaskCore(t);}
+  catch(e){
     const msg=e&&e.result&&e.result.error&&e.result.error.message||e.message||String(e);
     alert('שגיאה במחיקה מהיומן: '+msg);return;
   }
-  delete t.gcalEventId;
-  t.inCal=false;
   sv();
   if(S.view==='calendar'){calStatus='idle';loadCalEvents();}else{render();}
 }
@@ -2072,11 +2093,21 @@ async function sendAI(){
 
   const projSummary=S.projects.map(p=>{
     const areas=p.areas.map(a=>{
-      const tasks=a.tasks.map(t=>'    - '+t.title+' ('+t.status+(t.priority?', '+t.priority:'')+(t.importance?', '+t.importance:'')+')');
+      const tasks=a.tasks.map(t=>{
+        const parts=[t.status];
+        if(t.priority)parts.push(t.priority);
+        if(t.importance)parts.push(t.importance);
+        if(t.dueDate)parts.push('יעד '+t.dueDate+(t.dueTime?' '+t.dueTime:''));
+        if(t.assigned)parts.push('אחראי: '+t.assigned);
+        if(t.gcalEventId)parts.push('ביומן Google');
+        return '    - '+t.title+' ('+parts.join(', ')+')';
+      });
       return '  תחום "'+a.name+'":'+(a.tasks.length?'\n'+tasks.join('\n'):' (ריק)');
     }).join('\n');
     return 'פרויקט "'+p.name+'":\n'+areas;
   }).join('\n\n');
+  const calConnected=!!gcalAccessToken;
+  const notesSummary=S.notes.length?'\n\nפתקים אחרונים:\n'+S.notes.slice(0,5).map(n=>'- '+(n.text||'').slice(0,80)).join('\n'):'';
 
   const projCtxAI=S.aiProjId?S.projects.find(p=>p.id===S.aiProjId):null;
   const projHint=projCtxAI?`\n⚠️ חשוב: המשתמש כרגע נמצא בפרויקט "${projCtxAI.name}". אם הוא לא מציין פרויקט אחר במפורש, ההנחה היא שהוא מתכוון לפרויקט הזה.\n`:'';
@@ -2091,34 +2122,70 @@ async function sendAI(){
 
   const systemPrompt=`אתה עוזר לניהול פרויקטים בתשתיות אנרגיה עבור אביחי אטואן.
 ${dateLine}${dateHint}${projHint}
+מצב חיבור Google Calendar: ${calConnected?'מחובר ✓ (יומן "משימות (אביחי)")':'לא מחובר — סנכרון ליומן לא יעבוד עד שהמשתמש יתחבר בלשונית "יומן Google"'}.
 
 מבנה הנתונים הנוכחי (כולל תחומים ריקים):
-${projSummary}
+${projSummary}${notesSummary}
 
 חשוב מאוד:
 - השתמש תמיד בשמות הפרויקטים והתחומים בדיוק כפי שמופיעים למעלה.
 - אל תמציא שמות תחומים חדשים אם כבר קיים תחום דומה בפרויקט (למשל "ביצוע" קיים בכל הפרויקטים).
 - שמות תחומים מקובלים: "כללי", "ביצוע", "הזמנות רכש", "חשבונות", "אדריכלות".
 
-תפקידך: להוסיף/לעדכן/למחוק משימות ופרויקטים בשיחה טבעית בעברית.
-כשאתה מבין מה המשתמש רוצה, ענה עם פקודה אחת או יותר (אפשר כמה בבת אחת) בנוסף לטקסט קצר:
+תפקידך: לבצע כל פעולה שהמשתמש מבקש באפליקציה — להוסיף/לעדכן/למחוק משימות, פרויקטים, תחומים, פתקים; לסנכרן עם Google Calendar; ליצור אירועי יומן.
+כשאתה מבין מה המשתמש רוצה, ענה עם פקודה אחת או יותר (אפשר כמה בבת אחת) בנוסף לטקסט קצר.
+
+=== פקודות זמינות ===
 
 הוספת משימה:
-<ACTION>{"type":"add_task","project":"שם פרויקט","area":"שם תחום","title":"כותרת","priority":"","importance":"","status":"פתוח","notes":"","assigned":"","dueDate":""}</ACTION>
-priority: דחוף/בינוני/נמוך או ריק. importance: גבוהה/בינונית/נמוכה או ריק. dueDate: YYYY-MM-DD או ריק.
+<ACTION>{"type":"add_task","project":"שם","area":"שם תחום","title":"כותרת","priority":"","importance":"","status":"פתוח","notes":"","assigned":"","dueDate":"","dueTime":""}</ACTION>
+priority: דחוף/בינוני/נמוך או ריק. importance: גבוהה/בינונית/נמוכה או ריק.
+dueDate: YYYY-MM-DD. dueTime: HH:MM (24 שעות, אופציונלי).
 
-עדכון סטטוס:
-<ACTION>{"type":"update_status","project":"שם פרויקט","taskTitle":"כותרת מדויקת","status":"הושלם"}</ACTION>
+עדכון משימה (אחד או כמה שדות בבת אחת):
+<ACTION>{"type":"update_task","project":"שם","taskTitle":"כותרת קיימת","updates":{"title":"חדש","priority":"דחוף","importance":"גבוהה","status":"בביצוע","dueDate":"2026-05-20","dueTime":"09:30","assigned":"דני","notes":"..."}}</ACTION>
+כל השדות ב-updates אופציונליים — שלח רק את אלה שמשתנים.
+
+עדכון סטטוס בלבד (קיצור):
+<ACTION>{"type":"update_status","project":"שם","taskTitle":"כותרת","status":"הושלם"}</ACTION>
 status: פתוח/בביצוע/תלוי/הושלם.
 
-הוספת פרויקט חדש (ייווצר עם תחומים: כללי, ביצוע, הזמנות רכש, חשבונות):
-<ACTION>{"type":"add_project","name":"שם הפרויקט"}</ACTION>
-
 מחיקת משימה:
-<ACTION>{"type":"delete_task","project":"שם פרויקט","taskTitle":"כותרת מדויקת"}</ACTION>
+<ACTION>{"type":"delete_task","project":"שם","taskTitle":"כותרת"}</ACTION>
 
-כללים:
-- אם חסר מידע חיוני — שאל שאלה אחת ממוקדת לפני פעולה.
+סנכרון משימה ל-Google Calendar (יוצר אירוע ביומן; אם יש שעה — אירוע בשעה, אחרת יום שלם):
+<ACTION>{"type":"sync_task_to_cal","project":"שם","taskTitle":"כותרת"}</ACTION>
+לפני שליחה — וודא שלמשימה יש dueDate. אם המשתמש מבקש סנכרון בלי שיש תאריך, קודם עדכן את התאריך ואז סנכרן (אפשר באותה תשובה).
+
+הסרה מ-Google Calendar:
+<ACTION>{"type":"unsync_task_from_cal","project":"שם","taskTitle":"כותרת"}</ACTION>
+
+יצירת אירוע יומן ישיר (לא קשור למשימה — לפגישה, תזכורת וכו'):
+<ACTION>{"type":"create_event","title":"שם אירוע","date":"YYYY-MM-DD","time":"HH:MM","durationMinutes":60,"description":""}</ACTION>
+time ו-durationMinutes אופציונליים — בלי time = יום שלם.
+
+פרויקט חדש (נוצר עם תחומים: כללי, ביצוע, הזמנות רכש, חשבונות):
+<ACTION>{"type":"add_project","name":"שם"}</ACTION>
+
+מחיקת פרויקט (זהירות — מוחק גם את כל המשימות שבו):
+<ACTION>{"type":"delete_project","name":"שם"}</ACTION>
+
+שינוי שם פרויקט:
+<ACTION>{"type":"rename_project","oldName":"ישן","newName":"חדש"}</ACTION>
+
+הוספת תחום לפרויקט:
+<ACTION>{"type":"add_area","project":"שם פרויקט","name":"שם תחום"}</ACTION>
+
+מחיקת תחום (כל המשימות בתחום יימחקו!):
+<ACTION>{"type":"delete_area","project":"שם פרויקט","areaName":"שם תחום"}</ACTION>
+
+הוספת פתק:
+<ACTION>{"type":"add_note","text":"תוכן הפתק"}</ACTION>
+
+=== כללים ===
+- אם חסר מידע חיוני (למשל איזה פרויקט) — שאל שאלה אחת ממוקדת לפני פעולה.
+- אפשר להוציא כמה ACTION ברצף באותה תשובה (למשל להוסיף משימה ומיד לסנכרן ליומן).
+- לפעולות מסוכנות (מחיקת פרויקט, מחיקת תחום עם משימות) — תזהיר את המשתמש בטקסט לפני הפקודה, או בקש אישור בשאלה.
 - ענה תמיד בעברית, בקצרה.`;
 
   const messages=aiMsgs.filter(m=>!m.loading).map(m=>({role:m.role==='user'?'user':'assistant',content:m.content}));
@@ -2140,35 +2207,79 @@ status: פתוח/בביצוע/תלוי/הושלם.
     const results=[];
     const norm=s=>(s||'').toString().trim();
 
+    const findProj=name=>S.projects.find(p=>norm(p.name)===norm(name));
+    const findTaskIn=(proj,title)=>{for(const a of proj.areas){const t=a.tasks.find(t=>norm(t.title)===norm(title));if(t)return{task:t,area:a};}return null;};
+    const calErr=e=>{
+      if(e.message==='NO_DATE')return 'חסר תאריך יעד';
+      if(e.message==='NO_CONFIG')return 'לא מוגדר חיבור ל-Google Calendar';
+      return (e&&e.result&&e.result.error&&e.result.error.message)||e.message||String(e);
+    };
+
     for(const match of actionMatches){
       try{
         const action=JSON.parse(match[1].trim());
         if(action.type==='add_task'){
-          const proj=S.projects.find(p=>norm(p.name)===norm(action.project));
+          const proj=findProj(action.project);
           if(!proj){results.push('❌ פרויקט "'+action.project+'" לא נמצא');continue;}
           let area=proj.areas.find(a=>norm(a.name)===norm(action.area));
           let isNewArea=false;
           if(!area){area={id:uid(),name:action.area||'כללי',tasks:[]};proj.areas.push(area);isNewArea=true;}
-          area.tasks.push({id:uid(),title:action.title,content:'',notes:action.notes||'',priority:action.priority||'',importance:action.importance||'',status:action.status||'פתוח',assigned:action.assigned||'',dueDate:action.dueDate||'',inCal:false,created:new Date().toISOString()});
+          area.tasks.push({id:uid(),title:action.title,content:'',notes:action.notes||'',priority:action.priority||'',importance:action.importance||'',status:action.status||'פתוח',assigned:action.assigned||'',dueDate:action.dueDate||'',dueTime:action.dueTime||'',inCal:false,created:new Date().toISOString()});
           results.push('✅ נוספה משימה "'+action.title+'" → '+proj.name+' › '+area.name+(isNewArea?' (תחום חדש!)':''));
-        } else if(action.type==='update_status'){
-          const proj=S.projects.find(p=>norm(p.name)===norm(action.project));
+        } else if(action.type==='update_task'){
+          const proj=findProj(action.project);
           if(!proj){results.push('❌ פרויקט "'+action.project+'" לא נמצא');continue;}
-          let found=false;
-          for(const a of proj.areas){
-            const t=a.tasks.find(t=>norm(t.title)===norm(action.taskTitle));
-            if(t){t.status=action.status;results.push('✅ "'+action.taskTitle+'" → '+action.status);found=true;break;}
-          }
-          if(!found)results.push('❌ משימה "'+action.taskTitle+'" לא נמצאה ב-'+proj.name);
+          const found=findTaskIn(proj,action.taskTitle);
+          if(!found){results.push('❌ משימה "'+action.taskTitle+'" לא נמצאה ב-'+proj.name);continue;}
+          const updates=action.updates||{};
+          const allowed=['title','priority','importance','status','dueDate','dueTime','assigned','notes','content'];
+          const applied=[];
+          for(const k of allowed){if(k in updates){found.task[k]=updates[k];applied.push(k);}}
+          results.push(applied.length?'✅ "'+action.taskTitle+'" עודכן ('+applied.join(', ')+')':'⚠️ אין שינויים ב-"'+action.taskTitle+'"');
+        } else if(action.type==='update_status'){
+          const proj=findProj(action.project);
+          if(!proj){results.push('❌ פרויקט "'+action.project+'" לא נמצא');continue;}
+          const found=findTaskIn(proj,action.taskTitle);
+          if(!found){results.push('❌ משימה "'+action.taskTitle+'" לא נמצאה ב-'+proj.name);continue;}
+          found.task.status=action.status;
+          results.push('✅ "'+action.taskTitle+'" → '+action.status);
         } else if(action.type==='add_project'){
-          const exists=S.projects.find(p=>norm(p.name)===norm(action.name));
+          const exists=findProj(action.name);
           if(exists){results.push('❌ פרויקט "'+action.name+'" כבר קיים');continue;}
           const id=uid();
           const defs=[{id:uid(),name:'כללי',tasks:[]},{id:uid(),name:'ביצוע',tasks:[]},{id:uid(),name:'הזמנות רכש',tasks:[]},{id:uid(),name:'חשבונות',tasks:[]}];
           S.projects.push({id,name:action.name,areas:defs});
           results.push('✅ נוסף פרויקט "'+action.name+'"');
+        } else if(action.type==='delete_project'){
+          const idx=S.projects.findIndex(p=>norm(p.name)===norm(action.name));
+          if(idx<0){results.push('❌ פרויקט "'+action.name+'" לא נמצא');continue;}
+          const removed=S.projects.splice(idx,1)[0];
+          if(S.apid===removed.id){S.apid=null;S.aaid=null;S.view='dashboard';}
+          results.push('🗑 נמחק פרויקט "'+removed.name+'"');
+        } else if(action.type==='rename_project'){
+          const proj=findProj(action.oldName);
+          if(!proj){results.push('❌ פרויקט "'+action.oldName+'" לא נמצא');continue;}
+          if(findProj(action.newName)){results.push('❌ כבר קיים פרויקט "'+action.newName+'"');continue;}
+          proj.name=action.newName;
+          results.push('✏️ "'+action.oldName+'" → "'+action.newName+'"');
+        } else if(action.type==='add_area'){
+          const proj=findProj(action.project);
+          if(!proj){results.push('❌ פרויקט "'+action.project+'" לא נמצא');continue;}
+          if(proj.areas.find(a=>norm(a.name)===norm(action.name))){results.push('❌ תחום "'+action.name+'" כבר קיים');continue;}
+          proj.areas.push({id:uid(),name:action.name,tasks:[]});
+          results.push('✅ נוסף תחום "'+action.name+'" ל-'+proj.name);
+        } else if(action.type==='delete_area'){
+          const proj=findProj(action.project);
+          if(!proj){results.push('❌ פרויקט "'+action.project+'" לא נמצא');continue;}
+          const idx=proj.areas.findIndex(a=>norm(a.name)===norm(action.areaName));
+          if(idx<0){results.push('❌ תחום "'+action.areaName+'" לא נמצא');continue;}
+          if(proj.areas.length<=1){results.push('❌ אי אפשר למחוק את התחום היחיד בפרויקט');continue;}
+          const cnt=proj.areas[idx].tasks.length;
+          proj.areas.splice(idx,1);
+          if(S.aaid===proj.areas[idx]?.id)S.aaid='__all__';
+          results.push('🗑 נמחק תחום "'+action.areaName+'"'+(cnt?' ('+cnt+' משימות)':''));
         } else if(action.type==='delete_task'){
-          const proj=S.projects.find(p=>norm(p.name)===norm(action.project));
+          const proj=findProj(action.project);
           if(!proj){results.push('❌ פרויקט "'+action.project+'" לא נמצא');continue;}
           let found=false;
           for(const a of proj.areas){
@@ -2176,6 +2287,28 @@ status: פתוח/בביצוע/תלוי/הושלם.
             if(idx>=0){a.tasks.splice(idx,1);results.push('✅ נמחקה "'+action.taskTitle+'"');found=true;break;}
           }
           if(!found)results.push('❌ משימה "'+action.taskTitle+'" לא נמצאה');
+        } else if(action.type==='sync_task_to_cal'){
+          const proj=findProj(action.project);
+          if(!proj){results.push('❌ פרויקט "'+action.project+'" לא נמצא');continue;}
+          const found=findTaskIn(proj,action.taskTitle);
+          if(!found){results.push('❌ משימה "'+action.taskTitle+'" לא נמצאה');continue;}
+          try{await _syncTaskCore(found.task);results.push('📅 "'+action.taskTitle+'" נשלחה ליומן Google');}
+          catch(e){results.push('❌ סנכרון "'+action.taskTitle+'" נכשל: '+calErr(e));}
+        } else if(action.type==='unsync_task_from_cal'){
+          const proj=findProj(action.project);
+          if(!proj){results.push('❌ פרויקט "'+action.project+'" לא נמצא');continue;}
+          const found=findTaskIn(proj,action.taskTitle);
+          if(!found){results.push('❌ משימה "'+action.taskTitle+'" לא נמצאה');continue;}
+          try{await _unsyncTaskCore(found.task);results.push('🗑 "'+action.taskTitle+'" הוסרה מהיומן');}
+          catch(e){results.push('❌ הסרה נכשלה: '+calErr(e));}
+        } else if(action.type==='create_event'){
+          try{await _createCalEventCore(action);results.push('📅 אירוע "'+action.title+'" נוצר ב-'+action.date+(action.time?' '+action.time:'')); if(S.view==='calendar'){calStatus='idle';loadCalEvents();}}
+          catch(e){results.push('❌ יצירת אירוע נכשלה: '+calErr(e));}
+        } else if(action.type==='add_note'){
+          const text=(action.text||'').trim();
+          if(!text){results.push('❌ פתק ריק');continue;}
+          S.notes.unshift({id:uid(),text,content:'',done:false,created:new Date().toISOString()});
+          results.push('📝 נוסף פתק');
         } else {
           results.push('❌ סוג פקודה לא מוכר: '+action.type);
         }
