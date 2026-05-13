@@ -289,9 +289,16 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 .te-h-actions{display:flex;gap:5px}
 .te-title-wrap input.dp-title{width:100%;font-size:16px;font-weight:600;padding:5px 8px;border:.5px solid transparent;border-radius:4px;background:transparent;color:var(--ink)}
 .te-title-wrap input.dp-title:focus{border-color:var(--rule2);background:var(--bg)}
-.te-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px 16px}
-.te-field-wide{grid-column:span 2}
-.te-field .f-l{margin-bottom:5px}
+.te-grid{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end}
+.te-field{flex:1;min-width:0}
+.te-field.te-field-status{flex:0 0 auto}
+.te-field.te-field-date{flex:0 0 240px}
+.te-field-wide{flex-basis:100%}
+.te-field .f-l{margin-bottom:4px;font-size:9.5px}
+.te-grid .opt-grp{gap:3px;flex-wrap:nowrap}
+.te-grid .opt{font-size:10.5px;padding:3px 7px;white-space:nowrap}
+.te-grid .dp-input{font-size:11.5px;padding:4px 7px;height:26px}
+.te-grid .opt.add{font-size:10px;padding:3px 5px}
 .te-content-wrap{display:flex;flex-direction:column}
 .rt-content.rt-resizable{resize:vertical;overflow:auto}
 .te-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;border-top:.5px solid var(--rule);padding-top:10px;margin-top:2px}
@@ -299,8 +306,9 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 .te-meta{font-size:10.5px;color:var(--ink3);font-family:var(--mono)}
 @media(max-width:760px){
   .te{padding:12px;margin:4px 8px 10px}
-  .te-grid{grid-template-columns:1fr}
-  .te-field-wide{grid-column:span 1}
+  .te-grid .opt{font-size:10px;padding:3px 6px}
+  .te-grid .opt-grp{flex-wrap:wrap}
+  .te-field-date{flex-basis:100%}
 }
 
 /* ===== CHECKLIST ROWS (in any contenteditable) ===== */
@@ -716,7 +724,7 @@ function rSidebar(){
     <div class="sb-foot">
       <span class="dot${syncOk?'':' off'}" id="sdot" title="${syncOk?'מסונכרן':'לא מחובר'}"></span>
       <span class="lbl">${syncOk?'מסונכרן':'לא מחובר'}</span>
-      <span class="ver">v12</span>
+      <span class="ver">v13</span>
     </div>
   `;
 }
@@ -1085,11 +1093,11 @@ function renderTaskExpanded(t,ctx){
       <input class="dp-title" value="${esc(t.title)}" oninput="updTaskField('${t.id}','title',this.value)" placeholder="כותרת"/>
     </div>
     <div class="te-grid">
-      <div class="te-field"><div class="f-l">סטטוס</div><div class="opt-grp">${statusOpts}</div></div>
-      <div class="te-field"><div class="f-l">עדיפות</div><div class="opt-grp">${prioOpts}</div></div>
-      <div class="te-field"><div class="f-l">חשיבות</div><div class="opt-grp">${impOpts}</div></div>
+      <div class="te-field te-field-status"><div class="f-l">סטטוס</div><div class="opt-grp">${statusOpts}</div></div>
+      <div class="te-field te-field-status"><div class="f-l">עדיפות</div><div class="opt-grp">${prioOpts}</div></div>
+      <div class="te-field te-field-status"><div class="f-l">חשיבות</div><div class="opt-grp">${impOpts}</div></div>
       <div class="te-field"><div class="f-l">אחראי</div><div class="opt-grp">${asHtml}<button class="opt add" onclick="addAssigneeForTask('${t.id}')">+ חדש</button></div></div>
-      <div class="te-field te-field-wide"><div class="f-l">תאריך יעד · שעה</div><div style="display:grid;grid-template-columns:1.4fr 1fr;gap:6px"><input type="date" class="dp-input" value="${esc(t.dueDate||'')}" onchange="updTask('${t.id}',{dueDate:this.value})"/><input type="time" class="dp-input" value="${esc(t.dueTime||'')}" onchange="updTask('${t.id}',{dueTime:this.value})" placeholder="שעה"/></div></div>
+      <div class="te-field te-field-date"><div class="f-l">תאריך יעד · שעה</div><div style="display:grid;grid-template-columns:1.4fr 1fr;gap:5px"><input type="date" class="dp-input" value="${esc(t.dueDate||'')}" onchange="updTask('${t.id}',{dueDate:this.value})"/><input type="time" class="dp-input" value="${esc(t.dueTime||'')}" onchange="updTask('${t.id}',{dueTime:this.value})" placeholder="שעה"/></div></div>
     </div>
     <div class="te-field te-content-wrap">
       <div class="f-l">תוכן</div>
