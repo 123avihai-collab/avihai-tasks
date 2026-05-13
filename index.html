@@ -131,10 +131,16 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 
 /* KPI cards */
 .kpis{padding:14px 22px 0;display:flex;gap:10px;flex-wrap:wrap}
-.kpi{flex:1;min-width:140px;background:var(--panel);border:.5px solid var(--rule);border-radius:6px;padding:12px 14px;border-right:.5px solid var(--rule)}
+.kpi{flex:1;min-width:140px;background:var(--panel);border:.5px solid var(--rule);border-radius:6px;padding:12px 14px;border-right:.5px solid var(--rule);text-align:right}
 .kpi.acc-r{border-right:2px solid var(--red)}
 .kpi.acc-g{border-right:2px solid var(--green)}
 .kpi.acc-a{border-right:2px solid var(--amber)}
+.kpi-btn{cursor:pointer;font-family:inherit;transition:transform .12s,box-shadow .12s}
+.kpi-btn:hover{transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,.06);border-color:var(--rule2)}
+.kpi-btn:active{transform:translateY(0)}
+.sec-head.pri-urgent{color:var(--red)!important;font-weight:700}
+.sec-head.pri-urgent .cnt{background:var(--redSoft);color:var(--red);padding:1px 6px;border-radius:3px}
+.sec-head.pri-med{color:var(--amber)!important}
 .kpi-l{font-size:10.5px;color:var(--ink3);letter-spacing:.1em;font-weight:600;margin-bottom:6px}
 .kpi-row{display:flex;align-items:baseline;gap:8px}
 .kpi-v{font-size:24px;font-weight:600;color:var(--ink);font-feature-settings:"tnum";line-height:1}
@@ -678,7 +684,7 @@ function rSidebar(){
     <div class="sb-foot">
       <span class="dot${syncOk?'':' off'}" id="sdot" title="${syncOk?'מסונכרן':'לא מחובר'}"></span>
       <span class="lbl">${syncOk?'מסונכרן':'לא מחובר'}</span>
-      <span class="ver">v9</span>
+      <span class="ver">v10</span>
     </div>
   `;
 }
@@ -793,10 +799,11 @@ function rDashboard(mn){
     </header>
 
     <div class="kpis">
+      <button class="kpi kpi-btn" onclick="selView('today')"><div class="kpi-l">היום</div><div class="kpi-row"><div class="kpi-v">${today.length}</div></div></button>
+      <button class="kpi kpi-btn ${urgent.length?'acc-r':''}" onclick="selView('urgent')"><div class="kpi-l">דחופות</div><div class="kpi-row"><div class="kpi-v">${urgent.length}</div></div></button>
+      <button class="kpi kpi-btn ${overdue.length?'acc-a':''}" onclick="selView('overdue')"><div class="kpi-l">באיחור</div><div class="kpi-row"><div class="kpi-v">${overdue.length}</div></div></button>
+      <button class="kpi kpi-btn" onclick="selView('week')"><div class="kpi-l">השבוע</div><div class="kpi-row"><div class="kpi-v">${week.length}</div></div></button>
       <div class="kpi"><div class="kpi-l">פעילות</div><div class="kpi-row"><div class="kpi-v">${open.length}</div><div class="kpi-s">מתוך ${all.length}</div></div></div>
-      <div class="kpi ${urgent.length?'acc-r':''}"><div class="kpi-l">דחופות</div><div class="kpi-row"><div class="kpi-v">${urgent.length}</div></div></div>
-      <div class="kpi ${overdue.length?'acc-a':''}"><div class="kpi-l">באיחור</div><div class="kpi-row"><div class="kpi-v">${overdue.length}</div></div></div>
-      <div class="kpi"><div class="kpi-l">השבוע</div><div class="kpi-row"><div class="kpi-v">${week.length}</div></div></div>
       <div class="kpi acc-g"><div class="kpi-l">הושלמו</div><div class="kpi-row"><div class="kpi-v">${done.length}</div></div></div>
     </div>
 
@@ -806,6 +813,17 @@ function rDashboard(mn){
         <span class="dash-section-cnt">${S.projects.length}</span>
       </div>
       <div class="dash-grid">${projCards||'<div class="empty-st">אין פרויקטים<br><button class="btn-primary" style="margin-top:10px" onclick="mNewP()">+ פרויקט חדש</button></div>'}</div>
+
+      ${urgent.length?`
+      <div class="dash-section-title" style="margin-top:22px">
+        <span style="color:var(--red)">🔥 דחופות</span>
+        <span class="dash-section-cnt">${urgent.length}</span>
+        ${urgent.length>5?'<button class="btn-ghost" style="margin-right:auto;font-size:11px" onclick="selView(\'urgent\')">הצג הכל →</button>':''}
+      </div>
+      <div class="tl">
+        <div class="tl-head"><div></div><div>משימה</div><div>עדיפות</div><div>סטטוס</div><div>יעד</div><div></div></div>
+        ${sortTasks(urgent.slice()).slice(0,5).map(x=>renderTaskRow(x.task,x.area.name,x.proj,true)).join('')}
+      </div>`:''}
 
       <div class="dash-section-title" style="margin-top:22px">
         <span>דורש תשומת לב מיידית</span>
@@ -838,15 +856,16 @@ function rProject(mn){
   filtered=sortTasks(filtered.slice());
 
   let groupsHtml='';
-  if(S.aaid&&S.aaid!=='__all__'){
-    // Single area view - no grouping needed
+  const isSingleArea=S.aaid&&S.aaid!=='__all__';
+  if(isSingleArea&&S.grouping!=='priority'&&S.grouping!=='status'){
+    // Single area view - flat list
     const a=p.areas.find(a=>a.id===S.aaid);
     if(a&&filtered.length){
       groupsHtml=filtered.map(x=>renderTaskRow(x.task,null,null,false)).join('');
     } else {
       groupsHtml='<div class="empty-st">אין משימות בתחום זה</div>';
     }
-  } else if(S.grouping==='area'){
+  } else if(!isSingleArea&&S.grouping==='area'){
     p.areas.forEach(a=>{
       const items=filtered.filter(x=>x.area.id===a.id);
       if(items.length||!S.filterStatus){
@@ -865,6 +884,21 @@ function rProject(mn){
       const col=S.collapsed['s_'+s]?'col':'';
       groupsHtml+='<button class="sec-head '+col+'" onclick="toggleCollapse(\'s_'+s+'\')"><span class="chev">'+IC.arrow+'</span><span>'+esc(s)+'</span><span class="cnt">· '+items.length+'</span></button>';
       if(!S.collapsed['s_'+s])groupsHtml+=items.map(x=>renderTaskRow(x.task,x.area.name,null,false)).join('');
+    });
+  } else if(S.grouping==='priority'){
+    const buckets=[
+      {key:'דחוף',label:'דחוף',icon:'🔥'},
+      {key:'בינוני',label:'בינוני',icon:'•'},
+      {key:'נמוך',label:'נמוך',icon:'·'},
+      {key:'',label:'ללא עדיפות',icon:'—'}
+    ];
+    buckets.forEach(b=>{
+      const items=filtered.filter(x=>(x.task.priority||'')===b.key);
+      if(!items.length)return;
+      const col=S.collapsed['p_'+b.key]?'col':'';
+      const cls=b.key==='דחוף'?'pri-urgent':(b.key==='בינוני'?'pri-med':'');
+      groupsHtml+='<button class="sec-head '+col+' '+cls+'" onclick="toggleCollapse(\'p_'+b.key+'\')"><span class="chev">'+IC.arrow+'</span><span>'+b.icon+' '+esc(b.label)+'</span><span class="cnt">· '+items.length+'</span></button>';
+      if(!S.collapsed['p_'+b.key])groupsHtml+=items.map(x=>renderTaskRow(x.task,x.area.name,null,false)).join('');
     });
   } else {
     if(filtered.length)groupsHtml=filtered.map(x=>renderTaskRow(x.task,x.area.name,null,false)).join('');
@@ -918,9 +952,10 @@ function rProject(mn){
       ${statusChips}
       <span class="tlb-grow"></span>
       <span class="tlb-lbl">קבץ לפי</span>
-      <select class="tlb-sel" onchange="setGrouping(this.value)" ${isAllArea?'':'disabled'}>
-        <option value="area" ${S.grouping==='area'?'selected':''}>תחום</option>
+      <select class="tlb-sel" onchange="setGrouping(this.value)">
+        <option value="area" ${S.grouping==='area'?'selected':''} ${isAllArea?'':'disabled'}>תחום</option>
         <option value="status" ${S.grouping==='status'?'selected':''}>סטטוס</option>
+        <option value="priority" ${S.grouping==='priority'?'selected':''}>עדיפות</option>
         <option value="none" ${S.grouping==='none'?'selected':''}>ללא</option>
       </select>
     </div>
