@@ -274,10 +274,18 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 .rt-btn{font-size:12px;padding:3px 8px;color:var(--ink2);border-radius:3px;min-width:24px}
 .rt-btn:hover{background:var(--panel);color:var(--ink)}
 .rt-content{min-height:90px;max-height:180px;overflow-y:auto;padding:8px 11px;border:.5px solid var(--rule2);border-radius:0 0 4px 4px;background:var(--panel);color:var(--ink);direction:rtl;text-align:right;font-size:12.5px;line-height:1.55;outline:none}
+.rt-content.rt-content-full{min-height:180px;max-height:420px;padding:10px 13px;font-size:13px}
 .rt-content:focus{border-color:var(--ink2)}
 .rt-content:empty:before{content:attr(data-placeholder);color:var(--ink3);pointer-events:none}
 .rt-content ul,.rt-content ol{padding-right:22px;margin:4px 0}
 .rt-content b,.rt-content strong{font-weight:700}
+
+/* ===== CHECKLIST ROWS (in any contenteditable) ===== */
+.cl-row{display:flex;align-items:center;gap:7px;padding:3px 0;margin:1px 0}
+.cl-box{flex-shrink:0;width:18px;height:18px;border:1.5px solid var(--ink2);border-radius:3px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;line-height:1;background:var(--panel);color:transparent;user-select:none;transition:all .12s}
+.cl-box:hover{border-color:var(--red);background:var(--redSoft);color:var(--red)}
+.cl-box:hover::before{content:'✕';font-weight:700;font-size:12px}
+.cl-text{flex:1;line-height:1.55}
 .dp-act{padding:12px 18px;border-top:.5px solid var(--rule);margin-top:auto;display:flex;flex-direction:column;gap:7px}
 .dp-act-l{font-size:10px;color:var(--ink3);letter-spacing:.1em;font-weight:600;margin-bottom:4px}
 .act-row{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--ink2)}
@@ -684,7 +692,7 @@ function rSidebar(){
     <div class="sb-foot">
       <span class="dot${syncOk?'':' off'}" id="sdot" title="${syncOk?'מסונכרן':'לא מחובר'}"></span>
       <span class="lbl">${syncOk?'מסונכרן':'לא מחובר'}</span>
-      <span class="ver">v10</span>
+      <span class="ver">v11</span>
     </div>
   `;
 }
@@ -1073,15 +1081,8 @@ function rDetail(){
       <div><div class="f-l">תאריך יעד · שעה</div><div style="display:grid;grid-template-columns:1.4fr 1fr;gap:6px"><input type="date" class="dp-input" value="${esc(t.dueDate||'')}" onchange="updTask('${t.id}',{dueDate:this.value})"/><input type="time" class="dp-input" value="${esc(t.dueTime||'')}" onchange="updTask('${t.id}',{dueTime:this.value})" placeholder="שעה"/></div></div>
       <div>
         <div class="f-l">תוכן</div>
-        <div class="rt-tools">
-          <button class="rt-btn" onmousedown="event.preventDefault();" onclick="fmtCmd('bold')" title="מודגש"><b>B</b></button>
-          <button class="rt-btn" onmousedown="event.preventDefault();" onclick="fmtCmd('italic')" title="נטוי"><i>I</i></button>
-          <button class="rt-btn" onmousedown="event.preventDefault();" onclick="fmtCmd('underline')" title="קו תחתון"><u>U</u></button>
-          <button class="rt-btn" onmousedown="event.preventDefault();" onclick="fmtCmd('insertUnorderedList')" title="רשימה">•</button>
-          <button class="rt-btn" onmousedown="event.preventDefault();" onclick="fmtCmd('insertOrderedList')" title="ממוספרת">1.</button>
-          <button class="rt-btn" onmousedown="event.preventDefault();" onclick="fmtCmd('removeFormat')" title="נקה">×</button>
-        </div>
-        <div id="dp-content" class="rt-content" contenteditable="true" data-placeholder="הערות, פירוט, קישורים..." onblur="updTask('${t.id}',{content:this.innerHTML})">${t.content||''}</div>
+        ${rtToolbarHtml('dp-content',"fmtCmd(")}
+        <div id="dp-content" class="rt-content rt-content-full" contenteditable="true" data-placeholder="טקסט, הערות, פירוט, צ׳קליסט..." onblur="updTask('${t.id}',{content:this.innerHTML})">${t.content||''}</div>
       </div>
     </div>
     <div class="dp-act">
@@ -1105,38 +1106,7 @@ function rNotes(mn){
     const isOpen=expandedNotes.has(n.id);
     const hasContent=!!(n.content&&n.content.trim());
     const hasCanvas=!!(n.canvasData&&n.canvasData.length>200);
-    const sizeOpts=['1','2','3','4','5','6','7'];
-    const sizeNames={'1':'קטן מאוד','2':'קטן','3':'רגיל','4':'בינוני','5':'גדול','6':'ענק','7':'ענק מאוד'};
-    const colors=['#14181C','#3F6FB5','#3D7A4F','#9C6A1F','#B23D3D','#7048A0','#2E7E7E','#5A6470'];
-    const bgColors=['#FFEB3B','#FFE0B2','#C8E6C9','#BBDEFB','#F8BBD0','#E1BEE7','#FFCCBC','transparent'];
-    const colorBtns=colors.map(c=>'<button type="button" class="note-rt-color" style="background:'+c+';width:18px;height:18px" onmousedown="event.preventDefault();" onclick="fmtNoteCmd(\''+n.id+'\',\'foreColor\',\''+c+'\')" title="צבע טקסט"></button>').join('');
-    const bgBtns=bgColors.map(c=>'<button type="button" class="note-rt-color" style="background:'+c+';width:18px;height:18px;border:1px solid var(--rule2)" onmousedown="event.preventDefault();" onclick="fmtNoteCmd(\''+n.id+'\',\'hiliteColor\',\''+c+'\')" title="הדגשה"></button>').join('');
-    const richTools=isOpen?`
-      <div class="note-rt-tools">
-        <button type="button" class="note-rt-btn sz-input" onmousedown="event.preventDefault();">
-          <select onchange="fmtNoteCmd('${n.id}','fontSize',this.value);this.selectedIndex=2;" title="גודל גופן">
-            <option value="" disabled>גודל</option>
-            ${sizeOpts.map(s=>'<option value="'+s+'">'+sizeNames[s]+'</option>').join('')}
-          </select>
-        </button>
-        <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="fmtNoteCmd('${n.id}','formatBlock','h2')" title="כותרת"><b>H1</b></button>
-        <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="fmtNoteCmd('${n.id}','formatBlock','h3')" title="כותרת משנה"><b>H2</b></button>
-        <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="fmtNoteCmd('${n.id}','formatBlock','p')" title="פסקה">¶</button>
-        <span style="width:1px;background:var(--rule2);margin:2px 4px"></span>
-        <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="fmtNoteCmd('${n.id}','bold')" title="מודגש"><b>B</b></button>
-        <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="fmtNoteCmd('${n.id}','italic')" title="נטוי"><i>I</i></button>
-        <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="fmtNoteCmd('${n.id}','underline')" title="קו תחתון"><u>U</u></button>
-        <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="fmtNoteCmd('${n.id}','strikeThrough')" title="קו חוצה"><s>S</s></button>
-        <span style="width:1px;background:var(--rule2);margin:2px 4px"></span>
-        <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="fmtNoteCmd('${n.id}','insertUnorderedList')" title="רשימה">•</button>
-        <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="fmtNoteCmd('${n.id}','insertOrderedList')" title="ממוספרת">1.</button>
-        <span style="width:1px;background:var(--rule2);margin:2px 4px"></span>
-        <span style="display:flex;gap:3px;align-items:center" title="צבע טקסט">${colorBtns}</span>
-        <span style="width:1px;background:var(--rule2);margin:2px 4px"></span>
-        <span style="display:flex;gap:3px;align-items:center" title="הדגשה">${bgBtns}</span>
-        <span style="width:1px;background:var(--rule2);margin:2px 4px"></span>
-        <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="fmtNoteCmd('${n.id}','removeFormat')" title="נקה עיצוב">×</button>
-      </div>`:'';
+    const richTools=isOpen?rtToolbarHtml('note-content-'+n.id,"fmtNoteCmd('"+n.id+"',"):'';
     // Canvas section
     const canvasH=n.canvasHeight||280;
     const canvasOpen=n.canvasOpen||hasCanvas;
@@ -1176,7 +1146,7 @@ function rNotes(mn){
       </div>`:''}
     `:'';
     return `<div class="note ${n.done?'done':''}">
-      <div class="note-row" draggable="true" ondragstart="noteDragStart('${n.id}',event)" ondragend="noteDragEnd(event)">
+      <div class="note-row" draggable="true" ondragstart="noteDragStart('${n.id}',event)" ondragend="noteDragEnd(event)" onclick="if(!event.target.closest('button,input,select'))toggleNoteExpand('${n.id}')" style="cursor:pointer">
         <button class="cb ${n.done?'done':''}" onclick="toggleNoteDone('${n.id}')" title="${n.done?'בטל':'סמן'}"></button>
         <input class="note-input" value="${esc(n.text)}" onblur="updNote('${n.id}',this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"/>
         ${hasCanvas?'<span title="יש כתב יד" style="color:var(--accent);font-size:13px">✎</span>':''}
@@ -2170,7 +2140,60 @@ function getAssignees(){const set=new Set();S.projects.forEach(p=>p.areas.forEac
 function addAssigneeForTask(tid){const name=prompt('שם האחראי החדש:');if(!name||!name.trim())return;updTask(tid,{assigned:name.trim()});}
 
 // Rich text
-function fmtCmd(cmd){document.execCommand(cmd,false,null);const el=document.getElementById('dp-content');if(el)el.focus();}
+function fmtCmd(cmd,arg){const el=document.getElementById('dp-content');if(el)el.focus();document.execCommand(cmd,false,arg||null);}
+
+// Checklist helpers (shared between notes and tasks)
+function insertChecklist(contentId){
+  const el=document.getElementById(contentId);if(!el)return;
+  el.focus();
+  const html='<div class="cl-row"><span class="cl-box" contenteditable="false" onclick="clickCheckBox(this)" title="לחץ כדי למחוק שורה">☐</span>&nbsp;<span class="cl-text">שורה חדשה</span></div><div><br></div>';
+  document.execCommand('insertHTML',false,html);
+}
+function clickCheckBox(boxEl){
+  const row=boxEl.closest('.cl-row');if(!row)return;
+  const content=boxEl.closest('[contenteditable]');if(!content)return;
+  row.remove();
+  if(content.id==='dp-content'){
+    if(S.selTaskId){const r=findTask(S.selTaskId);if(r){r.task.content=content.innerHTML;sv();}}
+  } else if(content.id.startsWith('note-content-')){
+    const noteId=content.id.replace('note-content-','');
+    const n=S.notes.find(x=>x.id===noteId);if(n){n.content=content.innerHTML;sv();}
+  }
+}
+function rtToolbarHtml(contentId,cmdFnPrefix){
+  const sizeOpts=['1','2','3','4','5','6','7'];
+  const sizeNames={'1':'קטן מאוד','2':'קטן','3':'רגיל','4':'בינוני','5':'גדול','6':'ענק','7':'ענק מאוד'};
+  const colors=['#14181C','#3F6FB5','#3D7A4F','#9C6A1F','#B23D3D','#7048A0','#2E7E7E','#5A6470'];
+  const bgColors=['#FFEB3B','#FFE0B2','#C8E6C9','#BBDEFB','#F8BBD0','#E1BEE7','#FFCCBC','transparent'];
+  const colorBtns=colors.map(c=>`<button type="button" class="note-rt-color" style="background:${c};width:18px;height:18px" onmousedown="event.preventDefault();" onclick="${cmdFnPrefix}'foreColor','${c}')" title="צבע טקסט"></button>`).join('');
+  const bgBtns=bgColors.map(c=>`<button type="button" class="note-rt-color" style="background:${c};width:18px;height:18px;border:1px solid var(--rule2)" onmousedown="event.preventDefault();" onclick="${cmdFnPrefix}'hiliteColor','${c}')" title="הדגשה"></button>`).join('');
+  return `<div class="note-rt-tools">
+    <button type="button" class="note-rt-btn sz-input" onmousedown="event.preventDefault();">
+      <select onchange="${cmdFnPrefix}'fontSize',this.value);this.selectedIndex=2;" title="גודל גופן">
+        <option value="" disabled>גודל</option>
+        ${sizeOpts.map(s=>'<option value="'+s+'">'+sizeNames[s]+'</option>').join('')}
+      </select>
+    </button>
+    <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="${cmdFnPrefix}'formatBlock','h2')" title="כותרת"><b>H1</b></button>
+    <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="${cmdFnPrefix}'formatBlock','h3')" title="כותרת משנה"><b>H2</b></button>
+    <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="${cmdFnPrefix}'formatBlock','p')" title="פסקה">¶</button>
+    <span style="width:1px;background:var(--rule2);margin:2px 4px"></span>
+    <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="${cmdFnPrefix}'bold')" title="מודגש"><b>B</b></button>
+    <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="${cmdFnPrefix}'italic')" title="נטוי"><i>I</i></button>
+    <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="${cmdFnPrefix}'underline')" title="קו תחתון"><u>U</u></button>
+    <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="${cmdFnPrefix}'strikeThrough')" title="קו חוצה"><s>S</s></button>
+    <span style="width:1px;background:var(--rule2);margin:2px 4px"></span>
+    <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="${cmdFnPrefix}'insertUnorderedList')" title="רשימה">•</button>
+    <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="${cmdFnPrefix}'insertOrderedList')" title="ממוספרת">1.</button>
+    <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="insertChecklist('${contentId}')" title="הוסף שורת צ׳קליסט - לחיצה על הריבוע תמחק את השורה">☐</button>
+    <span style="width:1px;background:var(--rule2);margin:2px 4px"></span>
+    <span style="display:flex;gap:3px;align-items:center" title="צבע טקסט">${colorBtns}</span>
+    <span style="width:1px;background:var(--rule2);margin:2px 4px"></span>
+    <span style="display:flex;gap:3px;align-items:center" title="הדגשה">${bgBtns}</span>
+    <span style="width:1px;background:var(--rule2);margin:2px 4px"></span>
+    <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="${cmdFnPrefix}'removeFormat')" title="נקה עיצוב">×</button>
+  </div>`;
+}
 
 // ===== AI CHAT =====
 function aiKeyDown(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendAI();}}
@@ -2441,7 +2464,7 @@ function toggleSB(){document.getElementById('sb').classList.toggle('open');}
 function closeMobileSB(){document.getElementById('sb').classList.remove('open');}
 
 // ===== EXPOSE =====
-Object.assign(window,{selView,selP,selA,selectTask,closeDetail,toggleDone,updTask,updTaskField,dTask,setFilterStatus,setGrouping,toggleCollapse,clearDoneInProject,onSearchInput,addNote,toggleNoteDone,dNote,updNote,toggleNoteExpand,updNoteContent,dragStart,dragEnd,areaDragOver,areaDragLeave,areaDrop,moveTask,showMovePop,closeMovePop,noteDragStart,noteDragEnd,projItemDragStart,projItemDragEnd,projDragOver,projDragLeave,projDrop,sm,cm,mNewP,cP,mEditP,sPn,dP,mNewA,cA,mEditA,sA,dA,mNewT,cT,mSetKey,saveKey,delKey,addAssigneeForTask,fmtCmd,aiKeyDown,clearAI,sendAI,xCSV,xJSON,toggleSB,closeMobileSB,pickColor,fmtNoteCmd,setCanvasTool,setCanvasColor,setCanvasPenSize,toggleCanvasTouch,canvasUndo,canvasClear,toggleNoteCanvas,startCanvasResize,gcalPrev,gcalNext,gcalGoToday,gcalDoSignIn,gcalDoSignOut,loadCalEvents,mGcalConfig,saveGcalConfig,delGcalConfig,mNewEvent,mNewEventOnDay,mEditEvent,toggleAllDay,saveEvent,deleteEvent,mDayEvents,syncTaskToCal,unsyncTaskFromCal});
+Object.assign(window,{selView,selP,selA,selectTask,closeDetail,toggleDone,updTask,updTaskField,dTask,setFilterStatus,setGrouping,toggleCollapse,clearDoneInProject,onSearchInput,addNote,toggleNoteDone,dNote,updNote,toggleNoteExpand,updNoteContent,dragStart,dragEnd,areaDragOver,areaDragLeave,areaDrop,moveTask,showMovePop,closeMovePop,noteDragStart,noteDragEnd,projItemDragStart,projItemDragEnd,projDragOver,projDragLeave,projDrop,sm,cm,mNewP,cP,mEditP,sPn,dP,mNewA,cA,mEditA,sA,dA,mNewT,cT,mSetKey,saveKey,delKey,addAssigneeForTask,fmtCmd,insertChecklist,clickCheckBox,aiKeyDown,clearAI,sendAI,xCSV,xJSON,toggleSB,closeMobileSB,pickColor,fmtNoteCmd,setCanvasTool,setCanvasColor,setCanvasPenSize,toggleCanvasTouch,canvasUndo,canvasClear,toggleNoteCanvas,startCanvasResize,gcalPrev,gcalNext,gcalGoToday,gcalDoSignIn,gcalDoSignOut,loadCalEvents,mGcalConfig,saveGcalConfig,delGcalConfig,mNewEvent,mNewEventOnDay,mEditEvent,toggleAllDay,saveEvent,deleteEvent,mDayEvents,syncTaskToCal,unsyncTaskFromCal});
 
 // ===== INIT =====
 onSnapshot(doc(db,'data','avihai'),async(snap)=>{
