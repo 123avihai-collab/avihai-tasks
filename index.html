@@ -64,13 +64,11 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 .sb-search-box input::placeholder{color:var(--ink3)}
 .sb-search-kbd{font-family:var(--mono);font-size:10px;color:var(--ink3);padding:1px 5px;background:var(--rail);border-radius:3px}
 .sb-nav{padding:4px 8px;display:flex;flex-direction:column;gap:1px}
-.nav-item{width:100%;display:flex;align-items:center;gap:10px;padding:6px 9px;font-size:12.5px;color:var(--ink2);background:transparent;border-radius:4px;text-align:right;font-weight:400}
+.nav-item{width:100%;display:flex;align-items:center;gap:10px;padding:7px 9px;font-size:13px;color:var(--ink);background:transparent;border-radius:4px;text-align:right;font-weight:600}
 .nav-item:hover{background:var(--rail2)}
-.nav-item.act{color:var(--ink);background:var(--panel);font-weight:500}
-.nav-item .ic{color:var(--ink3);display:flex;align-items:center;flex-shrink:0}
-.nav-item.act .ic{color:var(--ink2)}
-.nav-item span.lbl{flex:1;text-align:right}
-.nav-item .cnt{font-size:10px;font-family:var(--mono);padding:1px 6px;border-radius:3px;color:var(--ink3);font-weight:500}
+.nav-item.act{color:var(--ink);background:var(--panel);font-weight:700;box-shadow:inset 0 0 0 .5px var(--rule2)}
+.nav-item .ic{display:flex;align-items:center;flex-shrink:0}
+.nav-item .cnt{font-size:10px;font-family:var(--mono);padding:1px 6px;border-radius:3px;color:var(--ink2);background:var(--rail);font-weight:600}
 .nav-item .cnt.red{background:var(--redSoft);color:var(--red)}
 .sb-section{padding:14px 14px 6px;font-size:10px;color:var(--ink3);letter-spacing:.14em;font-weight:600;display:flex;align-items:center;justify-content:space-between}
 .sb-section .add{font-size:14px;cursor:pointer;color:var(--ink3);padding:2px 6px;border-radius:3px}
@@ -412,6 +410,14 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 .move-pop-i{display:block;width:100%;text-align:right;padding:7px 10px;font-size:12px;color:var(--ink);border-radius:3px;direction:rtl}
 .move-pop-i:hover{background:var(--rail2)}
 
+.btn-clear-done{color:var(--red)!important;border-color:var(--rule2)}
+.btn-clear-done:hover{background:var(--redSoft)!important;border-color:var(--red)!important}
+.sec-head .done-pill,.area-item .done-pill{font-size:9.5px;background:var(--greenSoft);color:var(--green);padding:1px 5px;border-radius:3px;margin-right:4px;font-weight:600}
+.tr[draggable="true"]{cursor:grab}
+.tr[draggable="true"]:active{cursor:grabbing}
+.tr.dragging{opacity:.45}
+.sec-head.drop-target,.area-item.drop-target,.chip-filter.drop-target{outline:2px dashed var(--accent);outline-offset:-2px;background:var(--accentSoft)!important;color:var(--accent)!important}
+
 /* ===== CALENDAR ===== */
 .cal-wrap{flex:1;overflow:auto;padding:14px 22px;display:flex;flex-direction:column}
 .cal-grid{display:flex;flex-direction:column;flex:1;min-height:520px}
@@ -531,7 +537,17 @@ const COLORS={
   purple:{name:'סגול',hex:'#7048A0',soft:'#EBE0F4'},
   teal:{name:'טורקיז',hex:'#2E7E7E',soft:'#D9EBEB'},
   rose:{name:'ורוד',hex:'#B05978',soft:'#F4DDE5'},
-  slate:{name:'אפור',hex:'#5A6470',soft:'#E5E7EB'}
+  slate:{name:'אפור',hex:'#5A6470',soft:'#E5E7EB'},
+  orange:{name:'כתום',hex:'#D86A1F',soft:'#FAE3CC'},
+  indigo:{name:'אינדיגו',hex:'#4A4FB8',soft:'#E1E2F4'},
+  lime:{name:'ליים',hex:'#6B8E2A',soft:'#EAF2D5'},
+  cyan:{name:'תכלת',hex:'#1F7AAD',soft:'#D6EAF5'},
+  magenta:{name:'מג׳נטה',hex:'#A02E78',soft:'#F2D8E5'},
+  forest:{name:'יער',hex:'#1F5237',soft:'#D2E3D9'},
+  brown:{name:'חום',hex:'#7A4A28',soft:'#EADBCB'},
+  gold:{name:'זהב',hex:'#B89020',soft:'#F4E8C2'},
+  coral:{name:'אלמוג',hex:'#D45A55',soft:'#F8DAD8'},
+  navy:{name:'נייבי',hex:'#2C4570',soft:'#D6DEEC'}
 };
 const projColor=p=>COLORS[p.color]||COLORS.blue;
 
@@ -608,19 +624,19 @@ function rSidebar(){
   };
 
   const navItems=[
-    {id:'dashboard',ic:IC.inbox,lbl:'מבט-על',c:counts.all},
-    {id:'today',ic:IC.bolt,lbl:'היום',c:counts.today},
-    {id:'week',ic:IC.cal,lbl:'השבוע',c:counts.week},
-    {id:'overdue',ic:IC.flag,lbl:'באיחור',c:counts.overdue,red:counts.overdue>0},
-    {id:'urgent',ic:IC.star,lbl:'דחוף',c:counts.urgent},
-    {id:'notes',ic:IC.note,lbl:'פתקים',c:counts.notes},
-    {id:'calendar',ic:IC.cal,lbl:'יומן Google'},
-    {id:'ai',ic:IC.ai,lbl:'עזר בינה'}
+    {id:'dashboard',ic:IC.inbox,lbl:'מבט-על',c:counts.all,color:'#3F6FB5'},
+    {id:'today',ic:IC.bolt,lbl:'היום',c:counts.today,color:'#D86A1F'},
+    {id:'week',ic:IC.cal,lbl:'השבוע',c:counts.week,color:'#2E7E7E'},
+    {id:'overdue',ic:IC.flag,lbl:'באיחור',c:counts.overdue,red:counts.overdue>0,color:'#B23D3D'},
+    {id:'urgent',ic:IC.star,lbl:'דחוף',c:counts.urgent,color:'#B89020'},
+    {id:'notes',ic:IC.note,lbl:'פתקים',c:counts.notes,color:'#3D7A4F'},
+    {id:'calendar',ic:IC.cal,lbl:'יומן Google',color:'#7048A0'},
+    {id:'ai',ic:IC.ai,lbl:'עזר בינה',color:'#B05978'}
   ];
   const navHtml=navItems.map(n=>{
     const act=S.view===n.id&&!S.apid?'act':'';
     const cnt=n.c!==undefined?'<span class="cnt'+(n.red?' red':'')+'">'+n.c+'</span>':'';
-    return '<button class="nav-item '+act+'" onclick="selView(\''+n.id+'\')"><span class="ic">'+n.ic+'</span><span class="lbl">'+n.lbl+'</span>'+cnt+'</button>';
+    return '<button class="nav-item '+act+'" onclick="selView(\''+n.id+'\')"><span class="ic" style="color:'+(n.color||'var(--ink2)')+'">'+n.ic+'</span><span class="lbl">'+n.lbl+'</span>'+cnt+'</button>';
   }).join('');
 
   const projsHtml=S.projects.map(p=>{
@@ -662,7 +678,7 @@ function rSidebar(){
     <div class="sb-foot">
       <span class="dot${syncOk?'':' off'}" id="sdot" title="${syncOk?'מסונכרן':'לא מחובר'}"></span>
       <span class="lbl">${syncOk?'מסונכרן':'לא מחובר'}</span>
-      <span class="ver">v8</span>
+      <span class="ver">v9</span>
     </div>
   `;
 }
@@ -883,6 +899,7 @@ function rProject(mn){
           </div>
         </div>
         <div class="mn-h-actions">
+          ${(p.areas.find(a=>a.name===DONE_AREA_NAME)?.tasks.length||0)>0?'<button class="btn-ghost btn-clear-done" onclick="clearDoneInProject(\''+p.id+'\')" title="מחק את כל המשימות שהושלמו בפרויקט">'+IC.trash+' נקה הושלמו ('+p.areas.find(a=>a.name===DONE_AREA_NAME).tasks.length+')</button>':''}
           <button class="btn-ghost" onclick="mEditP()">${IC.edit} עריכה</button>
           <button class="btn-ghost" onclick="selView('ai',\'${p.id}\')">${IC.ai} AI</button>
           <button class="btn-primary" onclick="mNewT()">${IC.plus} משימה</button>
@@ -1932,8 +1949,56 @@ function selectTask(id){S.selTaskId=id;rDetail();
 }
 function closeDetail(){S.selTaskId=null;rDetail();document.querySelectorAll('.tr.sel').forEach(el=>el.classList.remove('sel'));}
 
-function toggleDone(id){const r=findTask(id);if(!r)return;r.task.status=r.task.status==='הושלם'?'פתוח':'הושלם';sv();render();}
-function updTask(id,patch){const r=findTask(id);if(!r)return;Object.assign(r.task,patch);sv();render();}
+const DONE_AREA_NAME='הושלמו';
+function ensureDoneArea(proj){
+  let a=proj.areas.find(x=>x.name===DONE_AREA_NAME);
+  if(!a){a={id:uid(),name:DONE_AREA_NAME,tasks:[],isDone:true};proj.areas.push(a);}
+  return a;
+}
+function moveTaskToDoneArea(taskId){
+  const r=findTask(taskId);if(!r)return;
+  const done=ensureDoneArea(r.proj);
+  if(r.area.id===done.id)return;
+  r.task._origAreaId=r.area.id;
+  r.area.tasks=r.area.tasks.filter(t=>t.id!==taskId);
+  done.tasks.push(r.task);
+}
+function moveTaskFromDoneArea(taskId){
+  const r=findTask(taskId);if(!r)return;
+  if(r.area.name!==DONE_AREA_NAME)return;
+  const orig=r.task._origAreaId?r.proj.areas.find(a=>a.id===r.task._origAreaId):null;
+  const target=orig||r.proj.areas.find(a=>a.name!==DONE_AREA_NAME)||r.area;
+  if(target.id===r.area.id)return;
+  r.area.tasks=r.area.tasks.filter(t=>t.id!==taskId);
+  target.tasks.push(r.task);
+  delete r.task._origAreaId;
+}
+function clearDoneInProject(projId){
+  const proj=S.projects.find(p=>p.id===projId);if(!proj)return;
+  const done=proj.areas.find(a=>a.name===DONE_AREA_NAME);
+  if(!done||!done.tasks.length)return;
+  if(!confirm('למחוק '+done.tasks.length+' משימות שהושלמו בפרויקט "'+proj.name+'"?'))return;
+  done.tasks=[];
+  sv();render();
+}
+
+function toggleDone(id){
+  const r=findTask(id);if(!r)return;
+  const becomesDone=r.task.status!=='הושלם';
+  r.task.status=becomesDone?'הושלם':'פתוח';
+  if(becomesDone)moveTaskToDoneArea(id);
+  else moveTaskFromDoneArea(id);
+  sv();render();
+}
+function updTask(id,patch){
+  const r=findTask(id);if(!r)return;
+  Object.assign(r.task,patch);
+  if('status' in patch){
+    if(patch.status==='הושלם')moveTaskToDoneArea(id);
+    else if(r.area.name===DONE_AREA_NAME)moveTaskFromDoneArea(id);
+  }
+  sv();render();
+}
 function updTaskField(id,field,value){const r=findTask(id);if(!r)return;r.task[field]=value;clearTimeout(window._upd);window._upd=setTimeout(()=>{sv();},400);}
 function dTask(id){if(!confirm('למחוק משימה?'))return;for(const p of S.projects)p.areas.forEach(a=>{a.tasks=a.tasks.filter(t=>t.id!==id);});if(S.selTaskId===id)S.selTaskId=null;sv();render();}
 
@@ -2131,6 +2196,8 @@ ${projSummary}${notesSummary}
 - השתמש תמיד בשמות הפרויקטים והתחומים בדיוק כפי שמופיעים למעלה.
 - אל תמציא שמות תחומים חדשים אם כבר קיים תחום דומה בפרויקט (למשל "ביצוע" קיים בכל הפרויקטים).
 - שמות תחומים מקובלים: "כללי", "ביצוע", "הזמנות רכש", "חשבונות", "אדריכלות".
+- תחום "הושלמו" נוצר אוטומטית בכל פרויקט שיש בו משימות שהושלמו. אל תפנה אליו ב-add_task — תמיד תוסיף משימות חדשות לתחום פעיל.
+- כשמסמנים משימה כ"הושלם", המערכת מעבירה אותה אוטומטית ל-"הושלמו". אין צורך לטפל בזה ידנית.
 
 תפקידך: לבצע כל פעולה שהמשתמש מבקש באפליקציה — להוסיף/לעדכן/למחוק משימות, פרויקטים, תחומים, פתקים; לסנכרן עם Google Calendar; ליצור אירועי יומן.
 כשאתה מבין מה המשתמש רוצה, ענה עם פקודה אחת או יותר (אפשר כמה בבת אחת) בנוסף לטקסט קצר.
@@ -2235,6 +2302,10 @@ time ו-durationMinutes אופציונליים — בלי time = יום שלם.
           const allowed=['title','priority','importance','status','dueDate','dueTime','assigned','notes','content'];
           const applied=[];
           for(const k of allowed){if(k in updates){found.task[k]=updates[k];applied.push(k);}}
+          if('status' in updates){
+            if(updates.status==='הושלם')moveTaskToDoneArea(found.task.id);
+            else if(found.area.name===DONE_AREA_NAME)moveTaskFromDoneArea(found.task.id);
+          }
           results.push(applied.length?'✅ "'+action.taskTitle+'" עודכן ('+applied.join(', ')+')':'⚠️ אין שינויים ב-"'+action.taskTitle+'"');
         } else if(action.type==='update_status'){
           const proj=findProj(action.project);
@@ -2242,6 +2313,8 @@ time ו-durationMinutes אופציונליים — בלי time = יום שלם.
           const found=findTaskIn(proj,action.taskTitle);
           if(!found){results.push('❌ משימה "'+action.taskTitle+'" לא נמצאה ב-'+proj.name);continue;}
           found.task.status=action.status;
+          if(action.status==='הושלם')moveTaskToDoneArea(found.task.id);
+          else if(found.area.name===DONE_AREA_NAME)moveTaskFromDoneArea(found.task.id);
           results.push('✅ "'+action.taskTitle+'" → '+action.status);
         } else if(action.type==='add_project'){
           const exists=findProj(action.name);
@@ -2333,7 +2406,7 @@ function toggleSB(){document.getElementById('sb').classList.toggle('open');}
 function closeMobileSB(){document.getElementById('sb').classList.remove('open');}
 
 // ===== EXPOSE =====
-Object.assign(window,{selView,selP,selA,selectTask,closeDetail,toggleDone,updTask,updTaskField,dTask,setFilterStatus,setGrouping,toggleCollapse,onSearchInput,addNote,toggleNoteDone,dNote,updNote,toggleNoteExpand,updNoteContent,dragStart,dragEnd,areaDragOver,areaDragLeave,areaDrop,moveTask,showMovePop,closeMovePop,noteDragStart,noteDragEnd,projItemDragStart,projItemDragEnd,projDragOver,projDragLeave,projDrop,sm,cm,mNewP,cP,mEditP,sPn,dP,mNewA,cA,mEditA,sA,dA,mNewT,cT,mSetKey,saveKey,delKey,addAssigneeForTask,fmtCmd,aiKeyDown,clearAI,sendAI,xCSV,xJSON,toggleSB,closeMobileSB,pickColor,fmtNoteCmd,setCanvasTool,setCanvasColor,setCanvasPenSize,toggleCanvasTouch,canvasUndo,canvasClear,toggleNoteCanvas,startCanvasResize,gcalPrev,gcalNext,gcalGoToday,gcalDoSignIn,gcalDoSignOut,loadCalEvents,mGcalConfig,saveGcalConfig,delGcalConfig,mNewEvent,mNewEventOnDay,mEditEvent,toggleAllDay,saveEvent,deleteEvent,mDayEvents,syncTaskToCal,unsyncTaskFromCal});
+Object.assign(window,{selView,selP,selA,selectTask,closeDetail,toggleDone,updTask,updTaskField,dTask,setFilterStatus,setGrouping,toggleCollapse,clearDoneInProject,onSearchInput,addNote,toggleNoteDone,dNote,updNote,toggleNoteExpand,updNoteContent,dragStart,dragEnd,areaDragOver,areaDragLeave,areaDrop,moveTask,showMovePop,closeMovePop,noteDragStart,noteDragEnd,projItemDragStart,projItemDragEnd,projDragOver,projDragLeave,projDrop,sm,cm,mNewP,cP,mEditP,sPn,dP,mNewA,cA,mEditA,sA,dA,mNewT,cT,mSetKey,saveKey,delKey,addAssigneeForTask,fmtCmd,aiKeyDown,clearAI,sendAI,xCSV,xJSON,toggleSB,closeMobileSB,pickColor,fmtNoteCmd,setCanvasTool,setCanvasColor,setCanvasPenSize,toggleCanvasTouch,canvasUndo,canvasClear,toggleNoteCanvas,startCanvasResize,gcalPrev,gcalNext,gcalGoToday,gcalDoSignIn,gcalDoSignOut,loadCalEvents,mGcalConfig,saveGcalConfig,delGcalConfig,mNewEvent,mNewEventOnDay,mEditEvent,toggleAllDay,saveEvent,deleteEvent,mDayEvents,syncTaskToCal,unsyncTaskFromCal});
 
 // ===== INIT =====
 onSnapshot(doc(db,'data','avihai'),async(snap)=>{
