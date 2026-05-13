@@ -280,6 +280,29 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 .rt-content ul,.rt-content ol{padding-right:22px;margin:4px 0}
 .rt-content b,.rt-content strong{font-weight:700}
 
+/* ===== TASK INLINE EXPANSION ===== */
+.tr.sel{background:var(--rail2);box-shadow:inset 0 0 0 .5px var(--accent)}
+.te{background:var(--panel);border:.5px solid var(--rule);border-radius:6px;padding:14px 18px;margin:4px 12px 12px;display:flex;flex-direction:column;gap:14px;box-shadow:0 1px 6px rgba(0,0,0,.05);animation:teIn .18s ease-out}
+@keyframes teIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.te-h{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.te-crumb{font-size:11px;color:var(--ink3);font-family:var(--mono)}
+.te-h-actions{display:flex;gap:5px}
+.te-title-wrap input.dp-title{width:100%;font-size:16px;font-weight:600;padding:5px 8px;border:.5px solid transparent;border-radius:4px;background:transparent;color:var(--ink)}
+.te-title-wrap input.dp-title:focus{border-color:var(--rule2);background:var(--bg)}
+.te-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px 16px}
+.te-field-wide{grid-column:span 2}
+.te-field .f-l{margin-bottom:5px}
+.te-content-wrap{display:flex;flex-direction:column}
+.rt-content.rt-resizable{resize:vertical;overflow:auto}
+.te-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;border-top:.5px solid var(--rule);padding-top:10px;margin-top:2px}
+.te-foot .dp-foot-actions{margin-top:0}
+.te-meta{font-size:10.5px;color:var(--ink3);font-family:var(--mono)}
+@media(max-width:760px){
+  .te{padding:12px;margin:4px 8px 10px}
+  .te-grid{grid-template-columns:1fr}
+  .te-field-wide{grid-column:span 1}
+}
+
 /* ===== CHECKLIST ROWS (in any contenteditable) ===== */
 .cl-row{display:flex;align-items:center;gap:7px;padding:3px 0;margin:1px 0}
 .cl-box{flex-shrink:0;width:18px;height:18px;border:1.5px solid var(--ink2);border-radius:3px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;line-height:1;background:var(--panel);color:transparent;user-select:none;transition:all .12s}
@@ -531,6 +554,7 @@ const S={projects:[],notes:[],apid:null,aaid:null,view:'dashboard',selTaskId:nul
 let syncOk=false;
 let dashFilter='active';
 const expandedNotes=new Set();
+const expandedTasks=new Set();
 let aiMsgs=[];
 let draggedTaskId=null,draggedNoteId=null,draggedProjId=null;
 let TODAY=new Date().toISOString().split('T')[0];
@@ -692,7 +716,7 @@ function rSidebar(){
     <div class="sb-foot">
       <span class="dot${syncOk?'':' off'}" id="sdot" title="${syncOk?'מסונכרן':'לא מחובר'}"></span>
       <span class="lbl">${syncOk?'מסונכרן':'לא מחובר'}</span>
-      <span class="ver">v11</span>
+      <span class="ver">v12</span>
     </div>
   `;
 }
@@ -980,27 +1004,25 @@ function rProject(mn){
 function renderTaskRow(t,areaName,proj,showProj){
   const isDone=t.status==='הושלם';
   const od=isOverdue(t.dueDate)&&!isDone;
-  const sel=t.id===S.selTaskId?'sel':'';
+  const isExpanded=expandedTasks.has(t.id);
+  const sel=isExpanded?'sel':'';
   const due=t.dueDate?fmtDate(t.dueDate):'—';
-  // Status chip
   let statusCls='s-open',statusLbl=t.status||'פתוח';
   if(t.status==='בביצוע')statusCls='s-prog';
   else if(t.status==='תלוי')statusCls='s-wait';
   else if(t.status==='הושלם')statusCls='s-done';
-  // Priority chip
   let priorityHtml='<span class="chip-em">—</span>';
   if(t.priority==='דחוף')priorityHtml='<span class="chip-pr p-r"><span class="chip-pr-dot"></span>דחוף</span>';
   else if(t.priority==='בינוני')priorityHtml='<span class="chip-pr p-a"><span class="chip-pr-dot"></span>בינוני</span>';
   else if(t.priority==='נמוך')priorityHtml='<span class="chip-pr p-l"><span class="chip-pr-dot"></span>נמוך</span>';
-  // Mobile meta
   const mobiMeta='<div class="tr-mobi-meta">'+
     (t.priority?priorityHtml:'')+
     '<span class="chip-st '+statusCls+'">'+esc(statusLbl)+'</span>'+
     (t.dueDate?'<span class="tr-due '+(od?'od':'')+'">'+esc(due)+(od?' !':'')+'</span>':'')+
     (areaName?'<span class="tr-area">· '+esc(areaName)+'</span>':'')+
     '</div>';
-  return `<div class="tr ${isDone?'done':''} ${sel}" data-task-id="${t.id}" draggable="true" ondragstart="dragStart('${t.id}',event)" ondragend="dragEnd(event)" onclick="selectTask('${t.id}')">
-    <button class="cb ${isDone?'done':''}" onclick="event.stopPropagation();toggleDone('${t.id}')" title="${isDone?'בטל סימון':'סמן כהושלם'}"></button>
+  const row=`<div class="tr ${isDone?'done':''} ${sel}" data-task-id="${t.id}" draggable="true" ondragstart="dragStart('${t.id}',event)" ondragend="dragEnd(event)" onclick="if(!event.target.closest('button,input,select,.cl-box'))toggleTaskExpand('${t.id}')">
+    <button class="cb ${isDone?'done':''}" onclick="toggleDone('${t.id}')" title="${isDone?'בטל סימון':'סמן כהושלם'}"></button>
     <div class="tr-title-wrap">
       <span class="tr-title">${esc(t.title)}</span>
       ${t.importance==='גבוהה'?'<span class="imp-tag">חשוב</span>':''}
@@ -1012,14 +1034,80 @@ function renderTaskRow(t,areaName,proj,showProj){
     <div class="tr-priority-cell">${priorityHtml}</div>
     <div class="tr-status-cell"><span class="chip-st ${statusCls}">${esc(statusLbl)}</span></div>
     <div class="tr-due-cell tr-due ${od?'od':''}">${t.dueDate?esc(due)+(od?' <span style="font-size:10px">!</span>':''):'<span style="color:var(--ink3)">—</span>'}</div>
-    <button class="tr-more" onclick="event.stopPropagation();showMovePop('${t.id}',this,event)" title="העבר תחום">${IC.more}</button>
+    <button class="tr-more" onclick="showMovePop('${t.id}',this,event)" title="העבר תחום">${IC.more}</button>
+  </div>`;
+  return row+(isExpanded?renderTaskExpanded(t,findTask(t.id)):'');
+}
+
+function renderTaskExpanded(t,ctx){
+  if(!ctx)return '';
+  const statusOpts=STATUSES.map(s=>{
+    let cls='';
+    if(t.status===s){
+      if(s==='בביצוע')cls='act-acc';
+      else if(s==='תלוי')cls='act-a';
+      else if(s==='הושלם')cls='act-g';
+      else cls='act-ink';
+      cls='act '+cls;
+    }
+    return '<button class="opt '+cls+'" onclick="updTask(\''+t.id+'\',{status:\''+s+'\'})">'+esc(s)+'</button>';
+  }).join('');
+  const prioOpts=[['','—',''],['דחוף','דחוף','act-r'],['בינוני','בינוני','act-a'],['נמוך','נמוך','act-l']].map(([v,lbl,cls])=>{
+    const isAct=(t.priority||'')===v;
+    return '<button class="opt '+(isAct?'act '+cls:'')+'" onclick="updTask(\''+t.id+'\',{priority:\''+v+'\'})">'+esc(lbl)+'</button>';
+  }).join('');
+  const impOpts=[['','—',''],['גבוהה','גבוהה','act-a'],['בינונית','בינונית','act-acc'],['נמוכה','נמוכה','act-l']].map(([v,lbl,cls])=>{
+    const isAct=(t.importance||'')===v;
+    return '<button class="opt '+(isAct?'act '+cls:'')+'" onclick="updTask(\''+t.id+'\',{importance:\''+v+'\'})">'+esc(lbl)+'</button>';
+  }).join('');
+  const assignees=getAssignees();
+  const asOpts=[['','—','']].concat(assignees.map(a=>[a,a,'act-acc']));
+  const asHtml=asOpts.map(([v,lbl,cls])=>{
+    const isAct=(t.assigned||'')===v;
+    return '<button class="opt '+(isAct?'act '+cls:'')+'" onclick="updTask(\''+t.id+'\',{assigned:\''+v.replace(/\'/g,'\\\'')+'\'})">'+esc(lbl)+'</button>';
+  }).join('');
+  const hasGcal=!!t.dueDate;
+  const isSynced=!!t.gcalEventId;
+  const syncBtnHtml=hasGcal?(isSynced?
+    `<button class="gcal-btn synced" onclick="syncTaskToCal('${t.id}')" title="עדכן את האירוע ביומן Google">${IC.cal} מסונכרן · עדכן</button><button class="gcal-btn remove" onclick="unsyncTaskFromCal('${t.id}')" title="הסר מהיומן">${IC.trash} הסר מהיומן</button>`:
+    `<button class="gcal-btn" onclick="syncTaskToCal('${t.id}')" title="שלח כאירוע ליומן המשימות ב-Google">${IC.cal} שלח ליומן Google</button>`)
+    :'<span class="gcal-link dis">'+IC.cal+' הוסף תאריך יעד כדי לשלוח ליומן</span>';
+  return `<div class="te" id="te-${t.id}" onclick="event.stopPropagation()">
+    <div class="te-h">
+      <span class="te-crumb">${esc(ctx.proj.name)} · ${esc(ctx.area.name)}</span>
+      <div class="te-h-actions">
+        <button class="dp-h-btn" onclick="showMovePop('${t.id}',this,event)" title="העבר תחום">⇄</button>
+        <button class="dp-h-btn del" onclick="dTask('${t.id}')" title="מחק">${IC.trash}</button>
+        <button class="dp-h-btn" onclick="toggleTaskExpand('${t.id}')" title="סגור">${IC.x}</button>
+      </div>
+    </div>
+    <div class="te-title-wrap">
+      <input class="dp-title" value="${esc(t.title)}" oninput="updTaskField('${t.id}','title',this.value)" placeholder="כותרת"/>
+    </div>
+    <div class="te-grid">
+      <div class="te-field"><div class="f-l">סטטוס</div><div class="opt-grp">${statusOpts}</div></div>
+      <div class="te-field"><div class="f-l">עדיפות</div><div class="opt-grp">${prioOpts}</div></div>
+      <div class="te-field"><div class="f-l">חשיבות</div><div class="opt-grp">${impOpts}</div></div>
+      <div class="te-field"><div class="f-l">אחראי</div><div class="opt-grp">${asHtml}<button class="opt add" onclick="addAssigneeForTask('${t.id}')">+ חדש</button></div></div>
+      <div class="te-field te-field-wide"><div class="f-l">תאריך יעד · שעה</div><div style="display:grid;grid-template-columns:1.4fr 1fr;gap:6px"><input type="date" class="dp-input" value="${esc(t.dueDate||'')}" onchange="updTask('${t.id}',{dueDate:this.value})"/><input type="time" class="dp-input" value="${esc(t.dueTime||'')}" onchange="updTask('${t.id}',{dueTime:this.value})" placeholder="שעה"/></div></div>
+    </div>
+    <div class="te-field te-content-wrap">
+      <div class="f-l">תוכן</div>
+      ${rtToolbarHtml('task-content-'+t.id,"fmtTaskCmd('"+t.id+"',")}
+      <div id="task-content-${t.id}" class="rt-content rt-content-full rt-resizable" contenteditable="true" data-placeholder="טקסט, הערות, פירוט, צ׳קליסט..." onblur="updTask('${t.id}',{content:this.innerHTML})">${t.content||''}</div>
+    </div>
+    <div class="te-foot">
+      <div class="dp-foot-actions">${syncBtnHtml}</div>
+      <div class="te-meta">נוצרה ${esc(fmtCreated(t.created)||'—')}${isSynced?' · <span style="color:var(--green)">✓ ביומן Google</span>':''}</div>
+    </div>
   </div>`;
 }
 
-// ----- Detail Panel -----
+// ----- Detail Panel (legacy side panel — disabled; tasks expand inline now) -----
 function rDetail(){
-  // Detail panel is a sibling of #mn, render inline
   const old=document.getElementById('dp');if(old)old.remove();
+  return;
+  // The code below is kept for reference but never runs:
   if(!S.selTaskId)return;
   const r=findTask(S.selTaskId);
   if(!r){S.selTaskId=null;return;}
@@ -1947,12 +2035,8 @@ function setFilterStatus(s){S.filterStatus=S.filterStatus===s?null:s;render();}
 function setGrouping(g){S.grouping=g;render();}
 function toggleCollapse(id){S.collapsed[id]=!S.collapsed[id];render();}
 
-function selectTask(id){S.selTaskId=id;rDetail();
-  // Highlight in list
-  document.querySelectorAll('.tr.sel').forEach(el=>el.classList.remove('sel'));
-  document.querySelectorAll('.tr').forEach(el=>{if(el.outerHTML.includes("'"+id+"'"))el.classList.add('sel');});
-}
-function closeDetail(){S.selTaskId=null;rDetail();document.querySelectorAll('.tr.sel').forEach(el=>el.classList.remove('sel'));}
+function selectTask(id){if(!expandedTasks.has(id))expandedTasks.add(id);render();setTimeout(()=>{const el=document.getElementById('te-'+id);if(el)el.scrollIntoView({behavior:'smooth',block:'nearest'});},20);}
+function closeDetail(){expandedTasks.clear();render();}
 
 const DONE_AREA_NAME='הושלמו';
 function ensureDoneArea(proj){
@@ -2141,6 +2225,8 @@ function addAssigneeForTask(tid){const name=prompt('שם האחראי החדש:'
 
 // Rich text
 function fmtCmd(cmd,arg){const el=document.getElementById('dp-content');if(el)el.focus();document.execCommand(cmd,false,arg||null);}
+function fmtTaskCmd(taskId,cmd,arg){const el=document.getElementById('task-content-'+taskId);if(el)el.focus();document.execCommand(cmd,false,arg||null);}
+function toggleTaskExpand(id){if(expandedTasks.has(id))expandedTasks.delete(id);else expandedTasks.add(id);render();}
 
 // Checklist helpers (shared between notes and tasks)
 function insertChecklist(contentId){
@@ -2464,7 +2550,7 @@ function toggleSB(){document.getElementById('sb').classList.toggle('open');}
 function closeMobileSB(){document.getElementById('sb').classList.remove('open');}
 
 // ===== EXPOSE =====
-Object.assign(window,{selView,selP,selA,selectTask,closeDetail,toggleDone,updTask,updTaskField,dTask,setFilterStatus,setGrouping,toggleCollapse,clearDoneInProject,onSearchInput,addNote,toggleNoteDone,dNote,updNote,toggleNoteExpand,updNoteContent,dragStart,dragEnd,areaDragOver,areaDragLeave,areaDrop,moveTask,showMovePop,closeMovePop,noteDragStart,noteDragEnd,projItemDragStart,projItemDragEnd,projDragOver,projDragLeave,projDrop,sm,cm,mNewP,cP,mEditP,sPn,dP,mNewA,cA,mEditA,sA,dA,mNewT,cT,mSetKey,saveKey,delKey,addAssigneeForTask,fmtCmd,insertChecklist,clickCheckBox,aiKeyDown,clearAI,sendAI,xCSV,xJSON,toggleSB,closeMobileSB,pickColor,fmtNoteCmd,setCanvasTool,setCanvasColor,setCanvasPenSize,toggleCanvasTouch,canvasUndo,canvasClear,toggleNoteCanvas,startCanvasResize,gcalPrev,gcalNext,gcalGoToday,gcalDoSignIn,gcalDoSignOut,loadCalEvents,mGcalConfig,saveGcalConfig,delGcalConfig,mNewEvent,mNewEventOnDay,mEditEvent,toggleAllDay,saveEvent,deleteEvent,mDayEvents,syncTaskToCal,unsyncTaskFromCal});
+Object.assign(window,{selView,selP,selA,selectTask,closeDetail,toggleDone,updTask,updTaskField,dTask,setFilterStatus,setGrouping,toggleCollapse,clearDoneInProject,onSearchInput,addNote,toggleNoteDone,dNote,updNote,toggleNoteExpand,updNoteContent,dragStart,dragEnd,areaDragOver,areaDragLeave,areaDrop,moveTask,showMovePop,closeMovePop,noteDragStart,noteDragEnd,projItemDragStart,projItemDragEnd,projDragOver,projDragLeave,projDrop,sm,cm,mNewP,cP,mEditP,sPn,dP,mNewA,cA,mEditA,sA,dA,mNewT,cT,mSetKey,saveKey,delKey,addAssigneeForTask,fmtCmd,fmtTaskCmd,toggleTaskExpand,insertChecklist,clickCheckBox,aiKeyDown,clearAI,sendAI,xCSV,xJSON,toggleSB,closeMobileSB,pickColor,fmtNoteCmd,setCanvasTool,setCanvasColor,setCanvasPenSize,toggleCanvasTouch,canvasUndo,canvasClear,toggleNoteCanvas,startCanvasResize,gcalPrev,gcalNext,gcalGoToday,gcalDoSignIn,gcalDoSignOut,loadCalEvents,mGcalConfig,saveGcalConfig,delGcalConfig,mNewEvent,mNewEventOnDay,mEditEvent,toggleAllDay,saveEvent,deleteEvent,mDayEvents,syncTaskToCal,unsyncTaskFromCal});
 
 // ===== INIT =====
 onSnapshot(doc(db,'data','avihai'),async(snap)=>{
