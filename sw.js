@@ -1,4 +1,4 @@
-const CACHE = 'avihai-tasks-v9';
+const CACHE = 'avihai-tasks-v10';
 const ASSETS = ['/avihai-tasks/index.html', '/avihai-tasks/manifest.json'];
 
 self.addEventListener('install', e => {
