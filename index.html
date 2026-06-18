@@ -515,6 +515,12 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
   .tr-mobi-meta{display:flex;gap:5px;align-items:center;flex-wrap:wrap;font-size:11px;color:var(--ink2);margin-top:4px}
 }
 @media(min-width:901px){.tr-mobi-meta{display:none}}
+#auth-gate{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:24px}
+.ag-card{background:var(--panel);border:.5px solid var(--rule);border-radius:12px;padding:28px 26px;max-width:340px;width:100%;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.12)}
+.ag-title{font-size:18px;font-weight:600;color:var(--ink);margin-bottom:6px}
+.ag-sub{font-size:13px;color:var(--ink3);margin-bottom:20px;line-height:1.6}
+.ag-btn{width:100%;padding:10px 16px;border-radius:7px;border:.5px solid var(--rule);background:var(--ink);color:var(--panel);font-size:14px;font-weight:500;cursor:pointer}
+.ag-btn:hover{opacity:.9}
 </style>
 </head>
 <body>
@@ -530,6 +536,7 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import {getFirestore,doc,setDoc,getDoc,onSnapshot} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import {getAuth,GoogleAuthProvider,signInWithPopup,signInWithRedirect,onAuthStateChanged,signOut} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
 const firebaseConfig = {apiKey:"AIzaSyAwaErTAz0LAYHLEIQbxWY9ir6MzvaYQUo",authDomain:"avihai-tasks.firebaseapp.com",projectId:"avihai-tasks",storageBucket:"avihai-tasks.firebasestorage.app",messagingSenderId:"155180192399",appId:"1:155180192399:web:f7c54231070047fdcfd6fa"};
 
@@ -537,6 +544,8 @@ const SEED=[{"id":"ce6c92303f3","name":"2253","areas":[{"id":"563b210bd23","name
 
 const app=initializeApp(firebaseConfig);
 const db=getFirestore(app);
+const auth=getAuth(app);
+const ALLOWED_EMAIL='123avihai@gmail.com'; // only this account may read/write (enforced again by Firestore rules)
 
 // ===== ICONS =====
 const IC={
@@ -819,7 +828,8 @@ function rSidebar(){
     <div class="sb-foot">
       <span class="dot${syncOk?'':' off'}" id="sdot" title="${syncOk?'מסונכרן':'לא מחובר'}"></span>
       <span class="lbl">${syncOk?'מסונכרן':'לא מחובר'}</span>
-      <span class="ver">v14</span>
+      <span class="ver">v15</span>
+      <button class="sb-btn" style="margin-right:auto;padding:2px 9px;font-size:11px" onclick="doSignOut()">יציאה</button>
     </div>
   `;
 }
@@ -2653,24 +2663,51 @@ function toggleSB(){document.getElementById('sb').classList.toggle('open');}
 function closeMobileSB(){document.getElementById('sb').classList.remove('open');}
 
 // ===== EXPOSE =====
-Object.assign(window,{selView,selP,selA,selectTask,closeDetail,toggleDone,updTask,updTaskField,dTask,setFilterStatus,setGrouping,toggleCollapse,clearDoneInProject,onSearchInput,addNote,toggleNoteDone,dNote,updNote,toggleNoteExpand,updNoteContent,dragStart,dragEnd,areaDragOver,areaDragLeave,areaDrop,moveTask,showMovePop,closeMovePop,noteDragStart,noteDragEnd,projItemDragStart,projItemDragEnd,projDragOver,projDragLeave,projDrop,sm,cm,mNewP,cP,mEditP,sPn,dP,mNewA,cA,mEditA,sA,dA,mNewT,cT,mSetKey,saveKey,delKey,addAssigneeForTask,fmtCmd,fmtTaskCmd,toggleTaskExpand,insertChecklist,clickCheckBox,aiKeyDown,clearAI,sendAI,xCSV,xJSON,mBackup,doBackupNow,restoreBackup,exportFullBackup,importFullBackup,toggleSB,closeMobileSB,pickColor,fmtNoteCmd,setCanvasTool,setCanvasColor,setCanvasPenSize,toggleCanvasTouch,canvasUndo,canvasClear,toggleNoteCanvas,startCanvasResize,gcalPrev,gcalNext,gcalGoToday,gcalDoSignIn,gcalDoSignOut,loadCalEvents,mGcalConfig,saveGcalConfig,delGcalConfig,mNewEvent,mNewEventOnDay,mEditEvent,toggleAllDay,saveEvent,deleteEvent,mDayEvents,syncTaskToCal,unsyncTaskFromCal});
+Object.assign(window,{selView,selP,selA,selectTask,closeDetail,toggleDone,updTask,updTaskField,dTask,setFilterStatus,setGrouping,toggleCollapse,clearDoneInProject,onSearchInput,addNote,toggleNoteDone,dNote,updNote,toggleNoteExpand,updNoteContent,dragStart,dragEnd,areaDragOver,areaDragLeave,areaDrop,moveTask,showMovePop,closeMovePop,noteDragStart,noteDragEnd,projItemDragStart,projItemDragEnd,projDragOver,projDragLeave,projDrop,sm,cm,mNewP,cP,mEditP,sPn,dP,mNewA,cA,mEditA,sA,dA,mNewT,cT,mSetKey,saveKey,delKey,addAssigneeForTask,fmtCmd,fmtTaskCmd,toggleTaskExpand,insertChecklist,clickCheckBox,aiKeyDown,clearAI,sendAI,xCSV,xJSON,mBackup,doBackupNow,restoreBackup,exportFullBackup,importFullBackup,doSignOut,toggleSB,closeMobileSB,pickColor,fmtNoteCmd,setCanvasTool,setCanvasColor,setCanvasPenSize,toggleCanvasTouch,canvasUndo,canvasClear,toggleNoteCanvas,startCanvasResize,gcalPrev,gcalNext,gcalGoToday,gcalDoSignIn,gcalDoSignOut,loadCalEvents,mGcalConfig,saveGcalConfig,delGcalConfig,mNewEvent,mNewEventOnDay,mEditEvent,toggleAllDay,saveEvent,deleteEvent,mDayEvents,syncTaskToCal,unsyncTaskFromCal});
 
-// ===== INIT =====
-onSnapshot(doc(db,'data','avihai'),async(snap)=>{
-  if(snap.exists()){
-    S.projects=snap.data().projects||[];
-    S.notes=snap.data().notes||[];
-    syncOk=true;
-    let migrated=false;
-    S.projects.forEach(p=>p.areas.forEach(a=>a.tasks.forEach(t=>{
-      if(t.notes&&!t.content){t.content=esc(t.notes).replace(/\n/g,'<br>');t.notes='';migrated=true;}
-    })));
-    if(migrated)await sv();
-  } else {
-    S.projects=SEED;S.notes=[];await sv();
+// ===== AUTH =====
+let appStarted=false;
+function startApp(){
+  if(appStarted)return;appStarted=true;
+  onSnapshot(doc(db,'data','avihai'),async(snap)=>{
+    if(snap.exists()){
+      S.projects=snap.data().projects||[];
+      S.notes=snap.data().notes||[];
+      syncOk=true;
+      let migrated=false;
+      S.projects.forEach(p=>p.areas.forEach(a=>a.tasks.forEach(t=>{
+        if(t.notes&&!t.content){t.content=esc(t.notes).replace(/\n/g,'<br>');t.notes='';migrated=true;}
+      })));
+      if(migrated)await sv();
+    } else {
+      S.projects=SEED;S.notes=[];await sv();
+    }
+    render();
+    autoBackup(false); // daily cloud snapshot for rollback (throttled; fire-and-forget)
+  });
+}
+function showLogin(msg){
+  let el=document.getElementById('auth-gate');
+  if(!el){el=document.createElement('div');el.id='auth-gate';document.body.appendChild(el);}
+  el.innerHTML=`<div class="ag-card"><div class="ag-title">אביחי משימות</div><div class="ag-sub">${esc(msg||'התחבר כדי לגשת לנתונים שלך')}</div><button class="ag-btn" id="ag-signin">התחבר עם Google</button></div>`;
+  el.style.display='flex';
+  document.getElementById('ag-signin').onclick=doSignIn;
+}
+function hideLogin(){const el=document.getElementById('auth-gate');if(el)el.style.display='none';}
+async function doSignIn(){
+  const provider=new GoogleAuthProvider();
+  try{await signInWithPopup(auth,provider);}
+  catch(e){
+    try{await signInWithRedirect(auth,provider);}            // fallback for installed PWA / blocked popups
+    catch(e2){showLogin('שגיאת התחברות: '+(e2.message||e2));}
   }
-  render();
-  autoBackup(false); // daily cloud snapshot for rollback (throttled; fire-and-forget)
+}
+async function doSignOut(){try{await signOut(auth);}catch(e){}location.reload();}
+
+onAuthStateChanged(auth,user=>{
+  if(user && user.email===ALLOWED_EMAIL){hideLogin();startApp();}
+  else if(user){signOut(auth);showLogin('לחשבון הזה אין גישה');}
+  else{showLogin();}
 });
 
 if('serviceWorker' in navigator){
