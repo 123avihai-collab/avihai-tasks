@@ -515,6 +515,12 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
   .tr-mobi-meta{display:flex;gap:5px;align-items:center;flex-wrap:wrap;font-size:11px;color:var(--ink2);margin-top:4px}
 }
 @media(min-width:901px){.tr-mobi-meta{display:none}}
+#auth-gate{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:24px}
+.ag-card{background:var(--panel);border:.5px solid var(--rule);border-radius:12px;padding:28px 26px;max-width:340px;width:100%;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.12)}
+.ag-title{font-size:18px;font-weight:600;color:var(--ink);margin-bottom:6px}
+.ag-sub{font-size:13px;color:var(--ink3);margin-bottom:20px;line-height:1.6}
+.ag-btn{width:100%;padding:10px 16px;border-radius:7px;border:.5px solid var(--rule);background:var(--ink);color:var(--panel);font-size:14px;font-weight:500;cursor:pointer}
+.ag-btn:hover{opacity:.9}
 </style>
 </head>
 <body>
@@ -529,7 +535,8 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import {getFirestore,doc,setDoc,onSnapshot} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import {getFirestore,doc,setDoc,getDoc,onSnapshot} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import {getAuth,GoogleAuthProvider,signInWithPopup,signInWithRedirect,onAuthStateChanged,signOut} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
 const firebaseConfig = {apiKey:"AIzaSyAwaErTAz0LAYHLEIQbxWY9ir6MzvaYQUo",authDomain:"avihai-tasks.firebaseapp.com",projectId:"avihai-tasks",storageBucket:"avihai-tasks.firebasestorage.app",messagingSenderId:"155180192399",appId:"1:155180192399:web:f7c54231070047fdcfd6fa"};
 
@@ -537,6 +544,8 @@ const SEED=[{"id":"ce6c92303f3","name":"2253","areas":[{"id":"563b210bd23","name
 
 const app=initializeApp(firebaseConfig);
 const db=getFirestore(app);
+const auth=getAuth(app);
+const ALLOWED_EMAIL='123avihai@gmail.com'; // only this account may read/write (enforced again by Firestore rules)
 
 // ===== ICONS =====
 const IC={
@@ -646,6 +655,100 @@ function sortTasks(arr){
 async function sv(){try{await setDoc(doc(db,'data','avihai'),{projects:S.projects,notes:S.notes,updated:Date.now()});syncOk=true;}catch(e){syncOk=false;console.error('sync err',e);}updateDot();}
 function updateDot(){const d=document.getElementById('sdot');if(d){d.className='dot'+(syncOk?'':' off');d.title=syncOk?'מסונכרן':'לא מחובר';}}
 
+// ===== BACKUP / VERSION HISTORY =====
+// Firestore stores the live data in a single doc (data/avihai). A bad edit or an
+// AI delete overwrites it with no way back, so we keep rolling snapshots in a
+// separate doc (data/avihai_backups): one automatic snapshot per day plus manual
+// ones, with restore + downloadable full-export. No extra accounts or setup.
+const MAX_BACKUPS=12;
+const BACKUP_INTERVAL=20*3600*1000; // ~once/day
+let backupCache=null; // {list:[{ts,note,projects,notes}]}
+let lastBackupTs=0;
+async function loadBackups(){
+  try{const s=await getDoc(doc(db,'data','avihai_backups'));backupCache=s.exists()?(s.data()||{list:[]}):{list:[]};}
+  catch(e){backupCache={list:[]};console.error('load backups',e);}
+  if(!Array.isArray(backupCache.list))backupCache.list=[];
+  if(backupCache.list.length)lastBackupTs=backupCache.list[backupCache.list.length-1].ts||0;
+  return backupCache;
+}
+async function autoBackup(force,note){
+  try{
+    if(!backupCache)await loadBackups();
+    const list=backupCache.list;
+    const now=Date.now();
+    if(!force && list.length && (now-(list[list.length-1].ts||0))<BACKUP_INTERVAL)return false;
+    if(!S.projects.length && !S.notes.length)return false; // never snapshot an empty / not-yet-loaded state
+    list.push({ts:now,note:note||'',projects:S.projects,notes:S.notes});
+    while(list.length>MAX_BACKUPS)list.shift();
+    lastBackupTs=now;
+    await setDoc(doc(db,'data','avihai_backups'),{list});
+    return true;
+  }catch(e){console.error('backup err',e);return false;}
+}
+function fmtBackupTime(ts){const d=new Date(ts);const p=n=>String(n).padStart(2,'0');return p(d.getDate())+'/'+p(d.getMonth()+1)+'/'+d.getFullYear()+' '+p(d.getHours())+':'+p(d.getMinutes());}
+function backupStats(b){let t=0;(b.projects||[]).forEach(p=>p.areas.forEach(a=>t+=a.tasks.length));return (b.projects||[]).length+' פרויקטים · '+t+' משימות · '+(b.notes||[]).length+' פתקים';}
+async function mBackup(){
+  sm(`<h2>גיבוי ושחזור</h2><div id="backup-body" style="font-size:12px;color:var(--ink3);padding:8px 0">טוען גיבויים...</div>`);
+  await loadBackups();
+  const list=(backupCache.list||[]).slice().reverse();
+  const rows=list.length?list.map(b=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:.5px solid var(--rule)">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;color:var(--ink)">${fmtBackupTime(b.ts)}${b.note?' · '+esc(b.note):''}</div>
+        <div style="font-size:11px;color:var(--ink3)">${backupStats(b)}</div>
+      </div>
+      <button class="btn-ghost" style="flex-shrink:0" onclick="restoreBackup(${b.ts})">שחזר</button>
+    </div>`).join(''):'<div style="font-size:12px;color:var(--ink3);padding:6px 0">אין גיבויים עדיין — לחץ "גבה עכשיו"</div>';
+  const body=document.getElementById('backup-body');
+  if(!body)return;
+  body.outerHTML=`<div>
+    <div style="font-size:11px;color:var(--ink3);margin-bottom:8px;line-height:1.6">גיבוי אוטומטי נשמר פעם ביום בענן (${MAX_BACKUPS} אחרונים). אפשר לגבות עכשיו, לשחזר גרסה קודמת, או להוריד / לטעון קובץ גיבוי מלא.</div>
+    <div style="max-height:230px;overflow-y:auto;margin-bottom:10px">${rows}</div>
+    <input type="file" id="backup-file" accept="application/json,.json" style="display:none" onchange="importFullBackup(this)"/>
+    <div class="mc-actions">
+      <button class="btn-primary" onclick="doBackupNow()">גבה עכשיו</button>
+      <button class="btn-ghost" onclick="exportFullBackup()">הורד קובץ</button>
+      <button class="btn-ghost" onclick="document.getElementById('backup-file').click()">טען קובץ</button>
+      <button class="btn-ghost" onclick="cm()">סגור</button>
+    </div></div>`;
+}
+async function doBackupNow(){const ok=await autoBackup(true,'ידני');if(ok)mBackup();else alert('לא ניתן לגבות — אין נתונים או בעיית רשת');}
+async function restoreBackup(ts){
+  if(!backupCache)await loadBackups();
+  const b=(backupCache.list||[]).find(x=>x.ts===ts);
+  if(!b){alert('הגיבוי לא נמצא');return;}
+  if(!confirm('לשחזר את המצב מ-'+fmtBackupTime(ts)+'?\nהמצב הנוכחי ייגבה אוטומטית לפני השחזור.'))return;
+  await autoBackup(true,'לפני שחזור'); // safety snapshot of current state first
+  S.projects=JSON.parse(JSON.stringify(b.projects||[]));
+  S.notes=JSON.parse(JSON.stringify(b.notes||[]));
+  await sv();cm();render();
+  alert('שוחזר בהצלחה');
+}
+function exportFullBackup(){
+  const data={app:'avihai-tasks',exportedAt:new Date().toISOString(),projects:S.projects,notes:S.notes};
+  const el=document.createElement('a');
+  el.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+  el.download='avihai-tasks-backup-'+new Date().toISOString().split('T')[0]+'.json';
+  el.click();
+}
+function importFullBackup(input){
+  const file=input.files&&input.files[0];if(!file)return;
+  const fr=new FileReader();
+  fr.onload=async e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      const projects=data.projects||(Array.isArray(data)?data:null);
+      if(!Array.isArray(projects)){alert('קובץ לא תקין');return;}
+      if(!confirm('לטעון מהקובץ? המצב הנוכחי ייגבה אוטומטית לפני הטעינה.'))return;
+      await autoBackup(true,'לפני טעינת קובץ');
+      S.projects=projects;
+      S.notes=Array.isArray(data.notes)?data.notes:[];
+      await sv();cm();render();
+      alert('יובא בהצלחה');
+    }catch(err){alert('שגיאה בקריאת הקובץ');}
+  };
+  fr.readAsText(file);
+}
+
 // ===== API KEY =====
 function getApiKey(){return localStorage.getItem('anthropic_api_key')||'';}
 function setApiKey(k){localStorage.setItem('anthropic_api_key',k);}
@@ -720,11 +823,13 @@ function rSidebar(){
         <button class="sb-btn" onclick="xCSV()">CSV</button>
         <button class="sb-btn" onclick="xJSON()">JSON</button>
       </div>
+      <button class="sb-btn" onclick="mBackup()" style="width:100%;margin-top:5px">🛡️ גיבוי ושחזור</button>
     </div>
     <div class="sb-foot">
       <span class="dot${syncOk?'':' off'}" id="sdot" title="${syncOk?'מסונכרן':'לא מחובר'}"></span>
       <span class="lbl">${syncOk?'מסונכרן':'לא מחובר'}</span>
-      <span class="ver">v13</span>
+      <span class="ver">v15</span>
+      <button class="sb-btn" style="margin-right:auto;padding:2px 9px;font-size:11px" onclick="doSignOut()">יציאה</button>
     </div>
   `;
 }
@@ -2413,7 +2518,7 @@ time ו-durationMinutes אופציונליים — בלי time = יום שלם.
     const res=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:systemPrompt,messages})
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,system:systemPrompt,messages})
     });
     const data=await res.json();
     if(data.error)throw new Error(data.error.message);
@@ -2558,23 +2663,51 @@ function toggleSB(){document.getElementById('sb').classList.toggle('open');}
 function closeMobileSB(){document.getElementById('sb').classList.remove('open');}
 
 // ===== EXPOSE =====
-Object.assign(window,{selView,selP,selA,selectTask,closeDetail,toggleDone,updTask,updTaskField,dTask,setFilterStatus,setGrouping,toggleCollapse,clearDoneInProject,onSearchInput,addNote,toggleNoteDone,dNote,updNote,toggleNoteExpand,updNoteContent,dragStart,dragEnd,areaDragOver,areaDragLeave,areaDrop,moveTask,showMovePop,closeMovePop,noteDragStart,noteDragEnd,projItemDragStart,projItemDragEnd,projDragOver,projDragLeave,projDrop,sm,cm,mNewP,cP,mEditP,sPn,dP,mNewA,cA,mEditA,sA,dA,mNewT,cT,mSetKey,saveKey,delKey,addAssigneeForTask,fmtCmd,fmtTaskCmd,toggleTaskExpand,insertChecklist,clickCheckBox,aiKeyDown,clearAI,sendAI,xCSV,xJSON,toggleSB,closeMobileSB,pickColor,fmtNoteCmd,setCanvasTool,setCanvasColor,setCanvasPenSize,toggleCanvasTouch,canvasUndo,canvasClear,toggleNoteCanvas,startCanvasResize,gcalPrev,gcalNext,gcalGoToday,gcalDoSignIn,gcalDoSignOut,loadCalEvents,mGcalConfig,saveGcalConfig,delGcalConfig,mNewEvent,mNewEventOnDay,mEditEvent,toggleAllDay,saveEvent,deleteEvent,mDayEvents,syncTaskToCal,unsyncTaskFromCal});
+Object.assign(window,{selView,selP,selA,selectTask,closeDetail,toggleDone,updTask,updTaskField,dTask,setFilterStatus,setGrouping,toggleCollapse,clearDoneInProject,onSearchInput,addNote,toggleNoteDone,dNote,updNote,toggleNoteExpand,updNoteContent,dragStart,dragEnd,areaDragOver,areaDragLeave,areaDrop,moveTask,showMovePop,closeMovePop,noteDragStart,noteDragEnd,projItemDragStart,projItemDragEnd,projDragOver,projDragLeave,projDrop,sm,cm,mNewP,cP,mEditP,sPn,dP,mNewA,cA,mEditA,sA,dA,mNewT,cT,mSetKey,saveKey,delKey,addAssigneeForTask,fmtCmd,fmtTaskCmd,toggleTaskExpand,insertChecklist,clickCheckBox,aiKeyDown,clearAI,sendAI,xCSV,xJSON,mBackup,doBackupNow,restoreBackup,exportFullBackup,importFullBackup,doSignOut,toggleSB,closeMobileSB,pickColor,fmtNoteCmd,setCanvasTool,setCanvasColor,setCanvasPenSize,toggleCanvasTouch,canvasUndo,canvasClear,toggleNoteCanvas,startCanvasResize,gcalPrev,gcalNext,gcalGoToday,gcalDoSignIn,gcalDoSignOut,loadCalEvents,mGcalConfig,saveGcalConfig,delGcalConfig,mNewEvent,mNewEventOnDay,mEditEvent,toggleAllDay,saveEvent,deleteEvent,mDayEvents,syncTaskToCal,unsyncTaskFromCal});
 
-// ===== INIT =====
-onSnapshot(doc(db,'data','avihai'),async(snap)=>{
-  if(snap.exists()){
-    S.projects=snap.data().projects||[];
-    S.notes=snap.data().notes||[];
-    syncOk=true;
-    let migrated=false;
-    S.projects.forEach(p=>p.areas.forEach(a=>a.tasks.forEach(t=>{
-      if(t.notes&&!t.content){t.content=esc(t.notes).replace(/\n/g,'<br>');t.notes='';migrated=true;}
-    })));
-    if(migrated)await sv();
-  } else {
-    S.projects=SEED;S.notes=[];await sv();
+// ===== AUTH =====
+let appStarted=false;
+function startApp(){
+  if(appStarted)return;appStarted=true;
+  onSnapshot(doc(db,'data','avihai'),async(snap)=>{
+    if(snap.exists()){
+      S.projects=snap.data().projects||[];
+      S.notes=snap.data().notes||[];
+      syncOk=true;
+      let migrated=false;
+      S.projects.forEach(p=>p.areas.forEach(a=>a.tasks.forEach(t=>{
+        if(t.notes&&!t.content){t.content=esc(t.notes).replace(/\n/g,'<br>');t.notes='';migrated=true;}
+      })));
+      if(migrated)await sv();
+    } else {
+      S.projects=SEED;S.notes=[];await sv();
+    }
+    render();
+    autoBackup(false); // daily cloud snapshot for rollback (throttled; fire-and-forget)
+  });
+}
+function showLogin(msg){
+  let el=document.getElementById('auth-gate');
+  if(!el){el=document.createElement('div');el.id='auth-gate';document.body.appendChild(el);}
+  el.innerHTML=`<div class="ag-card"><div class="ag-title">אביחי משימות</div><div class="ag-sub">${esc(msg||'התחבר כדי לגשת לנתונים שלך')}</div><button class="ag-btn" id="ag-signin">התחבר עם Google</button></div>`;
+  el.style.display='flex';
+  document.getElementById('ag-signin').onclick=doSignIn;
+}
+function hideLogin(){const el=document.getElementById('auth-gate');if(el)el.style.display='none';}
+async function doSignIn(){
+  const provider=new GoogleAuthProvider();
+  try{await signInWithPopup(auth,provider);}
+  catch(e){
+    try{await signInWithRedirect(auth,provider);}            // fallback for installed PWA / blocked popups
+    catch(e2){showLogin('שגיאת התחברות: '+(e2.message||e2));}
   }
-  render();
+}
+async function doSignOut(){try{await signOut(auth);}catch(e){}location.reload();}
+
+onAuthStateChanged(auth,user=>{
+  if(user && user.email===ALLOWED_EMAIL){hideLogin();startApp();}
+  else if(user){signOut(auth);showLogin('לחשבון הזה אין גישה');}
+  else{showLogin();}
 });
 
 if('serviceWorker' in navigator){
