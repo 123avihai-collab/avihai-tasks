@@ -533,6 +533,22 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 .ag-sub{font-size:13px;color:var(--ink3);margin-bottom:20px;line-height:1.6}
 .ag-btn{width:100%;padding:10px 16px;border-radius:7px;border:.5px solid var(--rule);background:var(--ink);color:var(--panel);font-size:14px;font-weight:500;cursor:pointer}
 .ag-btn:hover{opacity:.9}
+.note-rt-tools{display:flex;flex-wrap:wrap;align-items:center;gap:3px}
+.rt-div{width:1px;align-self:stretch;background:var(--rule2);margin:2px 3px}
+.rt-size{font-size:11px;padding:3px 5px;border:.5px solid var(--rule2);border-radius:5px;background:var(--panel);color:var(--ink);cursor:pointer}
+.rt-popwrap{position:relative;display:inline-flex}
+.rt-caret{font-size:8px;margin-inline-start:1px;color:var(--ink3)}
+.rt-pop{position:absolute;top:calc(100% + 5px);inset-inline-start:0;z-index:80;background:var(--panel);border:.5px solid var(--rule);border-radius:9px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:9px;display:none}
+.rt-pop.open{display:block}
+.rt-sw-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.rt-sw{width:20px;height:20px;border-radius:50%;border:1px solid rgba(0,0,0,.18);cursor:pointer;padding:0;flex-shrink:0}
+.rt-sw-none{background:var(--panel);position:relative}
+.rt-sw-none::after{content:'';position:absolute;inset:4px;border-top:1.5px solid var(--red);transform:rotate(45deg);transform-origin:center}
+.rt-custom{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px;padding-top:8px;border-top:.5px solid var(--rule2);font-size:11px;color:var(--ink2);white-space:nowrap}
+.rt-custom input{width:34px;height:24px;padding:0;border:.5px solid var(--rule2);border-radius:4px;background:none;cursor:pointer}
+.note-canvas{background:transparent}
+.note-canvas-wrap.bg-lines{background-image:repeating-linear-gradient(to bottom,transparent 0 27px,rgba(63,111,181,.20) 27px 28px)}
+.note-canvas-wrap.bg-grid{background-image:repeating-linear-gradient(to bottom,transparent 0 27px,rgba(63,111,181,.16) 27px 28px),repeating-linear-gradient(to right,transparent 0 27px,rgba(63,111,181,.16) 27px 28px)}
 </style>
 </head>
 <body>
@@ -841,7 +857,7 @@ function rSidebar(){
     <div class="sb-foot">
       <span class="dot${syncOk?'':' off'}" id="sdot" title="${syncOk?'מסונכרן':'לא מחובר'}"></span>
       <span class="lbl">${syncOk?'מסונכרן':'לא מחובר'}</span>
-      <span class="ver">v18</span>
+      <span class="ver">v19</span>
       <button class="sb-btn" style="margin-right:auto;padding:2px 9px;font-size:11px" onclick="doSignOut()">יציאה</button>
     </div>
   `;
@@ -1334,6 +1350,7 @@ function rNotes(mn){
           <button class="note-canvas-tool" data-tool="pen" onclick="setCanvasTool('${n.id}','pen')" title="עט">✎</button>
           <button class="note-canvas-tool" data-tool="highlight" onclick="setCanvasTool('${n.id}','highlight')" title="טוש מדגיש" style="font-size:16px">▤</button>
           <button class="note-canvas-tool" data-tool="eraser" onclick="setCanvasTool('${n.id}','eraser')" title="מחק">⌫</button>
+          <button class="note-canvas-tool" onclick="cycleCanvasBg('${n.id}')" title="רקע דף: חלק / שורות / משבצות">▦</button>
           <span class="note-canvas-divider"></span>
           <span class="note-canvas-colors">
             ${PEN_COLORS.map(c=>'<button class="note-canvas-color" data-color="'+c+'" style="background:'+c+'" onclick="setCanvasColor(\''+n.id+'\',\''+c+'\')" title="צבע"></button>').join('')}
@@ -1350,7 +1367,7 @@ function rNotes(mn){
           <button class="note-canvas-tool" onclick="canvasClear('${n.id}')" title="נקה הכל" style="color:var(--red);margin-right:auto">⌫⌫</button>
           <button class="note-canvas-tool" onclick="toggleCanvasTouch('${n.id}')" title="ציור באצבע" data-touch>🖐</button>
         </div>
-        <div class="note-canvas-wrap" id="note-canvas-wrap-${n.id}" style="height:${canvasH}px">
+        <div class="note-canvas-wrap${n.canvasBg==='lines'?' bg-lines':n.canvasBg==='grid'?' bg-grid':''}" id="note-canvas-wrap-${n.id}" style="height:${canvasH}px">
           <canvas id="note-canvas-${n.id}" class="note-canvas"></canvas>
         </div>
         <div class="note-canvas-handle" onpointerdown="startCanvasResize('${n.id}',event)" title="גרור למעלה / מטה לשינוי גובה">
@@ -2431,10 +2448,11 @@ function clickCheckBox(boxEl){
 function rtToolbarHtml(contentId,cmdFnPrefix){
   const sizeOpts=['1','2','3','4','5','6','7'];
   const sizeNames={'1':'קטן מאוד','2':'קטן','3':'רגיל','4':'בינוני','5':'גדול','6':'ענק','7':'ענק מאוד'};
-  const colors=['#14181C','#3F6FB5','#3D7A4F','#9C6A1F','#B23D3D','#7048A0','#2E7E7E','#5A6470'];
-  const bgColors=['#FFEB3B','#FFE0B2','#C8E6C9','#BBDEFB','#F8BBD0','#E1BEE7','#FFCCBC','transparent'];
-  const colorBtns=colors.map(c=>`<button type="button" class="note-rt-color" style="background:${c};width:18px;height:18px" onmousedown="event.preventDefault();" onclick="${cmdFnPrefix}'foreColor','${c}')" title="צבע טקסט"></button>`).join('');
-  const bgBtns=bgColors.map(c=>`<button type="button" class="note-rt-color" style="background:${c};width:18px;height:18px;border:1px solid var(--rule2)" onmousedown="event.preventDefault();" onclick="${cmdFnPrefix}'hiliteColor','${c}')" title="הדגשה"></button>`).join('');
+  const colors=['#14181C','#3F6FB5','#3D7A4F','#9C6A1F','#B23D3D','#7048A0','#2E7E7E','#5A6470','#E8590C','#C2255C','#1098AD','#495057'];
+  const bgColors=['#FFEB3B','#FFE0B2','#C8E6C9','#BBDEFB','#F8BBD0','#E1BEE7','#FFCCBC','#B2EBF2','transparent'];
+  const sw=(c,cmd)=>`<button type="button" class="rt-sw${c==='transparent'?' rt-sw-none':''}" ${c==='transparent'?'':'style="background:'+c+'"'} onmousedown="event.preventDefault();" onclick="${cmdFnPrefix}'${cmd}','${c}')"></button>`;
+  const colorBtns=colors.map(c=>sw(c,'foreColor')).join('');
+  const bgBtns=bgColors.map(c=>sw(c,'hiliteColor')).join('');
   return `<div class="note-rt-tools">
     <button type="button" class="note-rt-btn sz-input" onmousedown="event.preventDefault();">
       <select onchange="${cmdFnPrefix}'fontSize',this.value);this.selectedIndex=2;" title="גודל גופן">
@@ -2455,12 +2473,39 @@ function rtToolbarHtml(contentId,cmdFnPrefix){
     <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="${cmdFnPrefix}'insertOrderedList')" title="ממוספרת">1.</button>
     <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="insertChecklist('${contentId}')" title="הוסף שורת צ׳קליסט - לחיצה על הריבוע תמחק את השורה">☐</button>
     <span style="width:1px;background:var(--rule2);margin:2px 4px"></span>
-    <span style="display:flex;gap:3px;align-items:center" title="צבע טקסט">${colorBtns}</span>
+    <div class="rt-popwrap">
+      <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="toggleRtPop(this)" title="צבע טקסט"><b style="color:#B23D3D">A</b><span class="rt-caret">▾</span></button>
+      <div class="rt-pop"><div class="rt-sw-grid">${colorBtns}</div><label class="rt-custom"><span>צבע אישי</span><input type="color" onmousedown="event.stopPropagation()" oninput="${cmdFnPrefix}'foreColor',this.value)"></label></div>
+    </div>
+    <div class="rt-popwrap">
+      <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="toggleRtPop(this)" title="הדגשה"><span style="background:#FFEB3B;color:#14181C;padding:0 3px;border-radius:2px">H</span><span class="rt-caret">▾</span></button>
+      <div class="rt-pop"><div class="rt-sw-grid">${bgBtns}</div></div>
+    </div>
+    <div class="rt-popwrap">
+      <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="toggleRtPop(this)" title="יישור">⬌<span class="rt-caret">▾</span></button>
+      <div class="rt-pop"><div style="display:flex;gap:4px">
+        <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="${cmdFnPrefix}'justifyRight')" title="ימין">ימין</button>
+        <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="${cmdFnPrefix}'justifyCenter')" title="מרכז">מרכז</button>
+        <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="${cmdFnPrefix}'justifyLeft')" title="שמאל">שמאל</button>
+      </div></div>
+    </div>
     <span style="width:1px;background:var(--rule2);margin:2px 4px"></span>
-    <span style="display:flex;gap:3px;align-items:center" title="הדגשה">${bgBtns}</span>
-    <span style="width:1px;background:var(--rule2);margin:2px 4px"></span>
-    <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="${cmdFnPrefix}'removeFormat')" title="נקה עיצוב">×</button>
+    <button class="note-rt-btn" onmousedown="event.preventDefault();" onclick="${cmdFnPrefix}'removeFormat')" title="נקה עיצוב">✕</button>
   </div>`;
+}
+function toggleRtPop(btn){
+  const pop=btn.nextElementSibling;
+  const open=pop.classList.contains('open');
+  document.querySelectorAll('.rt-pop.open').forEach(p=>p.classList.remove('open'));
+  if(!open)pop.classList.add('open');
+}
+function cycleCanvasBg(noteId){
+  const n=S.notes.find(x=>x.id===noteId);if(!n)return;
+  const order=['plain','lines','grid'];
+  n.canvasBg=order[(order.indexOf(n.canvasBg||'plain')+1)%order.length];
+  sv();
+  const wrap=document.getElementById('note-canvas-wrap-'+noteId);
+  if(wrap){wrap.classList.remove('bg-lines','bg-grid');if(n.canvasBg==='lines')wrap.classList.add('bg-lines');else if(n.canvasBg==='grid')wrap.classList.add('bg-grid');}
 }
 
 // ===== AI CHAT =====
@@ -2732,7 +2777,7 @@ function toggleSB(){document.getElementById('sb').classList.toggle('open');}
 function closeMobileSB(){document.getElementById('sb').classList.remove('open');}
 
 // ===== EXPOSE =====
-Object.assign(window,{selView,selP,selA,selectTask,closeDetail,toggleDone,updTask,updTaskField,dTask,setFilterStatus,setGrouping,toggleCollapse,clearDoneInProject,onSearchInput,addNote,toggleNoteDone,dNote,updNote,toggleNoteExpand,updNoteContent,dragStart,dragEnd,areaDragOver,areaDragLeave,areaDrop,moveTask,showMovePop,closeMovePop,noteDragStart,noteDragEnd,projItemDragStart,projItemDragEnd,projDragOver,projDragLeave,projDrop,sm,cm,mNewP,cP,mEditP,sPn,dP,mNewA,cA,mEditA,sA,dA,mNewT,cT,mSetKey,saveKey,delKey,addAssigneeForTask,fmtCmd,fmtTaskCmd,toggleTaskExpand,insertChecklist,clickCheckBox,aiKeyDown,clearAI,sendAI,xCSV,xJSON,mBackup,doBackupNow,restoreBackup,exportFullBackup,importFullBackup,doSignOut,toggleSB,closeMobileSB,pickColor,fmtNoteCmd,setCanvasTool,setCanvasColor,setCanvasPenSize,toggleCanvasTouch,canvasUndo,canvasClear,toggleNoteCanvas,startCanvasResize,gcalPrev,gcalNext,gcalGoToday,setCalView,gcalDoSignIn,gcalDoSignOut,loadCalEvents,mGcalConfig,saveGcalConfig,delGcalConfig,mNewEvent,mNewEventOnDay,mEditEvent,toggleAllDay,saveEvent,deleteEvent,mDayEvents,syncTaskToCal,unsyncTaskFromCal});
+Object.assign(window,{selView,selP,selA,selectTask,closeDetail,toggleDone,updTask,updTaskField,dTask,setFilterStatus,setGrouping,toggleCollapse,clearDoneInProject,onSearchInput,addNote,toggleNoteDone,dNote,updNote,toggleNoteExpand,updNoteContent,dragStart,dragEnd,areaDragOver,areaDragLeave,areaDrop,moveTask,showMovePop,closeMovePop,noteDragStart,noteDragEnd,projItemDragStart,projItemDragEnd,projDragOver,projDragLeave,projDrop,sm,cm,mNewP,cP,mEditP,sPn,dP,mNewA,cA,mEditA,sA,dA,mNewT,cT,mSetKey,saveKey,delKey,addAssigneeForTask,fmtCmd,fmtTaskCmd,toggleTaskExpand,insertChecklist,clickCheckBox,aiKeyDown,clearAI,sendAI,xCSV,xJSON,mBackup,doBackupNow,restoreBackup,exportFullBackup,importFullBackup,doSignOut,toggleSB,closeMobileSB,pickColor,fmtNoteCmd,toggleRtPop,cycleCanvasBg,setCanvasTool,setCanvasColor,setCanvasPenSize,toggleCanvasTouch,canvasUndo,canvasClear,toggleNoteCanvas,startCanvasResize,gcalPrev,gcalNext,gcalGoToday,setCalView,gcalDoSignIn,gcalDoSignOut,loadCalEvents,mGcalConfig,saveGcalConfig,delGcalConfig,mNewEvent,mNewEventOnDay,mEditEvent,toggleAllDay,saveEvent,deleteEvent,mDayEvents,syncTaskToCal,unsyncTaskFromCal});
 
 // ===== AUTH =====
 let appStarted=false;
@@ -2788,6 +2833,7 @@ document.addEventListener('click',(e)=>{
   const sb=document.getElementById('sb');
   const burger=document.getElementById('burger');
   if(sb.classList.contains('open')&&!sb.contains(e.target)&&!burger.contains(e.target))sb.classList.remove('open');
+  if(!e.target.closest('.rt-popwrap'))document.querySelectorAll('.rt-pop.open').forEach(p=>p.classList.remove('open'));
 });
 </script>
 </body>
