@@ -828,7 +828,7 @@ function rSidebar(){
     <div class="sb-foot">
       <span class="dot${syncOk?'':' off'}" id="sdot" title="${syncOk?'מסונכרן':'לא מחובר'}"></span>
       <span class="lbl">${syncOk?'מסונכרן':'לא מחובר'}</span>
-      <span class="ver">v16</span>
+      <span class="ver">v17</span>
       <button class="sb-btn" style="margin-right:auto;padding:2px 9px;font-size:11px" onclick="doSignOut()">יציאה</button>
     </div>
   `;
@@ -1729,9 +1729,19 @@ async function loadCalEvents(){
   try{
     await gcalInit();
     if(!gcalAccessToken){calStatus='signedout';if(S.view==='calendar')renderCalendarMonth(document.getElementById('mn'));return;}
-    const calId=await ensureTasksCalendar();
+    const tasksCalId=await ensureTasksCalendar();
     const {gridStart,gridEnd}=gcalGridRange();
-    calEvents=await gcalListEvents(calId,gridStart,gridEnd);
+    // read events from ALL the user's calendars (primary, shared, Outlook-synced, holidays...)
+    const lst=await gapi.client.calendar.calendarList.list({maxResults:250});
+    const cals=lst.result.items||[];
+    const perCal=await Promise.all(cals.map(async c=>{
+      try{
+        const evs=await gcalListEvents(c.id,gridStart,gridEnd);
+        const writable=c.id===tasksCalId||c.accessRole==='owner'||c.accessRole==='writer';
+        return evs.map(ev=>{ev._calId=c.id;ev._calName=c.summaryOverride||c.summary||'';ev._color=c.backgroundColor||'';ev._writable=writable;return ev;});
+      }catch(_){return [];}
+    }));
+    calEvents=perCal.flat().filter(ev=>ev.start&&(ev.start.date||ev.start.dateTime));
     calStatus='ready';
   }catch(e){
     if(e&&e.status===401){gcalAccessToken=null;sessionStorage.removeItem('gcal_token');calStatus='signedout';}
@@ -1797,7 +1807,8 @@ function renderCalendarMonth(mn){
     const chips=evs.slice(0,3).map(ev=>{
       const allDay=!!ev.start.date;
       const time=allDay?'':(ev.start.dateTime?new Date(ev.start.dateTime).toTimeString().slice(0,5)+' ':'');
-      return `<div class="cal-ev${allDay?' allday':''}" onclick="event.stopPropagation();mEditEvent('${esc(ev.id)}')" title="${esc(ev.summary||'')}">${esc(time)}${esc(ev.summary||'(ללא כותרת)')}</div>`;
+      const col=ev._color?`border-inline-start:3px solid ${esc(ev._color)};padding-inline-start:4px;`:'';
+      return `<div class="cal-ev${allDay?' allday':''}" style="${col}" onclick="event.stopPropagation();mEditEvent('${esc(ev.id)}','${esc(ev._calId||'')}')" title="${esc((ev._calName?ev._calName+' · ':'')+(ev.summary||''))}">${esc(time)}${esc(ev.summary||'(ללא כותרת)')}</div>`;
     }).join('');
     const more=evs.length>3?`<div class="cal-more" onclick="event.stopPropagation();mDayEvents('${ds}')">+ ${evs.length-3} נוספים</div>`:'';
     cells.push(`<div class="cal-day${isOther?' other':''}${isToday?' today':''}" onclick="mNewEventOnDay('${ds}')"><div class="cal-d-num">${d.getDate()}</div>${chips}${more}</div>`);
@@ -1904,8 +1915,8 @@ function mNewEventOnDay(dateStr){
   if(!gcalAccessToken){gcalDoSignIn();return;}
   sm(eventModalHtml(null,{summary:'',description:'',start:dateStr+'T09:00',end:dateStr+'T10:00',allDay:false}));
 }
-function mEditEvent(id){
-  const ev=calEvents.find(e=>e.id===id);if(!ev)return;
+function mEditEvent(id,calId){
+  const ev=calEvents.find(e=>e.id===id&&(!calId||e._calId===calId));if(!ev)return;
   const allDay=!!ev.start.date;
   let start,end;
   if(allDay){
@@ -1916,24 +1927,27 @@ function mEditEvent(id){
     if(end<start)end=start;
   }
   else{start=(ev.start.dateTime||'').slice(0,16);end=(ev.end.dateTime||'').slice(0,16);}
-  sm(eventModalHtml(id,{summary:ev.summary||'',description:ev.description||'',start,end,allDay,htmlLink:ev.htmlLink}));
+  sm(eventModalHtml(id,{summary:ev.summary||'',description:ev.description||'',start,end,allDay,htmlLink:ev.htmlLink,calId:ev._calId||'',calName:ev._calName||'',readonly:ev._writable===false}));
 }
 function eventModalHtml(id,e){
-  const title=id?'עריכת אירוע':'אירוע חדש';
+  const title=id?(e.readonly?'אירוע':'עריכת אירוע'):'אירוע חדש';
   const dtType=e.allDay?'date':'datetime-local';
+  const ro=e.readonly?' disabled':'';
+  const calId=e.calId||'';
   return `<h2>${title}</h2>
-    <div class="mf"><label>כותרת</label><input id="vE1" value="${esc(e.summary)}" placeholder="כותרת האירוע"/></div>
-    <div class="mf"><label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="vEAD" ${e.allDay?'checked':''} onchange="toggleAllDay()"/> <span>אירוע של יום שלם</span></label></div>
+    ${e.readonly&&e.calName?'<div style="font-size:11px;color:var(--ink3);margin-bottom:8px">מהיומן "'+esc(e.calName)+'" · לקריאה בלבד</div>':''}
+    <div class="mf"><label>כותרת</label><input id="vE1" value="${esc(e.summary)}" placeholder="כותרת האירוע"${ro}/></div>
+    <div class="mf"><label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="vEAD" ${e.allDay?'checked':''} onchange="toggleAllDay()"${ro}/> <span>אירוע של יום שלם</span></label></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <div class="mf"><label>התחלה</label><input id="vE2" type="${dtType}" value="${esc(e.start)}"/></div>
-      <div class="mf"><label>סיום</label><input id="vE3" type="${dtType}" value="${esc(e.end)}"/></div>
+      <div class="mf"><label>התחלה</label><input id="vE2" type="${dtType}" value="${esc(e.start)}"${ro}/></div>
+      <div class="mf"><label>סיום</label><input id="vE3" type="${dtType}" value="${esc(e.end)}"${ro}/></div>
     </div>
-    <div class="mf"><label>תיאור</label><textarea id="vE4" rows="3" style="width:100%;padding:7px 9px;border:.5px solid var(--rule2);border-radius:4px;background:var(--panel);color:var(--ink);font-family:inherit;font-size:13px;resize:vertical" placeholder="הערות (אופציונלי)">${esc(e.description)}</textarea></div>
+    <div class="mf"><label>תיאור</label><textarea id="vE4" rows="3" style="width:100%;padding:7px 9px;border:.5px solid var(--rule2);border-radius:4px;background:var(--panel);color:var(--ink);font-family:inherit;font-size:13px;resize:vertical" placeholder="הערות (אופציונלי)"${ro}>${esc(e.description)}</textarea></div>
     ${e.htmlLink?'<div style="font-size:11px;color:var(--ink3);margin-top:-4px;margin-bottom:8px"><a href="'+esc(e.htmlLink)+'" target="_blank" style="color:var(--accent)">פתח ב-Google Calendar ↗</a></div>':''}
     <div class="mc-actions">
-      <button class="btn-primary" onclick="saveEvent('${id||''}')">שמור</button>
-      ${id?'<button class="btn-ghost btn-danger" onclick="deleteEvent(\''+id+'\')">מחק</button>':''}
-      <button class="btn-ghost" onclick="cm()">ביטול</button>
+      ${e.readonly?'':'<button class="btn-primary" onclick="saveEvent(\''+(id||'')+'\',\''+calId+'\')">שמור</button>'}
+      ${id&&!e.readonly?'<button class="btn-ghost btn-danger" onclick="deleteEvent(\''+id+'\',\''+calId+'\')">מחק</button>':''}
+      <button class="btn-ghost" onclick="cm()">${e.readonly?'סגור':'ביטול'}</button>
     </div>`;
 }
 function toggleAllDay(){
@@ -1950,7 +1964,7 @@ function toggleAllDay(){
     s.value=sd+'T09:00';e.value=sd+'T10:00';
   }
 }
-async function saveEvent(id){
+async function saveEvent(id,evCalId){
   const title=document.getElementById('vE1').value.trim();
   if(!title){alert('הזן כותרת');return;}
   const allDay=document.getElementById('vEAD').checked;
@@ -1973,7 +1987,7 @@ async function saveEvent(id){
     body.end={dateTime:endD.toISOString()};
   }
   try{
-    const calId=await ensureTasksCalendar();
+    const calId=evCalId||await ensureTasksCalendar();
     if(id)await gcalUpdateEvent(calId,id,body); else await gcalCreateEvent(calId,body);
     cm();calStatus='idle';await loadCalEvents();
   }catch(err){
@@ -1981,9 +1995,9 @@ async function saveEvent(id){
     alert('שגיאה בשמירה: '+msg);
   }
 }
-async function deleteEvent(id){
+async function deleteEvent(id,evCalId){
   if(!confirm('למחוק את האירוע?'))return;
-  try{const calId=await ensureTasksCalendar();await gcalDeleteEvent(calId,id);cm();calStatus='idle';await loadCalEvents();}
+  try{const calId=evCalId||await ensureTasksCalendar();await gcalDeleteEvent(calId,id);cm();calStatus='idle';await loadCalEvents();}
   catch(err){
     const msg=err&&err.result&&err.result.error&&err.result.error.message||err.message||String(err);
     alert('שגיאה במחיקה: '+msg);
@@ -2084,7 +2098,8 @@ function mDayEvents(dateStr){
   const list=evs.map(ev=>{
     const allDay=!!ev.start.date;
     const time=allDay?'יום שלם':new Date(ev.start.dateTime).toTimeString().slice(0,5);
-    return `<button class="move-pop-i" onclick="cm();mEditEvent('${esc(ev.id)}')"><span style="color:var(--ink3);font-family:var(--mono);font-size:11px">${esc(time)}</span> · ${esc(ev.summary||'(ללא כותרת)')}</button>`;
+    const dot=ev._color?`<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${esc(ev._color)};margin-inline-end:5px"></span>`:'';
+    return `<button class="move-pop-i" onclick="cm();mEditEvent('${esc(ev.id)}','${esc(ev._calId||'')}')">${dot}<span style="color:var(--ink3);font-family:var(--mono);font-size:11px">${esc(time)}</span> · ${esc(ev.summary||'(ללא כותרת)')}${ev._calName?'<span style=\"color:var(--ink3);font-size:10px\"> · '+esc(ev._calName)+'</span>':''}</button>`;
   }).join('');
   sm(`<h2>אירועים · ${esc(dateStr)}</h2><div style="display:flex;flex-direction:column;gap:2px;max-height:60vh;overflow-y:auto">${list||'<div style="color:var(--ink3);padding:14px;text-align:center">אין אירועים</div>'}</div><div class="mc-actions"><button class="btn-primary" onclick="cm();mNewEventOnDay('${dateStr}')">${IC.plus} אירוע חדש</button><button class="btn-ghost" onclick="cm()">סגור</button></div>`);
 }
