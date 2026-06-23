@@ -483,6 +483,18 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 .cal-more:hover{color:var(--ink)}
 .cal-nav{display:flex;align-items:center;gap:2px}
 .cal-nav .btn-ghost{padding:6px 9px;font-size:13px;line-height:1}
+.cal-views{display:inline-flex;border:.5px solid var(--rule);border-radius:6px;overflow:hidden}
+.cal-vbtn{font-size:12px;padding:5px 11px;background:var(--panel);color:var(--ink2);border:none;border-inline-start:.5px solid var(--rule);cursor:pointer}
+.cal-vbtn:first-child{border-inline-start:none}
+.cal-vbtn.on{background:var(--accent);color:#fff}
+.cal-weekdays{grid-auto-rows:1fr}
+.cal-weekcol{overflow-y:auto;cursor:pointer}
+.cal-weekcol.today{background:var(--accentSoft)}
+.cal-daylist{display:flex;flex-direction:column;gap:6px;max-width:680px;margin:0 auto;width:100%;padding-top:4px}
+.cal-dayrow{display:flex;align-items:center;gap:10px;padding:10px 12px;border:.5px solid var(--rule);border-radius:7px;background:var(--panel);cursor:pointer;text-align:start;font-size:13px;color:var(--ink)}
+.cal-dayrow:hover{border-color:var(--accent)}
+.cal-dayadd{margin-top:6px;padding:9px;border:.5px dashed var(--rule);border-radius:7px;background:transparent;color:var(--ink3);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;gap:5px}
+.cal-dayadd:hover{color:var(--ink);border-color:var(--ink3)}
 .cal-msg{font-size:11px;padding:1px 6px;border-radius:3px}
 .cal-msg.err{background:var(--redSoft);color:var(--red)}
 .cal-help{font-size:11px;color:var(--ink3);max-width:520px;line-height:1.7;text-align:right;direction:rtl;background:var(--rail2);border:.5px solid var(--rule);border-radius:5px;padding:10px 14px;margin-top:6px}
@@ -578,6 +590,7 @@ let TODAY=new Date().toISOString().split('T')[0];
 
 // Calendar state
 let calCursor=new Date();
+let calView='month'; // month | week | day
 let calEvents=[];
 let calStatus='idle'; // idle|loading|ready|error|signedout
 let calError='';
@@ -828,7 +841,7 @@ function rSidebar(){
     <div class="sb-foot">
       <span class="dot${syncOk?'':' off'}" id="sdot" title="${syncOk?'מסונכרן':'לא מחובר'}"></span>
       <span class="lbl">${syncOk?'מסונכרן':'לא מחובר'}</span>
-      <span class="ver">v17</span>
+      <span class="ver">v18</span>
       <button class="sb-btn" style="margin-right:auto;padding:2px 9px;font-size:11px" onclick="doSignOut()">יציאה</button>
     </div>
   `;
@@ -1725,18 +1738,18 @@ function ymdLocal(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(
 
 async function loadCalEvents(){
   calStatus='loading';
-  if(S.view==='calendar')renderCalendarMonth(document.getElementById('mn'));
+  if(S.view==='calendar')renderCalendar(document.getElementById('mn'));
   try{
     await gcalInit();
-    if(!gcalAccessToken){calStatus='signedout';if(S.view==='calendar')renderCalendarMonth(document.getElementById('mn'));return;}
+    if(!gcalAccessToken){calStatus='signedout';if(S.view==='calendar')renderCalendar(document.getElementById('mn'));return;}
     const tasksCalId=await ensureTasksCalendar();
-    const {gridStart,gridEnd}=gcalGridRange();
+    const {start,end}=calRange();
     // read events from ALL the user's calendars (primary, shared, Outlook-synced, holidays...)
     const lst=await gapi.client.calendar.calendarList.list({maxResults:250});
     const cals=lst.result.items||[];
     const perCal=await Promise.all(cals.map(async c=>{
       try{
-        const evs=await gcalListEvents(c.id,gridStart,gridEnd);
+        const evs=await gcalListEvents(c.id,start,end);
         const writable=c.id===tasksCalId||c.accessRole==='owner'||c.accessRole==='writer';
         return evs.map(ev=>{ev._calId=c.id;ev._calName=c.summaryOverride||c.summary||'';ev._color=c.backgroundColor||'';ev._writable=writable;return ev;});
       }catch(_){return [];}
@@ -1747,7 +1760,7 @@ async function loadCalEvents(){
     if(e&&e.status===401){gcalAccessToken=null;sessionStorage.removeItem('gcal_token');calStatus='signedout';}
     else{calStatus='error';calError=(e&&(e.result?.error?.message||e.message))||String(e);}
   }
-  if(S.view==='calendar')renderCalendarMonth(document.getElementById('mn'));
+  if(S.view==='calendar')renderCalendar(document.getElementById('mn'));
 }
 
 function rCalendar(mn){
@@ -1776,77 +1789,111 @@ function rCalendar(mn){
     return;
   }
   if(calStatus==='idle'){loadCalEvents();}
-  renderCalendarMonth(mn);
+  renderCalendar(mn);
 }
 
-function renderCalendarMonth(mn){
-  if(!mn)return;
-  const months=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
-  const weekdays=['א׳','ב׳','ג׳','ד׳','ה׳','ו׳','ש׳'];
+const CAL_MONTHS=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+const CAL_WD=['א׳','ב׳','ג׳','ד׳','ה׳','ו׳','ש׳'];
+function calRange(){
+  const c=calCursor;
+  if(calView==='day'){const s=new Date(c.getFullYear(),c.getMonth(),c.getDate());const e=new Date(s);e.setDate(s.getDate()+1);return{start:s,end:e};}
+  if(calView==='week'){const s=new Date(c.getFullYear(),c.getMonth(),c.getDate()-c.getDay());const e=new Date(s);e.setDate(s.getDate()+7);return{start:s,end:e};}
+  const first=new Date(c.getFullYear(),c.getMonth(),1);
+  const gridStart=new Date(c.getFullYear(),c.getMonth(),1-first.getDay());
+  const gridEnd=new Date(gridStart);gridEnd.setDate(gridStart.getDate()+42);
+  return{start:gridStart,end:gridEnd};
+}
+function calEventsForDay(ds){
+  return calEvents.filter(ev=>{const sd=ev.start.date||(ev.start.dateTime||'').slice(0,10);return sd===ds;})
+    .sort((a,b)=>{const ta=a.start.dateTime||'',tb=b.start.dateTime||'';if(!ta&&tb)return -1;if(ta&&!tb)return 1;return ta.localeCompare(tb);});
+}
+function calEvChip(ev){
+  const allDay=!!ev.start.date;
+  const time=allDay?'':(ev.start.dateTime?new Date(ev.start.dateTime).toTimeString().slice(0,5)+' ':'');
+  const col=ev._color?`border-inline-start:3px solid ${esc(ev._color)};padding-inline-start:4px;`:'';
+  return `<div class="cal-ev${allDay?' allday':''}" style="${col}" onclick="event.stopPropagation();mEditEvent('${esc(ev.id)}','${esc(ev._calId||'')}')" title="${esc((ev._calName?ev._calName+' · ':'')+(ev.summary||''))}">${esc(time)}${esc(ev.summary||'(ללא כותרת)')}</div>`;
+}
+function calPeriodLabel(){
   const y=calCursor.getFullYear(),m=calCursor.getMonth();
-  const first=new Date(y,m,1);
-  const startOffset=first.getDay();
-  const todayStr=ymdLocal(new Date());
-
+  if(calView==='day'){const wd=['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'][calCursor.getDay()];return 'יום '+wd+' · '+calCursor.getDate()+' ב'+CAL_MONTHS[m]+' '+y;}
+  if(calView==='week'){const {start}=calRange();const e=new Date(start.getFullYear(),start.getMonth(),start.getDate()+6);return start.getDate()+'/'+(start.getMonth()+1)+' – '+e.getDate()+'/'+(e.getMonth()+1)+' '+y;}
+  return CAL_MONTHS[m]+' '+y;
+}
+function calViewSwitch(){
+  const b=(v,lbl)=>`<button class="cal-vbtn${calView===v?' on':''}" onclick="setCalView('${v}')">${lbl}</button>`;
+  return `<div class="cal-views">${b('month','חודש')}${b('week','שבוע')}${b('day','יום')}</div>`;
+}
+function setCalView(v){if(calView===v)return;calView=v;calStatus='idle';calEvents=[];render();}
+function calMonthBody(){
+  const y=calCursor.getFullYear(),m=calCursor.getMonth();
+  const first=new Date(y,m,1),startOffset=first.getDay(),todayStr=ymdLocal(new Date());
+  const cells=[];
+  for(let i=0;i<42;i++){
+    const d=new Date(y,m,1-startOffset+i),ds=ymdLocal(d);
+    const isOther=d.getMonth()!==m,isToday=ds===todayStr;
+    const evs=calEventsForDay(ds);
+    const chips=evs.slice(0,3).map(calEvChip).join('');
+    const more=evs.length>3?`<div class="cal-more" onclick="event.stopPropagation();mDayEvents('${ds}')">+ ${evs.length-3} נוספים</div>`:'';
+    cells.push(`<div class="cal-day${isOther?' other':''}${isToday?' today':''}" onclick="mNewEventOnDay('${ds}')"><div class="cal-d-num">${d.getDate()}</div>${chips}${more}</div>`);
+  }
+  const weekHdr=CAL_WD.map(w=>`<div class="cal-wd">${w}</div>`).join('');
+  return `<div class="cal-grid"><div class="cal-wd-row">${weekHdr}</div><div class="cal-days">${cells.join('')}</div></div>`;
+}
+function calWeekBody(){
+  const {start}=calRange(),todayStr=ymdLocal(new Date());
+  const hdr=[],cols=[];
+  for(let i=0;i<7;i++){
+    const d=new Date(start.getFullYear(),start.getMonth(),start.getDate()+i),ds=ymdLocal(d);
+    const isToday=ds===todayStr;
+    hdr.push(`<div class="cal-wd">${CAL_WD[i]} <span style="color:var(--ink3)">${d.getDate()}/${d.getMonth()+1}</span></div>`);
+    const evs=calEventsForDay(ds);
+    const chips=evs.map(calEvChip).join('')||'<div style="font-size:10px;color:var(--ink3);padding:4px">—</div>';
+    cols.push(`<div class="cal-day cal-weekcol${isToday?' today':''}" onclick="mNewEventOnDay('${ds}')">${chips}</div>`);
+  }
+  return `<div class="cal-grid"><div class="cal-wd-row">${hdr.join('')}</div><div class="cal-days cal-weekdays">${cols.join('')}</div></div>`;
+}
+function calDayBody(){
+  const ds=ymdLocal(calCursor);
+  const evs=calEventsForDay(ds);
+  const rows=evs.map(ev=>{
+    const allDay=!!ev.start.date;
+    const time=allDay?'יום שלם':(ev.start.dateTime?new Date(ev.start.dateTime).toTimeString().slice(0,5):'');
+    const endT=(!allDay&&ev.end&&ev.end.dateTime)?'–'+new Date(ev.end.dateTime).toTimeString().slice(0,5):'';
+    const dot=ev._color?`<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${esc(ev._color)};flex-shrink:0"></span>`:'';
+    return `<button class="cal-dayrow" onclick="mEditEvent('${esc(ev.id)}','${esc(ev._calId||'')}')">${dot}<span style="font-family:var(--mono);font-size:12px;color:var(--ink2);min-width:84px;direction:ltr;text-align:start">${esc(time+endT)}</span><span style="flex:1;text-align:start">${esc(ev.summary||'(ללא כותרת)')}${ev._calName?'<span style=\"color:var(--ink3);font-size:11px\"> · '+esc(ev._calName)+'</span>':''}</span></button>`;
+  }).join('')||'<div style="color:var(--ink3);text-align:center;padding:30px">אין אירועים ביום זה</div>';
+  return `<div class="cal-daylist">${rows}<button class="cal-dayadd" onclick="mNewEventOnDay('${ds}')">${IC.plus} הוסף אירוע</button></div>`;
+}
+function renderCalendar(mn){
+  if(!mn)return;
   let statusEl='';
   if(calStatus==='loading')statusEl='<span class="cal-msg">טוען אירועים...</span>';
   else if(calStatus==='error')statusEl='<span class="cal-msg err" title="'+esc(calError)+'">שגיאה: '+esc(calError.slice(0,60))+'</span>';
   else if(calStatus==='ready')statusEl='<span>'+calEvents.length+' אירועים</span>';
   else if(calStatus==='signedout')statusEl='<span style="color:var(--ink3)">לא מחובר</span>';
-
-  const cells=[];
-  for(let i=0;i<42;i++){
-    const d=new Date(y,m,1-startOffset+i);
-    const ds=ymdLocal(d);
-    const isOther=d.getMonth()!==m;
-    const isToday=ds===todayStr;
-    const evs=calEvents.filter(ev=>{
-      const sd=ev.start.date||(ev.start.dateTime||'').slice(0,10);
-      return sd===ds;
-    });
-    const chips=evs.slice(0,3).map(ev=>{
-      const allDay=!!ev.start.date;
-      const time=allDay?'':(ev.start.dateTime?new Date(ev.start.dateTime).toTimeString().slice(0,5)+' ':'');
-      const col=ev._color?`border-inline-start:3px solid ${esc(ev._color)};padding-inline-start:4px;`:'';
-      return `<div class="cal-ev${allDay?' allday':''}" style="${col}" onclick="event.stopPropagation();mEditEvent('${esc(ev.id)}','${esc(ev._calId||'')}')" title="${esc((ev._calName?ev._calName+' · ':'')+(ev.summary||''))}">${esc(time)}${esc(ev.summary||'(ללא כותרת)')}</div>`;
-    }).join('');
-    const more=evs.length>3?`<div class="cal-more" onclick="event.stopPropagation();mDayEvents('${ds}')">+ ${evs.length-3} נוספים</div>`:'';
-    cells.push(`<div class="cal-day${isOther?' other':''}${isToday?' today':''}" onclick="mNewEventOnDay('${ds}')"><div class="cal-d-num">${d.getDate()}</div>${chips}${more}</div>`);
-  }
-  const weekHdr=weekdays.map(w=>`<div class="cal-wd">${w}</div>`).join('');
-
   const signedIn=!!gcalAccessToken;
   const actionsHtml=signedIn?`
+        ${calViewSwitch()}
         <div class="cal-nav">
-          <button class="btn-ghost" onclick="gcalPrev()" title="חודש קודם">›</button>
+          <button class="btn-ghost" onclick="gcalPrev()" title="קודם">›</button>
           <button class="btn-ghost" onclick="gcalGoToday()">היום</button>
-          <button class="btn-ghost" onclick="gcalNext()" title="חודש הבא">‹</button>
+          <button class="btn-ghost" onclick="gcalNext()" title="הבא">‹</button>
         </div>
         <button class="btn-ghost" onclick="loadCalEvents()" title="רענן">↻</button>
         <button class="btn-primary" onclick="mNewEvent()">${IC.plus} אירוע</button>
         <button class="btn-ghost" onclick="mGcalConfig()" title="הגדרות">⚙</button>`:`
         <button class="btn-primary" onclick="gcalDoSignIn()">התחבר ל-Google</button>
         <button class="btn-ghost" onclick="mGcalConfig()" title="הגדרות">⚙</button>`;
-
-  const body=signedIn?`
-    <div class="cal-wrap">
-      <div class="cal-grid">
-        <div class="cal-wd-row">${weekHdr}</div>
-        <div class="cal-days">${cells.join('')}</div>
-      </div>
-    </div>`:`
-    <div class="ai-no-key">
-      <div style="font-size:32px">🔗</div>
-      <p>התחבר ל-Google כדי לצפות באירועי היומן, להוסיף ולערוך אותם מכאן.<br>הגישה מבוקשת ל-Google Calendar בלבד.</p>
-      <button class="btn-primary" onclick="gcalDoSignIn()">התחבר ל-Google Calendar</button>
-    </div>`;
-
+  let inner;
+  if(!signedIn)inner=`<div class="ai-no-key"><div style="font-size:32px">🔗</div><p>התחבר ל-Google כדי לצפות באירועי היומן, להוסיף ולערוך אותם מכאן.<br>הגישה מבוקשת ל-Google Calendar בלבד.</p><button class="btn-primary" onclick="gcalDoSignIn()">התחבר ל-Google Calendar</button></div>`;
+  else inner=calView==='week'?calWeekBody():calView==='day'?calDayBody():calMonthBody();
+  const body=signedIn?`<div class="cal-wrap">${inner}</div>`:inner;
   mn.innerHTML=`
     <header class="mn-h">
       <div class="mn-h-row">
         <div class="mn-h-l">
           <h1>יומן Google</h1>
-          <div class="mn-h-meta"><span>${months[m]} ${y}</span><span style="color:var(--ink3)">·</span>${statusEl}</div>
+          <div class="mn-h-meta"><span>${esc(calPeriodLabel())}</span><span style="color:var(--ink3)">·</span>${statusEl}</div>
         </div>
         <div class="mn-h-actions">${actionsHtml}</div>
       </div>
@@ -1854,8 +1901,15 @@ function renderCalendarMonth(mn){
     ${body}`;
 }
 
-function gcalPrev(){calCursor=new Date(calCursor.getFullYear(),calCursor.getMonth()-1,1);calStatus='idle';calEvents=[];render();}
-function gcalNext(){calCursor=new Date(calCursor.getFullYear(),calCursor.getMonth()+1,1);calStatus='idle';calEvents=[];render();}
+function gcalStep(dir){
+  const c=calCursor;
+  if(calView==='day')calCursor=new Date(c.getFullYear(),c.getMonth(),c.getDate()+dir);
+  else if(calView==='week')calCursor=new Date(c.getFullYear(),c.getMonth(),c.getDate()+7*dir);
+  else calCursor=new Date(c.getFullYear(),c.getMonth()+dir,1);
+  calStatus='idle';calEvents=[];render();
+}
+function gcalPrev(){gcalStep(-1);}
+function gcalNext(){gcalStep(1);}
 function gcalGoToday(){calCursor=new Date();calStatus='idle';calEvents=[];render();}
 
 async function gcalDoSignIn(){
@@ -2678,7 +2732,7 @@ function toggleSB(){document.getElementById('sb').classList.toggle('open');}
 function closeMobileSB(){document.getElementById('sb').classList.remove('open');}
 
 // ===== EXPOSE =====
-Object.assign(window,{selView,selP,selA,selectTask,closeDetail,toggleDone,updTask,updTaskField,dTask,setFilterStatus,setGrouping,toggleCollapse,clearDoneInProject,onSearchInput,addNote,toggleNoteDone,dNote,updNote,toggleNoteExpand,updNoteContent,dragStart,dragEnd,areaDragOver,areaDragLeave,areaDrop,moveTask,showMovePop,closeMovePop,noteDragStart,noteDragEnd,projItemDragStart,projItemDragEnd,projDragOver,projDragLeave,projDrop,sm,cm,mNewP,cP,mEditP,sPn,dP,mNewA,cA,mEditA,sA,dA,mNewT,cT,mSetKey,saveKey,delKey,addAssigneeForTask,fmtCmd,fmtTaskCmd,toggleTaskExpand,insertChecklist,clickCheckBox,aiKeyDown,clearAI,sendAI,xCSV,xJSON,mBackup,doBackupNow,restoreBackup,exportFullBackup,importFullBackup,doSignOut,toggleSB,closeMobileSB,pickColor,fmtNoteCmd,setCanvasTool,setCanvasColor,setCanvasPenSize,toggleCanvasTouch,canvasUndo,canvasClear,toggleNoteCanvas,startCanvasResize,gcalPrev,gcalNext,gcalGoToday,gcalDoSignIn,gcalDoSignOut,loadCalEvents,mGcalConfig,saveGcalConfig,delGcalConfig,mNewEvent,mNewEventOnDay,mEditEvent,toggleAllDay,saveEvent,deleteEvent,mDayEvents,syncTaskToCal,unsyncTaskFromCal});
+Object.assign(window,{selView,selP,selA,selectTask,closeDetail,toggleDone,updTask,updTaskField,dTask,setFilterStatus,setGrouping,toggleCollapse,clearDoneInProject,onSearchInput,addNote,toggleNoteDone,dNote,updNote,toggleNoteExpand,updNoteContent,dragStart,dragEnd,areaDragOver,areaDragLeave,areaDrop,moveTask,showMovePop,closeMovePop,noteDragStart,noteDragEnd,projItemDragStart,projItemDragEnd,projDragOver,projDragLeave,projDrop,sm,cm,mNewP,cP,mEditP,sPn,dP,mNewA,cA,mEditA,sA,dA,mNewT,cT,mSetKey,saveKey,delKey,addAssigneeForTask,fmtCmd,fmtTaskCmd,toggleTaskExpand,insertChecklist,clickCheckBox,aiKeyDown,clearAI,sendAI,xCSV,xJSON,mBackup,doBackupNow,restoreBackup,exportFullBackup,importFullBackup,doSignOut,toggleSB,closeMobileSB,pickColor,fmtNoteCmd,setCanvasTool,setCanvasColor,setCanvasPenSize,toggleCanvasTouch,canvasUndo,canvasClear,toggleNoteCanvas,startCanvasResize,gcalPrev,gcalNext,gcalGoToday,setCalView,gcalDoSignIn,gcalDoSignOut,loadCalEvents,mGcalConfig,saveGcalConfig,delGcalConfig,mNewEvent,mNewEventOnDay,mEditEvent,toggleAllDay,saveEvent,deleteEvent,mDayEvents,syncTaskToCal,unsyncTaskFromCal});
 
 // ===== AUTH =====
 let appStarted=false;
