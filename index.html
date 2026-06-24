@@ -503,6 +503,7 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 /* Mobile burger */
 .mb-burger{display:none;position:fixed;top:14px;right:14px;z-index:50;width:36px;height:36px;border-radius:5px;background:var(--panel);border:.5px solid var(--rule2);align-items:center;justify-content:center;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.06)}
 .mb-burger svg{width:18px;height:18px;color:var(--ink)}
+#bottomnav{display:none}
 
 @media(max-width:900px){
   #sb{position:fixed;top:0;right:0;height:100vh;z-index:40;transform:translateX(110%);transition:transform .25s ease;border-left:.5px solid var(--rule2);box-shadow:-2px 0 10px rgba(0,0,0,.05)}
@@ -525,6 +526,15 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
   .tr{grid-template-columns:22px 1fr auto;gap:8px;padding:9px 12px}
   .tr-status-cell,.tr-priority-cell,.tr-due-cell,.tr-more{display:none}
   .tr-mobi-meta{display:flex;gap:5px;align-items:center;flex-wrap:wrap;font-size:11px;color:var(--ink2);margin-top:4px}
+  .mb-burger{display:none!important}
+  .mn-h-row{flex-wrap:wrap;gap:10px}
+  .mn-h-actions{flex-wrap:wrap}
+  #mn{padding-bottom:calc(56px + env(safe-area-inset-bottom))}
+  #bottomnav{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:45;background:var(--panel);border-top:.5px solid var(--rule);box-shadow:0 -2px 10px rgba(0,0,0,.06);padding-bottom:env(safe-area-inset-bottom)}
+  .bn-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 2px 6px;background:none;border:none;color:var(--ink3);font-size:10px;font-weight:500;cursor:pointer}
+  .bn-item.act{color:var(--accent)}
+  .bn-ic{display:flex}
+  .bn-ic svg{width:21px;height:21px}
 }
 @media(min-width:901px){.tr-mobi-meta{display:none}}
 #auth-gate{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:24px}
@@ -559,6 +569,7 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
   <aside id="sb"></aside>
   <main id="mn"><div class="empty-st">מתחבר לענן...</div></main>
 </div>
+<nav id="bottomnav"></nav>
 <div id="mr"></div>
 
 <script type="module">
@@ -783,7 +794,19 @@ function getApiKey(){return localStorage.getItem('anthropic_api_key')||'';}
 function setApiKey(k){localStorage.setItem('anthropic_api_key',k);}
 
 // ===== RENDER =====
-function render(){TODAY=new Date().toISOString().split('T')[0];rSidebar();rMain();rDetail();}
+function render(){TODAY=new Date().toISOString().split('T')[0];rSidebar();rMain();rDetail();rBottomNav();}
+function rBottomNav(){
+  const el=document.getElementById('bottomnav');if(!el)return;
+  const menuIc='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>';
+  const items=[
+    {id:'dashboard',ic:IC.inbox,lbl:'מבט-על'},
+    {id:'today',ic:IC.bolt,lbl:'היום'},
+    {id:'calendar',ic:IC.cal,lbl:'יומן'},
+    {id:'notes',ic:IC.note,lbl:'פתקים'}
+  ];
+  const btns=items.map(n=>'<button class="bn-item'+(S.view===n.id&&!S.apid?' act':'')+'" onclick="selView(\''+n.id+'\')"><span class="bn-ic">'+n.ic+'</span>'+n.lbl+'</button>').join('');
+  el.innerHTML=btns+'<button class="bn-item" onclick="toggleSB()"><span class="bn-ic">'+menuIc+'</span>תפריט</button>';
+}
 
 // ----- Sidebar -----
 function rSidebar(){
@@ -857,7 +880,7 @@ function rSidebar(){
     <div class="sb-foot">
       <span class="dot${syncOk?'':' off'}" id="sdot" title="${syncOk?'מסונכרן':'לא מחובר'}"></span>
       <span class="lbl">${syncOk?'מסונכרן':'לא מחובר'}</span>
-      <span class="ver">v19</span>
+      <span class="ver">v20</span>
       <button class="sb-btn" style="margin-right:auto;padding:2px 9px;font-size:11px" onclick="doSignOut()">יציאה</button>
     </div>
   `;
