@@ -502,6 +502,15 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 .cal-more:hover{color:var(--ink)}
 .cal-nav{display:flex;align-items:center;gap:2px}
 .cal-nav .btn-ghost{padding:6px 9px;font-size:13px;line-height:1}
+.cal-split{flex:1;display:flex;min-height:0;overflow:hidden}
+.cal-split-main{flex:2;min-width:0;display:flex;flex-direction:column;overflow:hidden}
+.cal-chat{flex:1;min-width:300px;max-width:400px;display:flex;flex-direction:column;border-inline-start:.5px solid var(--rule);background:var(--panel);min-height:0}
+.cal-chat-h{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-bottom:.5px solid var(--rule);font-size:13px;font-weight:600;color:var(--ink);flex-shrink:0}
+@media(max-width:900px){
+  .cal-split{flex-direction:column}
+  .cal-split-main{flex:2}
+  .cal-chat{flex:1;max-width:none;min-width:0;border-inline-start:none;border-top:.5px solid var(--rule)}
+}
 .cal-views{display:inline-flex;border:.5px solid var(--rule);border-radius:6px;overflow:hidden}
 .cal-vbtn{font-size:12px;padding:5px 11px;background:var(--panel);color:var(--ink2);border:none;border-inline-start:.5px solid var(--rule);cursor:pointer}
 .cal-vbtn:first-child{border-inline-start:none}
@@ -637,6 +646,7 @@ let TODAY=new Date().toISOString().split('T')[0];
 // Calendar state
 let calCursor=new Date();
 let calView='month'; // month | week | day
+let calChatOpen=false; // docked planning chat next to the calendar
 let archViewOpen=false;
 let calEvents=[];
 let filterEvents=[],filterEvtKey=null,filterEvtLoading=false; // calendar events for the היום/השבוע tabs
@@ -902,7 +912,7 @@ function rSidebar(){
     <div class="sb-foot">
       <span class="dot${syncOk?'':' off'}" id="sdot" title="${syncOk?'מסונכרן':'לא מחובר'}"></span>
       <span class="lbl">${syncOk?'מסונכרן':'לא מחובר'}</span>
-      <span class="ver">v26</span>
+      <span class="ver">v27</span>
       <button class="sb-btn" style="margin-right:auto;padding:2px 9px;font-size:11px" onclick="doSignOut()">יציאה</button>
     </div>
   `;
@@ -1985,7 +1995,7 @@ function renderCalendar(mn){
           <button class="btn-ghost" onclick="gcalNext()" title="הבא">‹</button>
         </div>
         <button class="btn-ghost" onclick="loadCalEvents()" title="רענן">↻</button>
-        <button class="btn-ghost" onclick="selView('ai')" title="צ'אט AI — הוסף/ערוך אירועים בשפה חופשית">💬</button>
+        <button class="btn-ghost${calChatOpen?' on':''}" onclick="toggleCalChat()" title="צ'אט תכנון מול הלוח">💬</button>
         <button class="btn-primary" onclick="mNewEvent()">${IC.plus} אירוע</button>
         <button class="btn-ghost" onclick="mGcalConfig()" title="הגדרות">⚙</button>`:`
         <button class="btn-primary" onclick="gcalDoSignIn()">התחבר ל-Google</button>
@@ -1993,7 +2003,8 @@ function renderCalendar(mn){
   let inner;
   if(!signedIn)inner=`<div class="ai-no-key"><div style="font-size:32px">🔗</div><p>התחבר ל-Google כדי לצפות באירועי היומן, להוסיף ולערוך אותם מכאן.<br>הגישה מבוקשת ל-Google Calendar בלבד.</p><button class="btn-primary" onclick="gcalDoSignIn()">התחבר ל-Google Calendar</button></div>`;
   else inner=calView==='week'?calWeekBody():calView==='day'?calDayBody():calMonthBody();
-  const body=signedIn?`<div class="cal-wrap">${inner}</div>`:inner;
+  const calArea=signedIn?`<div class="cal-wrap">${inner}</div>`:inner;
+  const body=(signedIn&&calChatOpen)?`<div class="cal-split"><div class="cal-split-main">${calArea}</div>${calChatPanelHtml()}</div>`:calArea;
   mn.innerHTML=`
     <header class="mn-h">
       <div class="mn-h-row">
@@ -2005,7 +2016,20 @@ function renderCalendar(mn){
       </div>
     </header>
     ${body}`;
+  if(signedIn&&calChatOpen)setTimeout(()=>{const el=document.getElementById('ai-msgs');if(el)el.scrollTop=el.scrollHeight;},10);
 }
+function calChatPanelHtml(){
+  if(!getApiKey())
+    return `<div class="cal-chat"><div class="cal-chat-h"><span>💬 עזר בינה</span><button class="btn-ghost" onclick="toggleCalChat()" title="סגור">✕</button></div><div class="ai-no-key" style="padding:24px 16px"><div style="font-size:28px">🔑</div><p>הגדר מפתח Anthropic API כדי לתכנן עם הצ'אט.</p><button class="btn-primary" onclick="mSetKey()">הגדר מפתח</button></div></div>`;
+  const msgs=aiMsgs.map(m=>`<div class="ai-msg ${m.role==='user'?'user':'ai'}${m.loading?' loading':''}">${esc(m.content)}</div>`).join('');
+  const welcome=aiMsgs.length===0?`<div class="ai-welcome">תכנן מול הלוח — לדוגמה:<br>"כל יום שני תזכורת לשלוח דוח מיצובישי"<br>"קבע פגישה עם דני מחר ב-10:00 בצבע אדום"</div>`:'';
+  return `<div class="cal-chat">
+    <div class="cal-chat-h"><span>💬 עזר בינה</span><div style="display:flex;gap:4px"><button class="btn-ghost" style="font-size:11px;padding:3px 8px" onclick="clearAI()" title="נקה">נקה</button><button class="btn-ghost" style="font-size:13px;padding:3px 8px" onclick="toggleCalChat()" title="סגור">✕</button></div></div>
+    <div class="ai-msgs" id="ai-msgs">${welcome}${msgs}</div>
+    <div class="ai-foot"><textarea class="ai-text" id="ai-input" placeholder="מה לתכנן? (Enter לשליחה)" onkeydown="aiKeyDown(event)"></textarea><button class="btn-accent" id="ai-send-btn" onclick="sendAI()">שלח</button></div>
+  </div>`;
+}
+function toggleCalChat(){calChatOpen=!calChatOpen;render();}
 
 function gcalStep(dir){
   const c=calCursor;
@@ -2875,7 +2899,7 @@ function toggleSB(){document.getElementById('sb').classList.toggle('open');}
 function closeMobileSB(){document.getElementById('sb').classList.remove('open');}
 
 // ===== EXPOSE =====
-Object.assign(window,{selView,selP,selA,selectTask,closeDetail,toggleDone,updTask,updTaskField,dTask,setFilterStatus,setGrouping,toggleCollapse,clearDoneInProject,onSearchInput,addNote,toggleNoteDone,dNote,updNote,toggleNoteExpand,updNoteContent,dragStart,dragEnd,areaDragOver,areaDragLeave,areaDrop,moveTask,showMovePop,closeMovePop,noteDragStart,noteDragEnd,projItemDragStart,projItemDragEnd,projDragOver,projDragLeave,projDrop,sm,cm,mNewP,cP,mEditP,sPn,dP,archiveProject,unarchiveProject,toggleArchView,mNewA,cA,mEditA,sA,dA,mNewT,cT,mSetKey,saveKey,delKey,addAssigneeForTask,fmtCmd,fmtTaskCmd,toggleTaskExpand,insertChecklist,clickCheckBox,aiKeyDown,clearAI,sendAI,xCSV,xJSON,mBackup,doBackupNow,restoreBackup,exportFullBackup,importFullBackup,doSignOut,toggleSB,closeMobileSB,pickColor,fmtNoteCmd,toggleRtPop,cycleCanvasBg,setCanvasTool,setCanvasColor,setCanvasPenSize,toggleCanvasTouch,canvasUndo,canvasClear,toggleNoteCanvas,startCanvasResize,gcalPrev,gcalNext,gcalGoToday,setCalView,gcalDoSignIn,gcalDoSignOut,loadCalEvents,mGcalConfig,saveGcalConfig,delGcalConfig,mNewEvent,mNewEventOnDay,mEditEvent,toggleAllDay,saveEvent,deleteEvent,mDayEvents,syncTaskToCal,unsyncTaskFromCal});
+Object.assign(window,{selView,selP,selA,selectTask,closeDetail,toggleDone,updTask,updTaskField,dTask,setFilterStatus,setGrouping,toggleCollapse,clearDoneInProject,onSearchInput,addNote,toggleNoteDone,dNote,updNote,toggleNoteExpand,updNoteContent,dragStart,dragEnd,areaDragOver,areaDragLeave,areaDrop,moveTask,showMovePop,closeMovePop,noteDragStart,noteDragEnd,projItemDragStart,projItemDragEnd,projDragOver,projDragLeave,projDrop,sm,cm,mNewP,cP,mEditP,sPn,dP,archiveProject,unarchiveProject,toggleArchView,mNewA,cA,mEditA,sA,dA,mNewT,cT,mSetKey,saveKey,delKey,addAssigneeForTask,fmtCmd,fmtTaskCmd,toggleTaskExpand,insertChecklist,clickCheckBox,aiKeyDown,clearAI,sendAI,xCSV,xJSON,mBackup,doBackupNow,restoreBackup,exportFullBackup,importFullBackup,doSignOut,toggleSB,closeMobileSB,pickColor,fmtNoteCmd,toggleRtPop,cycleCanvasBg,setCanvasTool,setCanvasColor,setCanvasPenSize,toggleCanvasTouch,canvasUndo,canvasClear,toggleNoteCanvas,startCanvasResize,gcalPrev,gcalNext,gcalGoToday,setCalView,toggleCalChat,gcalDoSignIn,gcalDoSignOut,loadCalEvents,mGcalConfig,saveGcalConfig,delGcalConfig,mNewEvent,mNewEventOnDay,mEditEvent,toggleAllDay,saveEvent,deleteEvent,mDayEvents,syncTaskToCal,unsyncTaskFromCal});
 
 // ===== AUTH =====
 let appStarted=false;
