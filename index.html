@@ -173,6 +173,15 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 /* Task table */
 .tl-wrap{flex:1;overflow-y:auto;padding:0 22px 22px}
 .tl{background:var(--panel);border:.5px solid var(--rule);border-radius:6px;overflow:hidden}
+.fv-events{background:var(--panel);border:.5px solid var(--rule);border-radius:6px;margin-bottom:14px;overflow:hidden}
+.fv-events-h{font-size:10px;color:var(--ink3);letter-spacing:.1em;font-weight:600;padding:8px 14px;background:var(--rail2);border-bottom:.5px solid var(--rule)}
+.fv-ev{display:flex;align-items:center;gap:9px;width:100%;text-align:start;padding:9px 14px;background:none;border:none;border-bottom:.5px solid var(--rule);cursor:pointer;font-size:13px;color:var(--ink)}
+.fv-ev:last-child{border-bottom:none}
+.fv-ev:hover{background:var(--rail2)}
+.fv-ev-dot{display:inline-block;width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.fv-ev-time{font-family:var(--mono);font-size:12px;color:var(--ink2);min-width:50px;direction:ltr;text-align:start;flex-shrink:0}
+.fv-ev-title{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fv-ev-cal{color:var(--ink3);font-size:11px}
 
 /* Dashboard */
 .dash-body{flex:1;overflow-y:auto;padding:14px 22px 22px}
@@ -630,6 +639,7 @@ let calCursor=new Date();
 let calView='month'; // month | week | day
 let archViewOpen=false;
 let calEvents=[];
+let filterEvents=[],filterEvtKey=null,filterEvtLoading=false; // calendar events for the היום/השבוע tabs
 let calStatus='idle'; // idle|loading|ready|error|signedout
 let calError='';
 let gcalLoadPromise=null, gcalTokenClient=null, gcalAccessToken=null;
@@ -892,7 +902,7 @@ function rSidebar(){
     <div class="sb-foot">
       <span class="dot${syncOk?'':' off'}" id="sdot" title="${syncOk?'מסונכרן':'לא מחובר'}"></span>
       <span class="lbl">${syncOk?'מסונכרן':'לא מחובר'}</span>
-      <span class="ver">v24</span>
+      <span class="ver">v25</span>
       <button class="sb-btn" style="margin-right:auto;padding:2px 9px;font-size:11px" onclick="doSignOut()">יציאה</button>
     </div>
   `;
@@ -916,21 +926,41 @@ function rMain(){
   else if(S.view==='week'){title='השבוע';subtitle='משימות שתאריך היעד שלהן ב-7 הימים הקרובים';tasks=open.filter(x=>x.task.dueDate&&x.task.dueDate>=TODAY&&x.task.dueDate<=wkEnd);}
   else if(S.view==='overdue'){title='באיחור';subtitle='משימות שעבר תאריך היעד שלהן ולא הושלמו';tasks=open.filter(x=>isOverdue(x.task.dueDate));}
   else if(S.view==='urgent'){title='דחוף';subtitle='משימות בעדיפות דחוף שטרם הושלמו';tasks=open.filter(x=>x.task.priority==='דחוף');}
-  rFilterView(mn,title,subtitle,sortTasks(tasks));
+  // היום/השבוע: also pull calendar events (meetings/reminders) for the range
+  let events=[];
+  if(S.view==='today'||S.view==='week'){
+    const endStr=S.view==='today'?TODAY:wkEnd;
+    const key=S.view+':'+TODAY;
+    if(getGcalConfig().clientId&&filterEvtKey!==key&&!filterEvtLoading)
+      loadFilterEvents(key,new Date(TODAY+'T00:00:00'),new Date(endStr+'T23:59:59'));
+    events=filterEvents.filter(ev=>{const sd=ev.start.date||(ev.start.dateTime||'').slice(0,10);return sd>=TODAY&&sd<=endStr;})
+      .sort((a,b)=>{const ta=a.start.dateTime||a.start.date||'',tb=b.start.dateTime||b.start.date||'';return ta.localeCompare(tb);});
+  }
+  rFilterView(mn,title,subtitle,sortTasks(tasks),events);
 }
 
-function rFilterView(mn,title,subtitle,tasks){
+function rFilterView(mn,title,subtitle,tasks,events){
+  events=events||[];
   const tasksHtml=tasks.length?tasks.map(x=>renderTaskRow(x.task,x.area.name,x.proj,true)).join(''):'<div class="empty-st">אין משימות להצגה</div>';
+  const evHtml=events.length?'<div class="fv-events"><div class="fv-events-h">📅 אירועי יומן ('+events.length+')</div>'+events.map(ev=>{
+    const allDay=!!ev.start.date;
+    const dstr=ev.start.date||(ev.start.dateTime||'').slice(0,10);
+    const dayLbl=(S.view==='week'&&dstr!==TODAY)?(fmtDate(dstr)+' · '):'';
+    const time=allDay?'כל היום':(ev.start.dateTime?new Date(ev.start.dateTime).toTimeString().slice(0,5):'');
+    const dot=ev._color?'<span class="fv-ev-dot" style="background:'+esc(ev._color)+'"></span>':'';
+    return '<button class="fv-ev" onclick="mEditEvent(\''+esc(ev.id)+'\',\''+esc(ev._calId||'')+'\')">'+dot+'<span class="fv-ev-time">'+esc(dayLbl+time)+'</span><span class="fv-ev-title">'+esc(ev.summary||'(ללא כותרת)')+(ev._calName?'<span class="fv-ev-cal"> · '+esc(ev._calName)+'</span>':'')+'</span></button>';
+  }).join('')+'</div>':'';
   mn.innerHTML=`
     <header class="mn-h">
       <div class="mn-h-row">
         <div class="mn-h-l">
           <h1>${esc(title)}</h1>
-          <div class="mn-h-meta"><span>${esc(subtitle)}</span><span style="color:var(--ink3)">·</span><span>${tasks.length} משימות</span></div>
+          <div class="mn-h-meta"><span>${esc(subtitle)}</span><span style="color:var(--ink3)">·</span><span>${tasks.length} משימות${events.length?' · '+events.length+' אירועים':''}</span></div>
         </div>
       </div>
     </header>
     <div class="tl-wrap">
+      ${evHtml}
       <div class="tl">
         <div class="tl-head"><div></div><div>משימה</div><div>עדיפות</div><div>סטטוס</div><div>יעד</div><div></div></div>
         ${tasksHtml}
@@ -1817,6 +1847,27 @@ async function loadCalEvents(){
   if(S.view==='calendar')renderCalendar(document.getElementById('mn'));
 }
 
+// Load calendar events for the היום/השבוע tabs (separate from the calendar view's range)
+async function loadFilterEvents(key,timeMin,timeMax){
+  if(filterEvtLoading)return;
+  filterEvtLoading=true;
+  try{
+    await gcalInit();
+    if(!gcalAccessToken){filterEvents=[];filterEvtKey=key;filterEvtLoading=false;return;}
+    const lst=await gapi.client.calendar.calendarList.list({maxResults:250});
+    const cals=lst.result.items||[];
+    const per=await Promise.all(cals.map(async c=>{
+      try{const evs=await gcalListEvents(c.id,timeMin,timeMax);
+        const writable=c.id===gcalCachedCalendarId||c.accessRole==='owner'||c.accessRole==='writer';
+        return evs.map(ev=>{ev._calId=c.id;ev._calName=c.summaryOverride||c.summary||'';ev._color=c.backgroundColor||'';ev._writable=writable;return ev;});
+      }catch(_){return [];}
+    }));
+    filterEvents=per.flat().filter(ev=>ev.start&&(ev.start.date||ev.start.dateTime));
+    filterEvtKey=key;
+  }catch(e){filterEvents=[];filterEvtKey=key;}
+  filterEvtLoading=false;
+  if(S.view==='today'||S.view==='week')rMain();
+}
 function rCalendar(mn){
   const cfg=getGcalConfig();
   if(!cfg.clientId||!cfg.apiKey){
@@ -2024,7 +2075,7 @@ function mNewEventOnDay(dateStr){
   sm(eventModalHtml(null,{summary:'',description:'',start:dateStr+'T09:00',end:dateStr+'T10:00',allDay:false}));
 }
 function mEditEvent(id,calId){
-  const ev=calEvents.find(e=>e.id===id&&(!calId||e._calId===calId));if(!ev)return;
+  const ev=calEvents.find(e=>e.id===id&&(!calId||e._calId===calId))||filterEvents.find(e=>e.id===id&&(!calId||e._calId===calId));if(!ev)return;
   const allDay=!!ev.start.date;
   let start,end;
   if(allDay){
