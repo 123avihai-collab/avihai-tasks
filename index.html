@@ -912,7 +912,7 @@ function rSidebar(){
     <div class="sb-foot">
       <span class="dot${syncOk?'':' off'}" id="sdot" title="${syncOk?'מסונכרן':'לא מחובר'}"></span>
       <span class="lbl">${syncOk?'מסונכרן':'לא מחובר'}</span>
-      <span class="ver">v27</span>
+      <span class="ver">v28</span>
       <button class="sb-btn" style="margin-right:auto;padding:2px 9px;font-size:11px" onclick="doSignOut()">יציאה</button>
     </div>
   `;
@@ -936,6 +936,8 @@ function rMain(){
   else if(S.view==='week'){title='השבוע';subtitle='משימות שתאריך היעד שלהן ב-7 הימים הקרובים';tasks=open.filter(x=>x.task.dueDate&&x.task.dueDate>=TODAY&&x.task.dueDate<=wkEnd);}
   else if(S.view==='overdue'){title='באיחור';subtitle='משימות שעבר תאריך היעד שלהן ולא הושלמו';tasks=open.filter(x=>isOverdue(x.task.dueDate));}
   else if(S.view==='urgent'){title='דחוף';subtitle='משימות בעדיפות דחוף שטרם הושלמו';tasks=open.filter(x=>x.task.priority==='דחוף');}
+  else if(S.view==='active'){title='משימות פעילות';subtitle='כל המשימות שטרם הושלמו בכל הפרויקטים';tasks=open;}
+  else if(S.view==='done'){title='הושלמו';subtitle='משימות שהושלמו בכל הפרויקטים';tasks=all.filter(x=>x.task.status==='הושלם');}
   // היום/השבוע: also pull calendar events (meetings/reminders) for the range
   let events=[];
   if(S.view==='today'||S.view==='week'){
@@ -1052,8 +1054,8 @@ function rDashboard(mn){
       <button class="kpi kpi-btn ${urgent.length?'acc-r':''}" onclick="selView('urgent')"><div class="kpi-l">דחופות</div><div class="kpi-row"><div class="kpi-v">${urgent.length}</div></div></button>
       <button class="kpi kpi-btn ${overdue.length?'acc-a':''}" onclick="selView('overdue')"><div class="kpi-l">באיחור</div><div class="kpi-row"><div class="kpi-v">${overdue.length}</div></div></button>
       <button class="kpi kpi-btn" onclick="selView('week')"><div class="kpi-l">השבוע</div><div class="kpi-row"><div class="kpi-v">${week.length}</div></div></button>
-      <div class="kpi"><div class="kpi-l">פעילות</div><div class="kpi-row"><div class="kpi-v">${open.length}</div><div class="kpi-s">מתוך ${all.length}</div></div></div>
-      <div class="kpi acc-g"><div class="kpi-l">הושלמו</div><div class="kpi-row"><div class="kpi-v">${done.length}</div></div></div>
+      <button class="kpi kpi-btn" onclick="selView('active')"><div class="kpi-l">פעילות</div><div class="kpi-row"><div class="kpi-v">${open.length}</div><div class="kpi-s">מתוך ${all.length}</div></div></button>
+      <button class="kpi kpi-btn acc-g" onclick="selView('done')"><div class="kpi-l">הושלמו</div><div class="kpi-row"><div class="kpi-v">${done.length}</div></div></button>
     </div>
 
     <div class="dash-body">
