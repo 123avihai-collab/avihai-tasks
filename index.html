@@ -902,7 +902,7 @@ function rSidebar(){
     <div class="sb-foot">
       <span class="dot${syncOk?'':' off'}" id="sdot" title="${syncOk?'מסונכרן':'לא מחובר'}"></span>
       <span class="lbl">${syncOk?'מסונכרן':'לא מחובר'}</span>
-      <span class="ver">v25</span>
+      <span class="ver">v26</span>
       <button class="sb-btn" style="margin-right:auto;padding:2px 9px;font-size:11px" onclick="doSignOut()">יציאה</button>
     </div>
   `;
@@ -1985,6 +1985,7 @@ function renderCalendar(mn){
           <button class="btn-ghost" onclick="gcalNext()" title="הבא">‹</button>
         </div>
         <button class="btn-ghost" onclick="loadCalEvents()" title="רענן">↻</button>
+        <button class="btn-ghost" onclick="selView('ai')" title="צ'אט AI — הוסף/ערוך אירועים בשפה חופשית">💬</button>
         <button class="btn-primary" onclick="mNewEvent()">${IC.plus} אירוע</button>
         <button class="btn-ghost" onclick="mGcalConfig()" title="הגדרות">⚙</button>`:`
         <button class="btn-primary" onclick="gcalDoSignIn()">התחבר ל-Google</button>
@@ -2205,7 +2206,7 @@ async function _unsyncTaskCore(task){
   task.inCal=false;
 }
 
-async function _createCalEventCore({title,date,time,durationMinutes,description}){
+async function _createCalEventCore({title,date,time,durationMinutes,description,recurrence,colorId,reminderMinutes}){
   if(!date)throw new Error('NO_DATE');
   await gcalInit();
   if(!gcalAccessToken)await gcalSignIn();
@@ -2222,6 +2223,9 @@ async function _createCalEventCore({title,date,time,durationMinutes,description}
     const next=new Date(Date.UTC(p[0],p[1]-1,p[2]+1));
     body.end={date:next.getUTCFullYear()+'-'+String(next.getUTCMonth()+1).padStart(2,'0')+'-'+String(next.getUTCDate()).padStart(2,'0')};
   }
+  if(recurrence){body.recurrence=['RRULE:'+String(recurrence).replace(/^RRULE:/i,'')];}
+  if(colorId)body.colorId=String(colorId);
+  if(reminderMinutes!==undefined&&reminderMinutes!==null&&reminderMinutes!=='')body.reminders={useDefault:false,overrides:[{method:'popup',minutes:parseInt(reminderMinutes)||0}]};
   const calId=await ensureTasksCalendar();
   return await gcalCreateEvent(calId,body);
 }
@@ -2690,8 +2694,11 @@ status: פתוח/בביצוע/תלוי/הושלם.
 <ACTION>{"type":"unsync_task_from_cal","project":"שם","taskTitle":"כותרת"}</ACTION>
 
 יצירת אירוע יומן ישיר (לא קשור למשימה — לפגישה, תזכורת וכו'):
-<ACTION>{"type":"create_event","title":"שם אירוע","date":"YYYY-MM-DD","time":"HH:MM","durationMinutes":60,"description":""}</ACTION>
-time ו-durationMinutes אופציונליים — בלי time = יום שלם.
+<ACTION>{"type":"create_event","title":"שם אירוע","date":"YYYY-MM-DD","time":"HH:MM","durationMinutes":60,"description":"","recurrence":"","colorId":"","reminderMinutes":""}</ACTION>
+- time ו-durationMinutes אופציונליים — בלי time = יום שלם.
+- recurrence (אופציונלי) = חוק RRULE לאירוע חוזר. דוגמאות: כל יום שני "FREQ=WEEKLY;BYDAY=MO" · כל יום "FREQ=DAILY" · כל חודש "FREQ=MONTHLY" · עם תאריך סיום "FREQ=WEEKLY;BYDAY=MO;UNTIL=20261231". ה-date הוא תאריך המופע הראשון. אתה כן יכול ליצור אירועים חוזרים — אל תסרב.
+- colorId (אופציונלי) = צבע 1-11: 11=אדום 6=כתום 5=צהוב 10=ירוק 7=טורקיז 9=כחול 3=סגול 4=ורוד 8=אפור.
+- reminderMinutes (אופציונלי) = דקות לפני לקבלת תזכורת (0=בזמן האירוע). תזכורת חוזרת = recurrence יחד עם reminderMinutes.
 
 פרויקט חדש (נוצר עם תחומים: כללי, ביצוע, הזמנות רכש, חשבונות):
 <ACTION>{"type":"add_project","name":"שם"}</ACTION>
