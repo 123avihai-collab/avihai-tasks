@@ -892,7 +892,7 @@ function rSidebar(){
     <div class="sb-foot">
       <span class="dot${syncOk?'':' off'}" id="sdot" title="${syncOk?'מסונכרן':'לא מחובר'}"></span>
       <span class="lbl">${syncOk?'מסונכרן':'לא מחובר'}</span>
-      <span class="ver">v23</span>
+      <span class="ver">v24</span>
       <button class="sb-btn" style="margin-right:auto;padding:2px 9px;font-size:11px" onclick="doSignOut()">יציאה</button>
     </div>
   `;
@@ -1447,7 +1447,7 @@ function rNotes(mn){
   `;
   setTimeout(()=>{
     const i=document.getElementById('new-note');
-    if(window.innerWidth>900&&i&&!(document.activeElement&&/INPUT|TEXTAREA/.test(document.activeElement.tagName)))i.focus();
+    if(!matchMedia('(pointer:coarse)').matches&&i&&!(document.activeElement&&/INPUT|TEXTAREA/.test(document.activeElement.tagName)))i.focus();
     mountAllCanvases();
   },10);
 }
