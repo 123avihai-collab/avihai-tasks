@@ -197,12 +197,14 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 .sec-head .ic-add:hover{color:var(--ink);background:var(--rail)}
 .sec-head[ondragover]{transition:background .12s}
 .sec-head.drop-target{background:var(--greenSoft);color:var(--green)}
-.tr{display:grid;grid-template-columns:22px 1fr 100px 100px 70px 24px;align-items:center;padding:var(--row-pad-y) 16px;gap:14px;border-bottom:.5px solid var(--rule);background:var(--panel);cursor:pointer}
+.tr{display:grid;grid-template-columns:22px 1fr 100px 100px 70px 24px;align-items:center;padding:var(--row-pad-y) 16px;gap:14px;border-bottom:.5px solid var(--rule);border-inline-start:3px solid var(--proj-hex,transparent);background:var(--proj-soft,var(--panel));cursor:pointer}
 .tr:hover{background:var(--rail2)}
 .tr.sel{background:var(--accentSoft)}
 .tr.done{opacity:.55}
-.tr-title-wrap{display:flex;align-items:center;gap:10px;min-width:0}
-.tr-title{font-size:13.5px;font-weight:500;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:1;min-width:0}
+.tr-title-wrap{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0}
+.tr-title{font-size:13.5px;font-weight:500;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.tr-meta-chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.tr-projchip{font-size:10.5px;padding:1px 8px;border-radius:99px;font-weight:600;white-space:nowrap}
 .tr.done .tr-title{text-decoration:line-through}
 .imp-tag{font-size:10px;font-weight:600;color:var(--amber);padding:1px 5px;border:.5px solid var(--amber);border-radius:2px;flex-shrink:0;letter-spacing:.04em}
 .tr-area,.tr-proj{font-size:11px;color:var(--ink3);flex-shrink:0;white-space:nowrap}
@@ -474,6 +476,8 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 .cal-day:hover{background:var(--rail2)}
 .cal-day.other{background:var(--rail);color:var(--ink3)}
 .cal-day.other .cal-d-num{color:var(--ink3)}
+.cal-day.weekend{background:rgba(214,106,31,.085)}
+.cal-day.weekend.today{background:rgba(214,106,31,.085)}
 .cal-d-num{font-size:11px;color:var(--ink2);font-family:var(--mono);text-align:left;direction:ltr;padding:1px 3px;align-self:flex-start}
 .cal-day.today .cal-d-num{background:var(--accent);color:#fff;border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-weight:600;padding:0}
 .cal-ev{font-size:10.5px;padding:2px 5px;background:var(--accentSoft);color:var(--accent);border-radius:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;border:.5px solid transparent;line-height:1.35}
@@ -880,7 +884,7 @@ function rSidebar(){
     <div class="sb-foot">
       <span class="dot${syncOk?'':' off'}" id="sdot" title="${syncOk?'מסונכרן':'לא מחובר'}"></span>
       <span class="lbl">${syncOk?'מסונכרן':'לא מחובר'}</span>
-      <span class="ver">v20</span>
+      <span class="ver">v21</span>
       <button class="sb-btn" style="margin-right:auto;padding:2px 9px;font-size:11px" onclick="doSignOut()">יציאה</button>
     </div>
   `;
@@ -1180,20 +1184,22 @@ function renderTaskRow(t,areaName,proj,showProj){
   if(t.priority==='דחוף')priorityHtml='<span class="chip-pr p-r"><span class="chip-pr-dot"></span>דחוף</span>';
   else if(t.priority==='בינוני')priorityHtml='<span class="chip-pr p-a"><span class="chip-pr-dot"></span>בינוני</span>';
   else if(t.priority==='נמוך')priorityHtml='<span class="chip-pr p-l"><span class="chip-pr-dot"></span>נמוך</span>';
+  const col=proj?projColor(proj):null;
   const mobiMeta='<div class="tr-mobi-meta">'+
     (t.priority?priorityHtml:'')+
     '<span class="chip-st '+statusCls+'">'+esc(statusLbl)+'</span>'+
     (t.dueDate?'<span class="tr-due '+(od?'od':'')+'">'+esc(due)+(od?' !':'')+'</span>':'')+
-    (areaName?'<span class="tr-area">· '+esc(areaName)+'</span>':'')+
     '</div>';
-  const row=`<div class="tr ${isDone?'done':''} ${sel}" data-task-id="${t.id}" draggable="true" ondragstart="dragStart('${t.id}',event)" ondragend="dragEnd(event)" onclick="if(!event.target.closest('button,input,select,.cl-box'))toggleTaskExpand('${t.id}')">
+  const row=`<div class="tr ${isDone?'done':''} ${sel}" style="${col?'--proj-soft:'+col.soft+';--proj-hex:'+col.hex:''}" data-task-id="${t.id}" draggable="true" ondragstart="dragStart('${t.id}',event)" ondragend="dragEnd(event)" onclick="if(!event.target.closest('button,input,select,.cl-box'))toggleTaskExpand('${t.id}')">
     <button class="cb ${isDone?'done':''}" onclick="toggleDone('${t.id}')" title="${isDone?'בטל סימון':'סמן כהושלם'}"></button>
     <div class="tr-title-wrap">
       <span class="tr-title">${esc(t.title)}</span>
-      ${t.importance==='גבוהה'?'<span class="imp-tag">חשוב</span>':''}
-      ${t.assigned?'<span class="chip-as">'+esc(t.assigned)+'</span>':''}
-      ${areaName?'<span class="tr-area">· '+esc(areaName)+'</span>':''}
-      ${showProj&&proj?'<span class="tr-proj">· '+esc(proj.name)+'</span>':''}
+      <div class="tr-meta-chips">
+        ${t.importance==='גבוהה'?'<span class="imp-tag">חשוב</span>':''}
+        ${t.assigned?'<span class="chip-as">'+esc(t.assigned)+'</span>':''}
+        ${areaName?'<span class="tr-area">'+esc(areaName)+'</span>':''}
+        ${showProj&&proj?'<span class="tr-projchip" style="background:'+col.soft+';color:'+col.hex+'">'+esc(proj.name)+'</span>':''}
+      </div>
       ${mobiMeta}
     </div>
     <div class="tr-priority-cell">${priorityHtml}</div>
@@ -1433,7 +1439,7 @@ function rNotes(mn){
   `;
   setTimeout(()=>{
     const i=document.getElementById('new-note');
-    if(i&&!document.activeElement.tagName.match(/INPUT|TEXTAREA/))i.focus();
+    if(window.innerWidth>900&&i&&!(document.activeElement&&/INPUT|TEXTAREA/.test(document.activeElement.tagName)))i.focus();
     mountAllCanvases();
   },10);
 }
@@ -1500,7 +1506,7 @@ function mountNoteCanvas(canvas,note){
   setupSize(false);
 
   // Watch for container resize (handle drag)
-  const ro=new ResizeObserver(()=>setupSize(true));
+  const ro=new ResizeObserver(()=>{if(!drawing)setupSize(true);});
   ro.observe(wrap);
 
   function snapshot(){
@@ -1874,7 +1880,7 @@ function calMonthBody(){
     const evs=calEventsForDay(ds);
     const chips=evs.slice(0,3).map(calEvChip).join('');
     const more=evs.length>3?`<div class="cal-more" onclick="event.stopPropagation();mDayEvents('${ds}')">+ ${evs.length-3} נוספים</div>`:'';
-    cells.push(`<div class="cal-day${isOther?' other':''}${isToday?' today':''}" onclick="mNewEventOnDay('${ds}')"><div class="cal-d-num">${d.getDate()}</div>${chips}${more}</div>`);
+    cells.push(`<div class="cal-day${isOther?' other':''}${isToday?' today':''}${(d.getDay()===5||d.getDay()===6)?' weekend':''}" onclick="mNewEventOnDay('${ds}')"><div class="cal-d-num">${d.getDate()}</div>${chips}${more}</div>`);
   }
   const weekHdr=CAL_WD.map(w=>`<div class="cal-wd">${w}</div>`).join('');
   return `<div class="cal-grid"><div class="cal-wd-row">${weekHdr}</div><div class="cal-days">${cells.join('')}</div></div>`;
@@ -1888,7 +1894,7 @@ function calWeekBody(){
     hdr.push(`<div class="cal-wd">${CAL_WD[i]} <span style="color:var(--ink3)">${d.getDate()}/${d.getMonth()+1}</span></div>`);
     const evs=calEventsForDay(ds);
     const chips=evs.map(calEvChip).join('')||'<div style="font-size:10px;color:var(--ink3);padding:4px">—</div>';
-    cols.push(`<div class="cal-day cal-weekcol${isToday?' today':''}" onclick="mNewEventOnDay('${ds}')">${chips}</div>`);
+    cols.push(`<div class="cal-day cal-weekcol${isToday?' today':''}${(d.getDay()===5||d.getDay()===6)?' weekend':''}" onclick="mNewEventOnDay('${ds}')">${chips}</div>`);
   }
   return `<div class="cal-grid"><div class="cal-wd-row">${hdr.join('')}</div><div class="cal-days cal-weekdays">${cols.join('')}</div></div>`;
 }
