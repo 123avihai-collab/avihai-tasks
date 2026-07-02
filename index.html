@@ -912,7 +912,7 @@ function rSidebar(){
     <div class="sb-foot">
       <span class="dot${syncOk?'':' off'}" id="sdot" title="${syncOk?'מסונכרן':'לא מחובר'}"></span>
       <span class="lbl">${syncOk?'מסונכרן':'לא מחובר'}</span>
-      <span class="ver">v29</span>
+      <span class="ver">v30</span>
       <button class="sb-btn" style="margin-right:auto;padding:2px 9px;font-size:11px" onclick="doSignOut()">יציאה</button>
     </div>
   `;
@@ -2236,13 +2236,14 @@ async function _createCalEventCore({title,date,time,durationMinutes,description,
   if(!date)throw new Error('NO_DATE');
   await gcalInit();
   if(!gcalAccessToken)await gcalSignIn();
+  let tz='Asia/Jerusalem';try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||tz;}catch(_){}
   const body={summary:title||'(ללא כותרת)',description:description||''};
   if(time&&/^\d{2}:\d{2}$/.test(time)){
     const start=new Date(date+'T'+time+':00');
     const dur=parseInt(durationMinutes)||60;
     const end=new Date(start.getTime()+dur*60000);
-    body.start={dateTime:start.toISOString()};
-    body.end={dateTime:end.toISOString()};
+    body.start={dateTime:start.toISOString(),timeZone:tz};
+    body.end={dateTime:end.toISOString(),timeZone:tz};
   }else{
     body.start={date:date};
     const p=date.split('-').map(Number);
