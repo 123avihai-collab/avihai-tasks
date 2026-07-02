@@ -912,7 +912,7 @@ function rSidebar(){
     <div class="sb-foot">
       <span class="dot${syncOk?'':' off'}" id="sdot" title="${syncOk?'מסונכרן':'לא מחובר'}"></span>
       <span class="lbl">${syncOk?'מסונכרן':'לא מחובר'}</span>
-      <span class="ver">v28</span>
+      <span class="ver">v29</span>
       <button class="sb-btn" style="margin-right:auto;padding:2px 9px;font-size:11px" onclick="doSignOut()">יציאה</button>
     </div>
   `;
@@ -2677,14 +2677,28 @@ async function sendAI(){
   const tomorrowStr=tomorrow.getFullYear()+'-'+String(tomorrow.getMonth()+1).padStart(2,'0')+'-'+String(tomorrow.getDate()).padStart(2,'0');
   const dateHint=`\nכאשר המשתמש מזכיר תאריכים יחסיים השתמש בערכים האלה לשדה dueDate:\n- "היום" → ${TODAY}\n- "מחר" → ${tomorrowStr}\n- "השבוע" / "השבוע הבא" / "בעוד שבוע" → חשב מתאריך היום.\nתאריך הוא תמיד בפורמט YYYY-MM-DD.\n`;
 
+  let calEventsSummary='';
+  try{
+    if(getGcalConfig().clientId){
+      await gcalInit();
+      if(gcalAccessToken){
+        const tmin=new Date(TODAY+'T00:00:00'),tmax=new Date(new Date(TODAY+'T00:00:00').getTime()+14*86400000);
+        const _l=await gapi.client.calendar.calendarList.list({maxResults:250});
+        const _p=await Promise.all((_l.result.items||[]).map(async c=>{try{return await gcalListEvents(c.id,tmin,tmax);}catch(_){return[];}}));
+        const _e=_p.flat().filter(e=>e.start&&(e.start.date||e.start.dateTime)).sort((a,b)=>{const ta=a.start.dateTime||a.start.date||'',tb=b.start.dateTime||b.start.date||'';return ta.localeCompare(tb);});
+        if(_e.length)calEventsSummary='\n\nאירועי יומן Google ב-14 הימים הקרובים (לידיעתך):\n'+_e.slice(0,50).map(e=>{const d=e.start.date||(e.start.dateTime||'').slice(0,10);const t=e.start.dateTime?' '+new Date(e.start.dateTime).toTimeString().slice(0,5):'';return '- '+d+t+' — '+(e.summary||'(ללא כותרת)');}).join('\n');
+      }
+    }
+  }catch(_){}
   const systemPrompt=`אתה עוזר לניהול פרויקטים בתשתיות אנרגיה עבור אביחי אטואן.
 ${dateLine}${dateHint}${projHint}
 מצב חיבור Google Calendar: ${calConnected?'מחובר ✓ (יומן "משימות (אביחי)")':'לא מחובר — סנכרון ליומן לא יעבוד עד שהמשתמש יתחבר בלשונית "יומן Google"'}.
 
 מבנה הנתונים הנוכחי (כולל תחומים ריקים):
-${projSummary}${notesSummary}
+${projSummary}${notesSummary}${calEventsSummary}
 
 חשוב מאוד:
+- אתה כן רואה את כל המשימות (כולל תאריכי יעד) ואת אירועי היומן הקרובים המפורטים למעלה. ענה בביטחון ובאופן מדויק על שאלות כמו "מה יש לי היום/מחר/השבוע" לפי הנתונים האלה — אל תטען שאין לך גישה לראות אותם.
 - השתמש תמיד בשמות הפרויקטים והתחומים בדיוק כפי שמופיעים למעלה.
 - אל תמציא שמות תחומים חדשים אם כבר קיים תחום דומה בפרויקט (למשל "ביצוע" קיים בכל הפרויקטים).
 - שמות תחומים מקובלים: "כללי", "ביצוע", "הזמנות רכש", "חשבונות", "אדריכלות".
