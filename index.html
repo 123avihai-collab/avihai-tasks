@@ -825,7 +825,45 @@ function getApiKey(){return localStorage.getItem('anthropic_api_key')||'';}
 function setApiKey(k){localStorage.setItem('anthropic_api_key',k);}
 
 // ===== RENDER =====
-function render(){TODAY=new Date().toISOString().split('T')[0];rSidebar();rMain();rDetail();rBottomNav();}
+// Capture caret position inside a contenteditable as a plain character offset.
+function _caretOffset(el){
+  const sel=window.getSelection();
+  if(!sel||!sel.rangeCount)return null;
+  const r=sel.getRangeAt(0);
+  if(!el.contains(r.endContainer))return null;
+  const pre=r.cloneRange();pre.selectNodeContents(el);pre.setEnd(r.endContainer,r.endOffset);
+  return pre.toString().length;
+}
+function _setCaret(el,offset){
+  if(offset==null)return;
+  const walker=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,null);
+  let node,count=0;
+  while((node=walker.nextNode())){
+    const len=node.textContent.length;
+    if(count+len>=offset){const range=document.createRange();range.setStart(node,Math.max(0,offset-count));range.collapse(true);const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);return;}
+    count+=len;
+  }
+  const range=document.createRange();range.selectNodeContents(el);range.collapse(false);const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);
+}
+function render(){
+  TODAY=new Date().toISOString().split('T')[0];
+  // Preserve focus/caret so a re-render (e.g. a Firestore sync echo) doesn't kick the user out of the field they're typing in.
+  const ae=document.activeElement;let keep=null;
+  if(ae&&ae.id&&(ae.tagName==='INPUT'||ae.tagName==='TEXTAREA'||ae.isContentEditable)){
+    keep={id:ae.id,ce:ae.isContentEditable};
+    if(keep.ce){keep.off=_caretOffset(ae);}
+    else{try{keep.start=ae.selectionStart;keep.end=ae.selectionEnd;}catch(_){}}
+  }
+  rSidebar();rMain();rDetail();rBottomNav();
+  if(keep){
+    const el=document.getElementById(keep.id);
+    if(el){
+      el.focus({preventScroll:true});
+      if(keep.ce)_setCaret(el,keep.off);
+      else if(keep.start!=null){try{el.setSelectionRange(keep.start,keep.end);}catch(_){}}
+    }
+  }
+}
 function rBottomNav(){
   const el=document.getElementById('bottomnav');if(!el)return;
   const menuIc='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>';
@@ -912,7 +950,7 @@ function rSidebar(){
     <div class="sb-foot">
       <span class="dot${syncOk?'':' off'}" id="sdot" title="${syncOk?'מסונכרן':'לא מחובר'}"></span>
       <span class="lbl">${syncOk?'מסונכרן':'לא מחובר'}</span>
-      <span class="ver">v32</span>
+      <span class="ver">v33</span>
       <button class="sb-btn" style="margin-right:auto;padding:2px 9px;font-size:11px" onclick="doSignOut()">יציאה</button>
     </div>
   `;
@@ -1303,7 +1341,7 @@ function renderTaskExpanded(t,ctx){
       </div>
     </div>
     <div class="te-title-wrap">
-      <input class="dp-title" value="${esc(t.title)}" oninput="updTaskField('${t.id}','title',this.value)" placeholder="כותרת"/>
+      <input class="dp-title" id="te-title-${t.id}" value="${esc(t.title)}" oninput="updTaskField('${t.id}','title',this.value)" placeholder="כותרת"/>
     </div>
     <div class="te-grid">
       <div class="te-field te-field-status"><div class="f-l">סטטוס</div><div class="opt-grp">${statusOpts}</div></div>
