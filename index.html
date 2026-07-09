@@ -912,7 +912,7 @@ function rSidebar(){
     <div class="sb-foot">
       <span class="dot${syncOk?'':' off'}" id="sdot" title="${syncOk?'מסונכרן':'לא מחובר'}"></span>
       <span class="lbl">${syncOk?'מסונכרן':'לא מחובר'}</span>
-      <span class="ver">v31</span>
+      <span class="ver">v32</span>
       <button class="sb-btn" style="margin-right:auto;padding:2px 9px;font-size:11px" onclick="doSignOut()">יציאה</button>
     </div>
   `;
@@ -1756,7 +1756,7 @@ let gcalCachedCalendarId=null;
 
 function getGcalConfig(){return {clientId:localStorage.getItem('gcal_client_id')||'',apiKey:localStorage.getItem('gcal_api_key')||''};}
 function setGcalConfig(clientId,apiKey){localStorage.setItem('gcal_client_id',clientId);localStorage.setItem('gcal_api_key',apiKey);}
-function clearGcalConfig(){localStorage.removeItem('gcal_client_id');localStorage.removeItem('gcal_api_key');localStorage.removeItem('gcal_calendar_id');sessionStorage.removeItem('gcal_token');gcalCachedCalendarId=null;}
+function clearGcalConfig(){localStorage.removeItem('gcal_client_id');localStorage.removeItem('gcal_api_key');localStorage.removeItem('gcal_calendar_id');localStorage.removeItem('gcal_token');gcalCachedCalendarId=null;}
 
 function loadGScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.async=true;s.onload=res;s.onerror=()=>rej(new Error('failed to load '+src));document.head.appendChild(s);});}
 
@@ -1770,10 +1770,32 @@ async function gcalInit(){
     await new Promise((res,rej)=>gapi.load('client',{callback:res,onerror:rej}));
     await gapi.client.init({apiKey:cfg.apiKey,discoveryDocs:[GCAL_DISC]});
     gcalTokenClient=google.accounts.oauth2.initTokenClient({client_id:cfg.clientId,scope:GCAL_SCOPE,callback:()=>{}});
-    const saved=sessionStorage.getItem('gcal_token');
+    const saved=localStorage.getItem('gcal_token');
     if(saved){try{const p=JSON.parse(saved);if(p.expires>Date.now()){gcalAccessToken=p.token;gapi.client.setToken({access_token:p.token});}}catch(_){}}
+    // No valid stored token → try to refresh silently (no popup) so the connection is "remembered".
+    if(!gcalAccessToken)await gcalTrySilentToken();
   })();
   return gcalLoadPromise;
+}
+
+// Attempt to obtain a token without any user interaction. Resolves true on success, false otherwise.
+function gcalTrySilentToken(){
+  return new Promise((res)=>{
+    if(!gcalTokenClient)return res(false);
+    let done=false;
+    const finish=(ok)=>{if(done)return;done=true;res(ok);};
+    gcalTokenClient.callback=(resp)=>{
+      if(resp&&resp.access_token&&!resp.error){
+        gcalAccessToken=resp.access_token;
+        try{gapi.client.setToken({access_token:resp.access_token});}catch(_){}
+        localStorage.setItem('gcal_token',JSON.stringify({token:gcalAccessToken,expires:Date.now()+((parseInt(resp.expires_in)||3500)*1000)-60000}));
+        finish(true);
+      }else{finish(false);}
+    };
+    gcalTokenClient.error_callback=()=>finish(false);
+    try{gcalTokenClient.requestAccessToken({prompt:''});}catch(_){finish(false);}
+    setTimeout(()=>finish(false),8000);
+  });
 }
 
 function gcalSignIn(){
@@ -1782,7 +1804,7 @@ function gcalSignIn(){
     gcalTokenClient.callback=(resp)=>{
       if(resp.error)return rej(new Error(resp.error_description||resp.error));
       gcalAccessToken=resp.access_token;
-      sessionStorage.setItem('gcal_token',JSON.stringify({token:gcalAccessToken,expires:Date.now()+((parseInt(resp.expires_in)||3500)*1000)-60000}));
+      localStorage.setItem('gcal_token',JSON.stringify({token:gcalAccessToken,expires:Date.now()+((parseInt(resp.expires_in)||3500)*1000)-60000}));
       res();
     };
     gcalTokenClient.requestAccessToken({prompt:gcalAccessToken?'':'consent'});
@@ -1794,7 +1816,7 @@ function gcalSignOut(){
   if(window.gapi&&gapi.client)gapi.client.setToken('');
   gcalAccessToken=null;
   gcalCachedCalendarId=null;
-  sessionStorage.removeItem('gcal_token');
+  localStorage.removeItem('gcal_token');
 }
 
 async function ensureTasksCalendar(){
@@ -1832,7 +1854,7 @@ function gcalGridRange(){
 }
 function ymdLocal(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 
-async function loadCalEvents(){
+async function loadCalEvents(_retried){
   calStatus='loading';
   if(S.view==='calendar')renderCalendar(document.getElementById('mn'));
   try{
@@ -1853,7 +1875,7 @@ async function loadCalEvents(){
     calEvents=perCal.flat().filter(ev=>ev.start&&(ev.start.date||ev.start.dateTime));
     calStatus='ready';
   }catch(e){
-    if(e&&e.status===401){gcalAccessToken=null;sessionStorage.removeItem('gcal_token');calStatus='signedout';}
+    if(e&&e.status===401){gcalAccessToken=null;localStorage.removeItem('gcal_token');if(gapi.client)gapi.client.setToken('');if(!_retried){const ok=await gcalTrySilentToken();if(ok)return loadCalEvents(true);}calStatus='signedout';}
     else{calStatus='error';calError=(e&&(e.result?.error?.message||e.message))||String(e);}
   }
   if(S.view==='calendar')renderCalendar(document.getElementById('mn'));
@@ -2077,7 +2099,7 @@ function saveGcalConfig(){
   const ak=document.getElementById('vGAK').value.trim();
   if(!cid||!ak){alert('יש להזין Client ID ו-API Key');return;}
   setGcalConfig(cid,ak);
-  gcalLoadPromise=null;gcalTokenClient=null;gcalAccessToken=null;sessionStorage.removeItem('gcal_token');
+  gcalLoadPromise=null;gcalTokenClient=null;gcalAccessToken=null;localStorage.removeItem('gcal_token');
   cm();calStatus='idle';calEvents=[];render();
 }
 function delGcalConfig(){
