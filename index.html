@@ -4,8 +4,8 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>אביחי משימות</title>
-<meta name="theme-color" id="meta-theme" content="#F4F7FB"/>
-<script>(function(){try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);var d=t==='dark'||(t!=='light'&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches);document.getElementById('meta-theme').setAttribute('content',d?'#0B1426':'#F4F7FB');}catch(e){}})();</script>
+<meta name="theme-color" id="meta-theme" content="#0F1F3D"/>
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);var d=t==='dark'||(t!=='light'&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches);document.getElementById('meta-theme').setAttribute('content',d?'#070E1C':'#0F1F3D');}catch(e){}})();</script>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="משימות"/>
@@ -610,16 +610,261 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 .note-canvas{background:transparent}
 .note-canvas-wrap.bg-lines{background-image:repeating-linear-gradient(to bottom,transparent 0 27px,rgba(63,111,181,.20) 27px 28px)}
 .note-canvas-wrap.bg-grid{background-image:repeating-linear-gradient(to bottom,transparent 0 27px,rgba(63,111,181,.16) 27px 28px),repeating-linear-gradient(to right,transparent 0 27px,rgba(63,111,181,.16) 27px 28px)}
+/* ================= D★ LAYOUT (v35): icon rail, projects panel, top bar, D dashboard & table ================= */
+#root{height:100vh;height:100dvh}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* icon rail */
+#sb{width:88px;flex-shrink:0;background:var(--side);border:none;display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 8px 12px;overflow-y:auto;scrollbar-width:none}
+#sb::-webkit-scrollbar{display:none}
+.rail-logo{width:40px;height:40px;border-radius:10px;background:#fff;display:flex;align-items:center;justify-content:center;margin-bottom:10px;flex-shrink:0}
+.rail-item{position:relative;width:72px;min-height:56px;padding:6px 2px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--sideText2);font-size:12px;font-weight:500;flex-shrink:0;transition:background .15s,color .15s}
+.rail-item svg{width:20px;height:20px}
+.rail-item:hover{background:var(--side2);color:#fff}
+.rail-item.on{background:var(--side2);color:#fff;font-weight:700}
+.rail-item.act{background:var(--sideActive);color:#fff;font-weight:700}
+.rail-badge{position:absolute;top:4px;left:10px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#3B6FE0;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1}
+.rail-badge.red{background:#E5484D}
+.rail-grow{flex:1;min-height:8px}
+.rail-mini{width:44px;height:44px;border-radius:10px;color:var(--sideText);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rail-mini svg{width:19px;height:19px}
+.rail-mini:hover,.rail-mini.alt{background:var(--side2)}
+.rail-ver{font-size:10.5px;color:var(--sideText2);font-family:var(--mono);margin-top:2px}
+/* projects panel */
+#projFly{display:none;width:290px;flex-shrink:0;background:var(--panel);border-inline-end:1px solid var(--rule);box-shadow:-8px 0 24px rgba(15,27,45,.06);flex-direction:column;overflow:hidden}
+body.fly-open #projFly{display:flex}
+.pf-grab{display:none}
+.pf-h{height:60px;flex-shrink:0;display:flex;align-items:center;gap:8px;padding:0 14px 0 12px;border-bottom:1px solid var(--rule)}
+.pf-h h2{flex:1;font-size:17px;font-weight:700}
+.pf-new{height:32px;padding:0 12px;border-radius:8px;background:var(--accentSoft);color:var(--accent);font-size:13px;font-weight:600}
+.pf-x{width:32px;height:32px;border-radius:8px;color:var(--ink3);display:flex;align-items:center;justify-content:center}
+.pf-x svg{width:16px;height:16px}
+.pf-x:hover{background:var(--rail);color:var(--ink)}
+.pf-list{flex:1;overflow-y:auto;padding:10px}
+.pf-empty{padding:30px 10px;text-align:center;color:var(--ink3);font-size:13px;line-height:2.2}
+#projFly .proj-item{padding:10px 12px;border-radius:8px;font-size:15px;color:var(--ink);font-weight:600;gap:8px}
+#projFly .proj-item:hover{background:var(--rail)}
+#projFly .proj-item.act{background:var(--rail);box-shadow:none}
+#projFly .proj-item.act .proj-dot{background:inherit}
+#projFly .proj-cnt{font-size:12px;font-family:inherit;margin:0;color:var(--ink3);font-weight:500}
+.pf-late{font-size:11px;font-weight:700;padding:1px 7px;border-radius:999px;background:var(--redSoft);color:var(--red);flex-shrink:0;white-space:nowrap}
+.pf-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+#projFly .proj-areas{padding-right:26px;margin:2px 0 8px}
+#projFly .area-item{padding:7px 10px;font-size:14px;border-radius:6px}
+#projFly .area-item .area-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#projFly .area-cnt{font-size:12px;font-family:inherit}
+#projFly .area-add{color:var(--accent);font-style:normal;font-weight:600}
+#projFly .proj-arch{margin:0;padding:6px 10px 10px;border-top:1px solid var(--rule)}
+#projFly .proj-arch-tg{display:flex;align-items:center;gap:8px;font-size:13px}
+#projFly .proj-arch-tg svg{width:15px;height:15px}
+.pf-arch-name{cursor:pointer;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#flyScrim{display:none}
+/* main column + top bar */
+#mainCol{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden}
+#topbar{height:60px;flex-shrink:0;display:flex;align-items:center;gap:12px;padding:0 24px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.tb-search{display:flex;align-items:center;gap:8px;width:320px;max-width:100%;height:38px;padding:0 12px;border-radius:8px;background:var(--rail);color:var(--ink3);cursor:text}
+.tb-search input{flex:1;min-width:0;border:none;background:transparent;font-size:14px;color:var(--ink)}
+.tb-search input::placeholder{color:var(--ink3)}
+.tb-grow{flex:1}
+#topbar .dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0}
+#topbar .dot.off{background:var(--red)}
+.tb-new{height:38px;padding:0 16px;font-size:14px;border-radius:8px}
+.tb-av{width:36px;height:36px;border-radius:50%;background:var(--accentSoft);color:var(--accent);font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+#mn{flex:1;min-height:0}
+/* page header + buttons */
+.mn-h{padding:20px 24px 0;border-bottom:none}
+.mn-h-row{padding-bottom:14px;align-items:center}
+.mn-h-l h1{font-size:24px;font-weight:700;letter-spacing:-.01em}
+.mn-h-meta{font-size:13px;color:var(--ink3);margin-top:2px}
+.mn-crumb{font-size:13px}
+.btn-ghost{font-size:13px;padding:7px 12px;border:1px solid var(--rule);border-radius:8px;display:inline-flex;align-items:center;gap:6px}
+.btn-primary,.btn-accent{font-size:13px;padding:7px 14px;border-radius:8px;font-weight:600}
+.btn-danger{border-color:color-mix(in srgb,var(--red) 40%,transparent)}
+.seg{display:flex;padding:3px;border-radius:8px;background:var(--rail);border:1px solid var(--rule);flex-shrink:0}
+.seg button{height:30px;padding:0 14px;border-radius:6px;font-size:13px;color:var(--ink2)}
+.seg button.on{background:var(--panel);box-shadow:var(--shadow);color:var(--ink);font-weight:600}
+.lnk{color:var(--accent);font-size:13px;font-weight:600;padding:0;align-self:flex-start}
+.lnk:hover{text-decoration:underline}
+/* project-view KPI cards */
+.kpis{padding:0 24px;gap:14px}
+.kpi,.kpi.acc-r,.kpi.acc-g,.kpi.acc-a{border:1px solid var(--rule);border-radius:10px;box-shadow:var(--shadow);padding:14px 16px}
+.kpi-l{font-size:13px;letter-spacing:0;font-weight:500;color:var(--ink3);margin-bottom:4px}
+.kpi-v{font-size:24px;font-weight:700}
+/* dashboard */
+.dash-wrap{flex:1;overflow-y:auto;padding:0 24px 24px;display:flex;flex-direction:column;gap:18px}
+.dash-wrap>*{flex-shrink:0}
+.dash-wrap .mn-h{padding:20px 0 0}
+.dash-wrap .mn-h-row{padding-bottom:0}
+.dkpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.dkpi{display:flex;align-items:center;gap:12px;padding:14px 16px;border:1px solid var(--rule);border-radius:10px;background:var(--panel);box-shadow:var(--shadow);text-align:start;transition:transform .12s,box-shadow .12s}
+.dkpi:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(15,27,45,.08)}
+.dkpi-ic{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--accentSoft);color:var(--accent);flex-shrink:0}
+.dkpi-ic svg{width:20px;height:20px}
+.dkpi.k-red .dkpi-ic{background:var(--redSoft);color:var(--red)}
+.dkpi.k-red .dkpi-v{color:var(--red)}
+.dkpi.k-amber .dkpi-ic{background:var(--amberSoft);color:var(--amber)}
+.dkpi-t{display:flex;flex-direction:column;min-width:0}
+.dkpi-l{font-size:13px;color:var(--ink3)}
+.dkpi-v{font-size:24px;font-weight:700;line-height:1.2;color:var(--ink);font-feature-settings:"tnum"}
+.dash-cols{display:flex;gap:18px;align-items:flex-start}
+.dash-main{flex:1;min-width:0}
+.dash-side{width:280px;flex-shrink:0;display:flex;flex-direction:column;gap:16px}
+/* not enough room for table + side column (projects panel open / narrow window): side cards go under the table */
+body.fly-open .dash-cols{flex-direction:column;align-items:stretch}
+body.fly-open .dash-main{width:100%}
+body.fly-open .dash-side{width:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1180px) and (min-width:901px){.dash-cols{flex-direction:column;align-items:stretch}.dash-main{width:100%}.dash-side{width:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}}
+.dt-h{display:flex;align-items:center;gap:8px;padding:14px 18px}
+.dt-h h2{flex:1;font-size:16px;font-weight:700}
+.dt-h .cnt{font-size:13px;color:var(--ink3)}
+.dt-empty{padding:30px 18px;text-align:center}
+.dcard{background:var(--panel);border:1px solid var(--rule);border-radius:10px;box-shadow:var(--shadow);padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.dcard-h{display:flex;align-items:center;gap:8px}
+.dcard-h h2{flex:1;font-size:16px;font-weight:700}
+.dcard-h .lnk{align-self:center}
+.dev{position:relative;display:flex;gap:12px;align-items:center;width:100%;text-align:start;padding:10px 12px;border-radius:8px;background:var(--rail);overflow:hidden}
+.dev:hover{background:var(--accentSoft)}
+.dev-bar{position:absolute;top:8px;bottom:8px;right:0;width:3px;border-radius:3px}
+.dev-time{min-width:44px;font-size:14px;font-weight:700;color:var(--accent);font-feature-settings:"tnum"}
+.dev-b{flex:1;min-width:0;display:flex;flex-direction:column}
+.dev-title{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dev-cal{font-size:12px;color:var(--ink3)}
+.dmuted{font-size:13px;color:var(--ink3)}
+.dstat{font-size:14px;color:var(--ink2);display:flex;align-items:baseline;gap:8px}
+.dstat b{font-size:26px;color:var(--ink);font-weight:700}
+/* task table */
+.tl{border:1px solid var(--rule);border-radius:10px;box-shadow:var(--shadow)}
+.tl-head,.tr{grid-template-columns:22px minmax(0,1fr) 150px 88px 76px 66px 24px;gap:12px}
+.tl-head{padding:9px 16px;font-size:12px;letter-spacing:0;font-weight:600;background:var(--rail);border-bottom:1px solid var(--rule)}
+.dash-main .tl-head{border-top:1px solid var(--rule)}
+.tr{padding:11px 16px;min-height:48px;border-bottom:1px solid var(--rule)}
+.tr:last-child{border-bottom:none}
+.tr-title{font-size:14px}
+.tr-proj-cell{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink2);min-width:0;white-space:nowrap;overflow:hidden}
+.tr-proj-cell .pd,.tr-mobi-proj .pd{width:8px;height:8px;border-radius:2px;flex-shrink:0;display:inline-block}
+.tr-proj-cell .pn{font-weight:600;color:var(--ink)}
+.tr-proj-cell .sep{color:var(--ink3)}
+.tr-proj-cell .an{overflow:hidden;text-overflow:ellipsis}
+.tr.sel{background:var(--accentSoft);box-shadow:none}
+.tr-due{font-size:13px}
+.tl-add{display:block;width:100%;text-align:center;font-size:13px;color:var(--accent);font-weight:600}
+.tl.no-pcol .tl-head,.tl.no-pcol .tr{grid-template-columns:22px minmax(0,1fr) 88px 76px 66px 24px}
+.tl.no-pcol .tr-proj-cell,.tl.no-pcol .tl-head>div:nth-child(3){display:none}
+.sec-head{padding:9px 16px;font-size:13px;background:var(--rail);border-color:var(--rule)}
+.cb{width:18px;height:18px;border-radius:4px}
+.cb.done::after{font-size:11px}
+.tl-wrap{padding:0 24px 24px}
+.tlb{padding:14px 24px 10px}
+.chip-filter{font-size:13px;padding:6px 12px;border:1px solid var(--rule);border-radius:8px}
+.tlb-sel{font-size:13px;padding:6px 10px;border:1px solid var(--rule);border-radius:8px}
+.fv-events{border:1px solid var(--rule);border-radius:10px;box-shadow:var(--shadow)}
+.fv-events-h{font-size:12px;letter-spacing:0;background:var(--rail)}
+/* chips */
+.chip-st{border:none;border-radius:4px;font-size:12px;font-weight:600;padding:3px 8px}
+.chip-st.s-open{background:var(--rail);color:var(--ink2)}
+.chip-st.s-prog{background:var(--accentSoft);color:var(--accent)}
+.chip-st.s-wait{background:var(--amberSoft);color:var(--amber)}
+.chip-st.s-done{background:var(--greenSoft);color:var(--green)}
+.chip-pr{background:none!important;padding:0;font-size:13px;font-weight:500}
+.chip-pr-dot{width:6px;height:6px}
+.chip-pr.p-l{color:var(--ink3)}
+.chip-as{border-radius:999px;font-size:12px}
+.tr-mobi-proj{display:inline-flex;align-items:center;gap:5px;color:var(--ink2)}
+/* expanded task = D's highlighted row panel */
+.te{margin:0;border:none;border-bottom:1px solid var(--rule);border-radius:0;background:color-mix(in srgb,var(--accentSoft) 70%,var(--panel));box-shadow:none;padding:16px 18px;padding-inline-start:50px}
+.te-title-wrap input.dp-title{font-size:18px;font-weight:700}
+.te-title-wrap input.dp-title:focus{background:var(--panel)}
+/* modal + sheets */
+.mbg{background:rgba(15,27,45,.5)}
+.mc{border-radius:12px;border:1px solid var(--rule);box-shadow:var(--shadow2);padding:20px 22px}
+.mc h2{font-size:17px;font-weight:700}
+.mf label{font-size:12px;letter-spacing:0;text-transform:none}
+.mf input,.mf select{font-size:14px;padding:9px 12px;border-radius:8px;border:1px solid var(--rule2)}
+.mf input:focus,.mf select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accentSoft)}
+.set-list{display:flex;flex-direction:column;gap:2px}
+.set-item{display:flex;align-items:center;gap:12px;width:100%;min-height:46px;padding:10px 12px;border-radius:8px;font-size:15px;color:var(--ink);text-align:start}
+.set-item span:first-of-type{flex:1}
+.set-item:hover{background:var(--rail)}
+.set-item svg{width:18px;height:18px;color:var(--ink2);flex-shrink:0}
+.set-item.danger,.set-item.danger svg{color:var(--red)}
+.set-n{flex:0!important;font-size:12px;font-weight:700;color:var(--ink3);background:var(--rail);padding:1px 8px;border-radius:999px}
+.set-sep{height:1px;background:var(--rule);margin:6px 0}
+.set-status{display:flex;align-items:center;gap:8px;padding:6px 12px;font-size:13px;color:var(--ink3)}
+.set-status .dot{width:8px;height:8px;border-radius:50%;background:var(--green)}
+.set-status .dot.off{background:var(--red)}
+.fab{display:none}
+/* ---------- phone ---------- */
+@media(max-width:900px){
+  #sb{display:none}
+  #topbar{height:56px;padding:0 12px;gap:8px;background:var(--side);border-bottom:none}
+  .tb-search{width:auto;flex:1;background:rgba(255,255,255,.1);color:var(--sideText2)}
+  .tb-search input{color:#fff}
+  .tb-search input::placeholder{color:var(--sideText2)}
+  .tb-grow,.tb-new{display:none}
+  .tb-av{background:rgba(255,255,255,.12);color:#fff}
+  body.fly-open #projFly{position:fixed;left:0;right:0;top:auto;bottom:calc(64px + env(safe-area-inset-bottom));width:auto;max-height:72vh;z-index:60;border:none;border-radius:20px 20px 0 0;box-shadow:0 -8px 30px rgba(15,27,45,.22)}
+  .pf-grab{display:block;width:40px;height:5px;border-radius:999px;background:var(--rule2);margin:8px auto 0;flex-shrink:0}
+  .pf-h{height:52px}
+  body.fly-open #flyScrim{display:block;position:fixed;inset:0;z-index:55;background:rgba(15,27,45,.45)}
+  .fab{display:flex;position:fixed;left:16px;bottom:calc(76px + env(safe-area-inset-bottom));z-index:50;width:56px;height:56px;border-radius:14px;background:var(--accent);color:var(--onAccent);align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(29,78,216,.35)}
+  .fab svg{width:24px;height:24px}
+  body.fly-open .fab{display:none}
+  #bottomnav{z-index:65;height:calc(64px + env(safe-area-inset-bottom))}
+  .bn-item{font-size:11px;gap:3px;padding:8px 2px}
+  .bn-item.act{color:var(--accent);font-weight:700}
+  .bn-ic svg{width:22px;height:22px}
+  #mn{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
+  .mn-h{padding:16px 16px 0}
+  .mn-h-row{flex-wrap:wrap;gap:10px}
+  /* dashboard: navy header continuing the top bar, KPI strip overlapping it (as in D mobile) */
+  .dash-wrap{padding:0 16px 96px;gap:16px}
+  .dash-wrap .dash-h{margin:0 -16px;padding:14px 16px 56px;background:var(--side)}
+  .dash-h h1{color:#fff}
+  .dash-h .mn-h-meta{color:var(--sideText2)}
+  .dash-h .seg{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.12)}
+  .dash-h .seg button{color:var(--sideText2)}
+  .dash-h .seg button.on{background:#fff;color:#0F1F3D}
+  .dkpis{margin-top:-60px;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border:1px solid var(--rule);border-radius:12px;background:var(--panel);box-shadow:var(--shadow);overflow:hidden}
+  .dkpi{flex-direction:column;justify-content:center;gap:0;padding:12px 4px;border:none;border-radius:0;box-shadow:none;border-inline-start:1px solid var(--rule)}
+  .dkpi:first-child{border-inline-start:none}
+  .dkpi:hover{transform:none;box-shadow:none}
+  .dkpi-ic{display:none}
+  .dkpi-t{align-items:center;flex-direction:column-reverse}
+  .dkpi-v{font-size:22px}
+  .dkpi-l{font-size:12px}
+  .dash-cols{flex-direction:column;gap:16px;align-items:stretch}
+  .dash-side,body.fly-open .dash-side{display:contents}
+  .dash-side .dcard:first-child{order:-1}
+  .dash-side .dcard:last-child{order:2}
+  .tl-head{display:none}
+  .tr,.tl.no-pcol .tr{grid-template-columns:22px minmax(0,1fr) auto;gap:10px;padding:12px}
+  .tr-proj-cell{display:none}
+  .te{padding:14px 12px}
+  .kpis{padding:0 16px}
+  .tl-wrap{padding:0 16px 22px}
+  .tlb{padding:14px 16px 10px}
+  .mbg{align-items:flex-end;padding:0}
+  .mc{max-width:none;border-radius:18px 18px 0 0;max-height:88vh;padding:18px 18px calc(18px + env(safe-area-inset-bottom))}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
-<button class="mb-burger" id="burger" onclick="toggleSB()" title="תפריט" aria-label="תפריט">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
-</button>
 <div id="root">
-  <aside id="sb"></aside>
-  <main id="mn"><div class="empty-st">מתחבר לענן...</div></main>
+  <nav id="sb" aria-label="ניווט ראשי"></nav>
+  <aside id="projFly" aria-label="פרויקטים"></aside>
+  <div id="mainCol">
+    <div id="topbar">
+      <label class="tb-search"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input type="search" id="sb-search" placeholder="חיפוש משימות ופתקים…" aria-label="חיפוש" oninput="onSearchInput(this.value)" onkeydown="if(event.key==='Escape'){this.value='';onSearchInput('');}"/></label>
+      <div class="tb-grow"></div>
+      <span class="dot" id="sdot" title="מסונכרן"></span>
+      <button class="btn-primary tb-new" onclick="quickNewTask()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>משימה חדשה</button>
+      <button class="tb-av" onclick="mSettings()" title="הגדרות" aria-label="הגדרות">א</button>
+    </div>
+    <main id="mn"><div class="empty-st">מתחבר לענן...</div></main>
+  </div>
 </div>
+<div id="flyScrim" onclick="closeProjFly()"></div>
+<button class="fab" id="fab" onclick="quickNewTask()" aria-label="משימה חדשה"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
 <nav id="bottomnav"></nav>
 <div id="mr"></div>
 
@@ -877,7 +1122,7 @@ function render(){
     if(keep.ce){keep.off=_caretOffset(ae);}
     else{try{keep.start=ae.selectionStart;keep.end=ae.selectionEnd;}catch(_){}}
   }
-  rSidebar();rMain();rDetail();rBottomNav();
+  rSidebar();rProjFly();rMain();rDetail();rBottomNav();
   if(keep){
     const el=document.getElementById(keep.id);
     if(el){
@@ -889,25 +1134,47 @@ function render(){
 }
 function rBottomNav(){
   const el=document.getElementById('bottomnav');if(!el)return;
-  const menuIc='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>';
+  const more=['today','week','overdue','urgent','ai','active','done'].includes(S.view);
   const items=[
-    {id:'dashboard',ic:IC.inbox,lbl:'מבט-על'},
-    {id:'today',ic:IC.bolt,lbl:'היום'},
-    {id:'calendar',ic:IC.cal,lbl:'יומן'},
-    {id:'notes',ic:IC.note,lbl:'פתקים'}
+    {id:'dashboard',ic:RI.home,lbl:'מבט-על',act:S.view==='dashboard'&&!projFlyOpen},
+    {id:'calendar',ic:RI.cal,lbl:'יומן',act:S.view==='calendar'&&!projFlyOpen},
+    {id:'__proj',ic:RI.proj,lbl:'פרויקטים',act:projFlyOpen||S.view==='proj'},
+    {id:'notes',ic:RI.notes,lbl:'פתקים',act:S.view==='notes'&&!projFlyOpen},
+    {id:'__more',ic:RI.menu,lbl:'עוד',act:more&&!projFlyOpen}
   ];
-  const btns=items.map(n=>'<button class="bn-item'+(S.view===n.id&&!S.apid?' act':'')+'" onclick="selView(\''+n.id+'\')"><span class="bn-ic">'+n.ic+'</span>'+n.lbl+'</button>').join('');
-  el.innerHTML=btns+'<button class="bn-item" onclick="toggleSB()"><span class="bn-ic">'+menuIc+'</span>תפריט</button>';
+  el.innerHTML=items.map(n=>{
+    const click=n.id==='__proj'?'toggleProjFly()':n.id==='__more'?'mMore()':'closeProjFly(true);selView(\''+n.id+'\')';
+    return '<button class="bn-item'+(n.act?' act':'')+'" onclick="'+click+'"><span class="bn-ic">'+riSvg(n.ic)+'</span>'+n.lbl+'</button>';
+  }).join('');
 }
 
-// ----- Sidebar -----
-function rSidebar(){
-  const sb=document.getElementById('sb');
-  const all=getAllTasks();
-  const open=all.filter(x=>x.task.status!=='הושלם');
+// ----- Icon rail (desktop) -----
+const RI={
+  home:'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z',
+  today:'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4',
+  week:'M3 10h18M8 3v4M16 3v4M5 5h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z',
+  cal:'M3 10h18M8 3v4M16 3v4M5 5h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zM12 14.5v.01',
+  late:'M12 7v5l3 2M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z',
+  flag:'M5 21V4h11l-2 4 2 4H5',
+  proj:'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z',
+  notes:'M5 3h10l4 4v14H5zM9 12h6M9 16h4',
+  ai:'M12 3l1.8 4.9L19 9.7l-5.2 1.8L12 16.5l-1.8-5L5 9.7l5.2-1.8z',
+  menu:'M4 7h16M4 12h16M4 17h16',
+  settings:'M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M16 4v4M10 10v4M16 16v4',
+  active:'M9 11l3 3 8-8M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9',
+  done:'M20 6 9 17l-5-5',
+  shield:'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z',
+  download:'M12 4v11M7 10l5 5 5-5M5 20h14',
+  key:'M15 7a4 4 0 1 1-3.9 5H8v3H5v-3H3v-3h8.1A4 4 0 0 1 15 7z',
+  out:'M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10',
+  x:'M6 6l12 12M18 6 6 18'
+};
+function riSvg(d){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="'+d+'"/></svg>';}
+function taskCounts(){
+  const open=getAllTasks().filter(x=>x.task.status!=='הושלם');
   const today7=new Date();today7.setDate(today7.getDate()+7);
   const wkEnd=today7.toISOString().split('T')[0];
-  const counts={
+  return {
     all:open.length,
     today:open.filter(x=>x.task.dueDate===TODAY).length,
     week:open.filter(x=>x.task.dueDate&&x.task.dueDate>=TODAY&&x.task.dueDate<=wkEnd).length,
@@ -915,69 +1182,112 @@ function rSidebar(){
     urgent:open.filter(x=>x.task.priority==='דחוף').length,
     notes:S.notes.filter(n=>!n.done).length
   };
-
-  const navItems=[
-    {id:'dashboard',ic:IC.inbox,lbl:'מבט-על',c:counts.all,color:'#3F6FB5'},
-    {id:'today',ic:IC.bolt,lbl:'היום',c:counts.today,color:'#D86A1F'},
-    {id:'week',ic:IC.cal,lbl:'השבוע',c:counts.week,color:'#2E7E7E'},
-    {id:'overdue',ic:IC.flag,lbl:'באיחור',c:counts.overdue,red:counts.overdue>0,color:'#B23D3D'},
-    {id:'urgent',ic:IC.star,lbl:'דחוף',c:counts.urgent,color:'#B89020'},
-    {id:'notes',ic:IC.note,lbl:'פתקים',c:counts.notes,color:'#3D7A4F'},
-    {id:'calendar',ic:IC.cal,lbl:'יומן Google',color:'#7048A0'},
-    {id:'ai',ic:IC.ai,lbl:'עזר בינה',color:'#B05978'}
+}
+function rSidebar(){
+  const sb=document.getElementById('sb');
+  const counts=taskCounts();
+  const items=[
+    {id:'dashboard',ic:RI.home,lbl:'מבט-על'},
+    {id:'today',ic:RI.today,lbl:'היום',b:counts.today},
+    {id:'week',ic:RI.week,lbl:'השבוע'},
+    {id:'overdue',ic:RI.late,lbl:'באיחור',b:counts.overdue,red:true},
+    {id:'urgent',ic:RI.flag,lbl:'דחוף'},
+    {id:'calendar',ic:RI.cal,lbl:'יומן'},
+    {id:'__proj',ic:RI.proj,lbl:'פרויקטים'},
+    {id:'notes',ic:RI.notes,lbl:'פתקים'},
+    {id:'ai',ic:RI.ai,lbl:'עוזר AI'}
   ];
-  const navHtml=navItems.map(n=>{
-    const act=S.view===n.id&&!S.apid?'act':'';
-    const cnt=n.c!==undefined?'<span class="cnt'+(n.red?' red':'')+'">'+n.c+'</span>':'';
-    return '<button class="nav-item '+act+'" onclick="selView(\''+n.id+'\')"><span class="ic" style="color:'+(n.color||'var(--ink2)')+'">'+n.ic+'</span><span class="lbl">'+n.lbl+'</span>'+cnt+'</button>';
+  const html=items.map(n=>{
+    const isProj=n.id==='__proj';
+    const act=!isProj&&S.view===n.id;
+    const on=isProj&&(projFlyOpen||S.view==='proj');
+    const badge=n.b?'<span class="rail-badge'+(n.red?' red':'')+'">'+n.b+'</span>':'';
+    const click=isProj?'toggleProjFly()':'selView(\''+n.id+'\')';
+    return '<button class="rail-item'+(act?' act':'')+(on?' on':'')+'" onclick="'+click+'"'+(act?' aria-current="page"':'')+(isProj?' aria-expanded="'+projFlyOpen+'"':'')+'>'+riSvg(n.ic)+'<span>'+n.lbl+'</span>'+badge+'</button>';
   }).join('');
+  sb.innerHTML=`
+    <div class="rail-logo" title="אביחי משימות"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="#1D4ED8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg></div>
+    ${html}
+    <div class="rail-grow"></div>
+    <button class="rail-mini alt" onclick="cycleTheme()" title="${themeTitle()}" aria-label="${themeTitle()}">${themeIcon()}</button>
+    <button class="rail-mini" onclick="mSettings()" title="הגדרות, גיבוי וייצוא" aria-label="הגדרות, גיבוי וייצוא">${riSvg(RI.settings)}</button>
+    <span class="rail-ver ver">v35</span>
+  `;
+}
 
+// ----- Projects flyout (desktop: docked panel next to the rail; mobile: bottom sheet) -----
+function isMobileUI(){try{return matchMedia('(max-width:900px)').matches;}catch(_){return false;}}
+let projFlyOpen=(()=>{if(isMobileUI())return false;try{return localStorage.getItem('projFly')==='1';}catch(_){return false;}})();
+function setProjFly(open){
+  projFlyOpen=!!open;
+  if(!isMobileUI()){try{localStorage.setItem('projFly',projFlyOpen?'1':'0');}catch(_){}}
+}
+function toggleProjFly(){setProjFly(!projFlyOpen);render();}
+function closeProjFly(silent){if(!projFlyOpen)return;setProjFly(false);if(!silent)render();}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&projFlyOpen&&!document.getElementById('mr').classList.contains('on'))closeProjFly();});
+function rProjFly(){
+  const el=document.getElementById('projFly');if(!el)return;
+  document.body.classList.toggle('fly-open',projFlyOpen);
+  if(!projFlyOpen){el.innerHTML='';return;}
   const archivedProjs=S.projects.filter(p=>p.archived);
   const projsHtml=S.projects.filter(p=>!p.archived).map(p=>{
     const c=ptcOpen(p);
+    const late=p.areas.reduce((n,a)=>n+a.tasks.filter(t=>t.status!=='הושלם'&&isOverdue(t.dueDate)).length,0);
     const isAct=S.view==='proj'&&p.id===S.apid;
     const col=projColor(p);
-    const dotStyle='background:'+col.hex;
     const areasHtml=isAct?'<div class="proj-areas">'+p.areas.map(a=>{
       const aAct=a.id===S.aaid?'act':'';
-      return '<div class="area-item '+aAct+'" onclick="selA(\''+a.id+'\')" ondragover="areaDragOver(event)" ondragleave="areaDragLeave(event)" ondrop="areaDrop(\''+a.id+'\',event)"><span style="display:flex;align-items:center;gap:6px;flex:1;min-width:0"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(a.name)+'</span></span><span class="area-edit-btn" onclick="event.stopPropagation();mEditA(\''+a.id+'\')" title="עריכת תחום">✎</span><span class="area-cnt">'+a.tasks.length+'</span></div>';
+      return '<div class="area-item '+aAct+'" onclick="selA(\''+a.id+'\')" ondragover="areaDragOver(event)" ondragleave="areaDragLeave(event)" ondrop="areaDrop(\''+a.id+'\',event)"><span class="area-name">'+esc(a.name)+'</span><span class="area-edit-btn" onclick="event.stopPropagation();mEditA(\''+a.id+'\')" title="עריכת תחום">✎</span><span class="area-cnt">'+a.tasks.length+'</span></div>';
     }).join('')+'<div class="area-item area-add" onclick="mNewA()"><span>+ תחום</span><span></span></div></div>':'';
-    return '<div><button class="proj-item '+(isAct?'act':'')+'" draggable="true" onclick="selP(\''+p.id+'\')" ondragstart="projItemDragStart(\''+p.id+'\',event)" ondragend="projItemDragEnd(event)" ondragover="projDragOver(\''+p.id+'\',event)" ondragleave="projDragLeave(event)" ondrop="projDrop(\''+p.id+'\',event)"><span class="proj-left"><span class="proj-dot" style="'+dotStyle+'" onclick="event.stopPropagation();selP(\''+p.id+'\');mEditP();" title="ערוך פרויקט וצבע"></span><span class="proj-name">'+esc(p.name)+'</span></span><span class="proj-cnt">'+c+'</span></button>'+areasHtml+'</div>';
+    return '<div><button class="proj-item '+(isAct?'act':'')+'" draggable="true" onclick="selP(\''+p.id+'\')" ondragstart="projItemDragStart(\''+p.id+'\',event)" ondragend="projItemDragEnd(event)" ondragover="projDragOver(\''+p.id+'\',event)" ondragleave="projDragLeave(event)" ondrop="projDrop(\''+p.id+'\',event)"><span class="proj-left"><span class="proj-dot" style="background:'+col.hex+'" onclick="event.stopPropagation();selP(\''+p.id+'\');mEditP();" title="ערוך פרויקט וצבע"></span><span class="proj-name">'+esc(p.name)+'</span></span>'+(late?'<span class="pf-late">'+late+' באיחור</span>':'')+'<span class="proj-cnt">'+c+'</span></button>'+areasHtml+'</div>';
   }).join('');
-
-  sb.innerHTML=`
-    <div class="sb-user">
-      <div class="sb-av"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#FF8C1E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4 4 10-10"/></svg></div>
-      <div class="sb-uinfo">
-        <div class="sb-uname">אביחי אטואן</div>
-        <div class="sb-utitle">תשתיות אנרגיה</div>
-      </div>
+  const archHtml=archivedProjs.length?'<div class="proj-arch"><button class="proj-arch-tg" onclick="toggleArchView()">'+riSvg('M3 7h18v13H3zM3 7l2-3h14l2 3M10 12h4')+' ארכיון ('+archivedProjs.length+') '+(archViewOpen?'▾':'◂')+'</button>'+(archViewOpen?archivedProjs.map(p=>'<div class="proj-arch-item"><span class="proj-name pf-arch-name" onclick="selP(\''+p.id+'\')">'+esc(p.name)+'</span><button class="proj-arch-restore" onclick="unarchiveProject(\''+p.id+'\')">שחזר</button></div>').join(''):'')+'</div>':'';
+  el.innerHTML=`
+    <div class="pf-grab" aria-hidden="true"></div>
+    <div class="pf-h">
+      <h2>פרויקטים</h2>
+      <button class="pf-new" onclick="mNewP()">+ חדש</button>
+      <button class="pf-x" onclick="closeProjFly()" aria-label="סגור את לוח הפרויקטים">${riSvg(RI.x)}</button>
     </div>
-    <div class="sb-search">
-      <div class="sb-search-box">
-        ${IC.search}
-        <input type="text" id="sb-search" placeholder="חיפוש משימה..." oninput="onSearchInput(this.value)" onkeydown="if(event.key==='Escape'){this.value='';onSearchInput('');}"/>
-      </div>
-    </div>
-    <nav class="sb-nav">${navHtml}</nav>
-    <div class="sb-section"><span>פרויקטים</span><span class="add" onclick="mNewP()" title="פרויקט חדש">+</span></div>
-    <div class="sb-projects">${projsHtml||'<div style="padding:10px 8px;font-size:11px;color:var(--ink3);text-align:center">אין פרויקטים</div>'}${archivedProjs.length?'<div class="proj-arch"><button class="proj-arch-tg" onclick="toggleArchView()">📁 ארכיון ('+archivedProjs.length+') '+(archViewOpen?'▾':'◂')+'</button>'+(archViewOpen?archivedProjs.map(p=>'<div class="proj-arch-item"><span class="proj-name" style="cursor:pointer;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" onclick="selP(\''+p.id+'\')">'+esc(p.name)+'</span><button class="proj-arch-restore" onclick="unarchiveProject(\''+p.id+'\')">שחזר</button></div>').join(''):'')+'</div>':''}</div>
-    <div class="sb-actions">
-      <button class="sb-btn-ai" onclick="selView('ai')">${IC.ai} עדכון עם AI</button>
-      <div class="sb-btn-row">
-        <button class="sb-btn" onclick="xCSV()">CSV</button>
-        <button class="sb-btn" onclick="xJSON()">JSON</button>
-      </div>
-      <button class="sb-btn" onclick="mBackup()" style="width:100%;margin-top:5px">🛡️ גיבוי ושחזור</button>
-    </div>
-    <div class="sb-foot">
-      <span class="dot${syncOk?'':' off'}" id="sdot" title="${syncOk?'מסונכרן':'לא מחובר'}"></span>
-      <span class="lbl">${syncOk?'מסונכרן':'לא מחובר'}</span>
-      <span class="ver">v34</span>
-      <button class="sb-btn theme-btn" onclick="cycleTheme()" title="${themeTitle()}" aria-label="${themeTitle()}">${themeIcon()}</button>
-      <button class="sb-btn" style="padding:2px 9px;font-size:11px" onclick="doSignOut()">יציאה</button>
-    </div>
+    <div class="pf-list">${projsHtml||'<div class="pf-empty">אין פרויקטים עדיין<br><button class="btn-primary" onclick="mNewP()">+ פרויקט חדש</button></div>'}</div>
+    ${archHtml}
   `;
+}
+
+// ----- Settings / "more" sheets -----
+function mSettings(){
+  const t=getThemePref();
+  const tl=t==='dark'?'כהה':t==='light'?'בהיר':'לפי המכשיר';
+  const it=(ic,label,click,cls)=>'<button class="set-item'+(cls?' '+cls:'')+'" onclick="'+click+'">'+ic+'<span>'+label+'</span></button>';
+  sm('<h2>הגדרות</h2><div class="set-list">'+
+    it(themeIcon(),'מצב תצוגה: '+tl,'cycleTheme();mSettings()')+
+    '<div class="set-sep"></div>'+
+    it(riSvg(RI.shield),'גיבוי ושחזור','cm();mBackup()')+
+    it(riSvg(RI.download),'ייצוא ל-CSV','cm();xCSV()')+
+    it(riSvg(RI.download),'ייצוא ל-JSON','cm();xJSON()')+
+    '<div class="set-sep"></div>'+
+    it(riSvg(RI.cal),'חיבור יומן Google','cm();mGcalConfig()')+
+    it(riSvg(RI.key),'מפתח עוזר ה-AI','cm();mSetKey()')+
+    '<div class="set-sep"></div>'+
+    '<div class="set-status"><span class="dot'+(syncOk?'':' off')+'"></span>'+(syncOk?'מסונכרן לענן':'לא מחובר לענן')+' · <span class="ver">v35</span></div>'+
+    it(riSvg(RI.out),'התנתקות','doSignOut()','danger')+
+    '</div><div class="mc-actions"><button class="btn-ghost" onclick="cm()">סגור</button></div>');
+}
+function mMore(){
+  const c=taskCounts();
+  const it=(ic,label,view,n)=>'<button class="set-item" onclick="cm();closeProjFly(true);selView(\''+view+'\')">'+riSvg(ic)+'<span>'+label+'</span>'+(n?'<span class="set-n">'+n+'</span>':'')+'</button>';
+  sm('<h2>עוד</h2><div class="set-list">'+
+    it(RI.today,'היום','today',c.today)+it(RI.week,'השבוע','week',c.week)+it(RI.late,'באיחור','overdue',c.overdue)+it(RI.flag,'דחוף','urgent',c.urgent)+
+    it(RI.active,'כל המשימות הפעילות','active',c.all)+it(RI.done,'הושלמו','done')+it(RI.ai,'עוזר AI','ai')+
+    '<div class="set-sep"></div><button class="set-item" onclick="mSettings()">'+riSvg(RI.settings)+'<span>הגדרות, גיבוי וייצוא</span></button>'+
+    '</div><div class="mc-actions"><button class="btn-ghost" onclick="cm()">סגור</button></div>');
+}
+// New task from anywhere: use the open project, otherwise ask which project first.
+function quickNewTask(){
+  if(ap()){mNewT();return;}
+  const projs=S.projects.filter(p=>!p.archived);
+  if(!projs.length){mNewP();return;}
+  sm('<h2>משימה חדשה — באיזה פרויקט?</h2><div class="set-list">'+projs.map(p=>'<button class="set-item" onclick="cm();closeProjFly(true);selP(\''+p.id+'\');mNewT()"><span class="pf-dot" style="background:'+projColor(p).hex+'"></span><span>'+esc(p.name)+'</span><span class="set-n">'+ptcOpen(p)+'</span></button>').join('')+'</div><div class="mc-actions"><button class="btn-ghost" onclick="cm()">ביטול</button></div>');
 }
 
 // ----- Main -----
@@ -1036,116 +1346,89 @@ function rFilterView(mn,title,subtitle,tasks,events){
     <div class="tl-wrap">
       ${evHtml}
       <div class="tl">
-        <div class="tl-head"><div></div><div>משימה</div><div>עדיפות</div><div>סטטוס</div><div>יעד</div><div></div></div>
+        <div class="tl-head"><div></div><div>משימה</div><div>פרויקט · תחום</div><div>סטטוס</div><div>עדיפות</div><div>יעד</div><div></div></div>
         ${tasksHtml}
       </div>
     </div>
   `;
 }
 
-// ----- Dashboard (summary of all projects + immediate priorities) -----
+// ----- Dashboard (D layout: KPIs, task table, today's calendar, completed this week) -----
+let dashRange='today';
+function setDashRange(r){dashRange=r;render();}
+function hebDate(){try{return new Date().toLocaleDateString('he-IL',{weekday:'long',day:'numeric',month:'long'});}catch(_){return TODAY;}}
 function rDashboard(mn){
   const all=getAllTasks();
   const open=all.filter(x=>x.task.status!=='הושלם');
   const overdue=open.filter(x=>isOverdue(x.task.dueDate));
   const urgent=open.filter(x=>x.task.priority==='דחוף');
   const today=open.filter(x=>x.task.dueDate===TODAY);
-  const today7=new Date();today7.setDate(today7.getDate()+7);
-  const wkEnd=today7.toISOString().split('T')[0];
-  const week=open.filter(x=>x.task.dueDate&&x.task.dueDate>=TODAY&&x.task.dueDate<=wkEnd);
+  const d7=new Date();d7.setDate(d7.getDate()+7);const wkEnd=d7.toISOString().split('T')[0];
+  const w7=new Date();w7.setDate(w7.getDate()-6);const wkStart=w7.toISOString().split('T')[0];
   const done=all.filter(x=>x.task.status==='הושלם');
+  const doneWeek=done.filter(x=>x.task.doneAt&&x.task.doneAt>=wkStart);
 
-  // Project summary cards
-  const projCards=S.projects.map(p=>{
-    const pTasks=p.areas.flatMap(a=>a.tasks);
-    const pOpen=pTasks.filter(t=>t.status!=='הושלם').length;
-    const pTotal=pTasks.length;
-    const pOverdue=pTasks.filter(t=>isOverdue(t.dueDate)&&t.status!=='הושלם').length;
-    const pUrgent=pTasks.filter(t=>t.priority==='דחוף'&&t.status!=='הושלם').length;
-    const pToday=pTasks.filter(t=>t.dueDate===TODAY&&t.status!=='הושלם').length;
-    const pProgress=pTotal>0?Math.round(((pTotal-pOpen)/pTotal)*100):0;
-    const col=projColor(p);
-    const status=pUrgent>0?'urgent':(pOverdue>0?'overdue':(pOpen===0&&pTotal>0?'done':'active'));
-    return `<div class="dash-card" onclick="selP('${p.id}')">
-      <div class="dash-card-head">
-        <span class="dash-card-dot" style="background:${col.hex}"></span>
-        <span class="dash-card-name">${esc(p.name)}</span>
-        ${pUrgent?'<span class="dash-card-badge urgent" title="דחופות">★ '+pUrgent+'</span>':''}
-        ${pOverdue?'<span class="dash-card-badge overdue" title="באיחור">⚠ '+pOverdue+'</span>':''}
-      </div>
-      <div class="dash-card-stats">
-        <div class="dash-stat"><div class="dash-stat-v">${pOpen}</div><div class="dash-stat-l">פעילות</div></div>
-        <div class="dash-stat"><div class="dash-stat-v">${pTotal}</div><div class="dash-stat-l">סה"כ</div></div>
-        <div class="dash-stat"><div class="dash-stat-v">${pToday}</div><div class="dash-stat-l">היום</div></div>
-        <div class="dash-stat"><div class="dash-stat-v">${p.areas.length}</div><div class="dash-stat-l">תחומים</div></div>
-      </div>
-      <div class="dash-card-bar"><div class="dash-card-bar-fill" style="width:${pProgress}%;background:${col.hex}"></div></div>
-      <div class="dash-card-foot">
-        <span style="font-size:10.5px;color:var(--ink3)">${pProgress}% הושלם</span>
-        <span style="font-size:10.5px;color:var(--ink3)">${status==='done'?'✓ סיום':status==='urgent'?'דחוף':status==='overdue'?'באיחור':'פעיל'}</span>
-      </div>
-    </div>`;
+  let rows,tTitle,empty;
+  if(dashRange==='week'){rows=open.filter(x=>x.task.dueDate&&x.task.dueDate<=wkEnd);tTitle='משימות השבוע';empty='אין משימות לשבוע הקרוב ✓';}
+  else if(dashRange==='all'){rows=open.slice();tTitle='כל המשימות הפתוחות';empty='אין משימות פתוחות ✓';}
+  else{rows=open.filter(x=>x.task.dueDate&&x.task.dueDate<=TODAY);tTitle='משימות להיום';empty='אין משימות להיום ✓';}
+  rows=sortTasks(rows);
+  const LIMIT=60;
+  const rowsHtml=rows.length?rows.slice(0,LIMIT).map(x=>renderTaskRow(x.task,x.area.name,x.proj,true)).join(''):'<div class="dmuted dt-empty">'+empty+'</div>';
+  const moreHtml=rows.length>LIMIT?'<button class="tl-add" onclick="selView(\'active\')">הצג את כל '+rows.length+' המשימות ←</button>':'';
+
+  // today's calendar events (same loader the היום/השבוע views use)
+  const hasCal=!!getGcalConfig().clientId;
+  const key='dashboard:'+TODAY;
+  if(hasCal&&filterEvtKey!==key&&!filterEvtLoading)loadFilterEvents(key,new Date(TODAY+'T00:00:00'),new Date(TODAY+'T23:59:59'));
+  const evs=hasCal?filterEvents.filter(ev=>(ev.start.date||(ev.start.dateTime||'').slice(0,10))===TODAY)
+    .sort((a,b)=>(a.start.dateTime||a.start.date||'').localeCompare(b.start.dateTime||b.start.date||'')):[];
+  let evHtml;
+  if(!hasCal)evHtml='<div class="dmuted">יומן Google לא מחובר</div><button class="lnk" onclick="selView(\'calendar\')">חבר את היומן ←</button>';
+  else if(!evs.length)evHtml='<div class="dmuted">'+(filterEvtLoading||filterEvtKey!==key?'טוען אירועים…':'אין אירועים היום')+'</div>';
+  else evHtml=evs.map(ev=>{
+    const allDay=!!ev.start.date;
+    const time=allDay?'כל היום':new Date(ev.start.dateTime).toTimeString().slice(0,5);
+    return '<button class="dev" onclick="mEditEvent(\''+esc(ev.id)+'\',\''+esc(ev._calId||'')+'\')">'+(ev._color?'<span class="dev-bar" style="background:'+esc(ev._color)+'"></span>':'')+'<span class="dev-time">'+esc(time)+'</span><span class="dev-b"><span class="dev-title">'+esc(ev.summary||'(ללא כותרת)')+'</span>'+(ev._calName?'<span class="dev-cal">'+esc(ev._calName)+'</span>':'')+'</span></button>';
   }).join('');
 
-  // Priority list: combine overdue + urgent + today, dedupe, top 8
-  const seen=new Set();
-  const priorityList=[];
-  [...overdue,...urgent,...today].forEach(x=>{
-    if(seen.has(x.task.id))return;
-    seen.add(x.task.id);priorityList.push(x);
-  });
-  const priorityTop=sortTasks(priorityList).slice(0,8);
-  const priorityHtml=priorityTop.length?priorityTop.map(x=>renderTaskRow(x.task,x.area.name,x.proj,true)).join(''):'<div style="padding:30px 0;text-align:center;color:var(--ink3);font-size:13px">אין משימות שדורשות תשומת לב מיידית ✓</div>';
+  const kpi=(cls,ic,label,val,view)=>'<button class="dkpi'+(cls?' '+cls:'')+'" onclick="selView(\''+view+'\')"><span class="dkpi-ic">'+riSvg(ic)+'</span><span class="dkpi-t"><span class="dkpi-l">'+label+'</span><span class="dkpi-v">'+val+'</span></span></button>';
+  const seg=[['today','היום'],['week','השבוע'],['all','הכל']].map(([k,l])=>'<button class="'+(dashRange===k?'on':'')+'" onclick="setDashRange(\''+k+'\')" aria-pressed="'+(dashRange===k)+'">'+l+'</button>').join('');
 
   mn.innerHTML=`
-    <header class="mn-h">
-      <div class="mn-h-row">
-        <div class="mn-h-l">
-          <h1>מבט-על</h1>
-          <div class="mn-h-meta"><span>סיכום כל הפרויקטים והמשימות</span><span style="color:var(--ink3)">·</span><span>${TODAY}</span></div>
+    <div class="dash-wrap">
+      <header class="mn-h dash-h">
+        <div class="mn-h-row">
+          <div class="mn-h-l">
+            <h1>מבט-על</h1>
+            <div class="mn-h-meta"><span>${esc(hebDate())}</span></div>
+          </div>
+          <div class="seg" role="group" aria-label="טווח">${seg}</div>
         </div>
-        <div class="mn-h-actions">
-          <button class="btn-ghost" onclick="selView('ai')">${IC.ai} AI</button>
-          <button class="btn-primary" onclick="mNewP()">${IC.plus} פרויקט</button>
-        </div>
+      </header>
+      <div class="dkpis">
+        ${kpi('',RI.active,'פעילות',open.length,'active')}
+        ${kpi('',RI.week,'להיום',today.length,'today')}
+        ${kpi(overdue.length?'k-red':'',RI.late,'באיחור',overdue.length,'overdue')}
+        ${kpi('k-amber',RI.flag,'דחוף',urgent.length,'urgent')}
       </div>
-    </header>
-
-    <div class="kpis">
-      <button class="kpi kpi-btn" onclick="selView('today')"><div class="kpi-l">היום</div><div class="kpi-row"><div class="kpi-v">${today.length}</div></div></button>
-      <button class="kpi kpi-btn ${urgent.length?'acc-r':''}" onclick="selView('urgent')"><div class="kpi-l">דחופות</div><div class="kpi-row"><div class="kpi-v">${urgent.length}</div></div></button>
-      <button class="kpi kpi-btn ${overdue.length?'acc-a':''}" onclick="selView('overdue')"><div class="kpi-l">באיחור</div><div class="kpi-row"><div class="kpi-v">${overdue.length}</div></div></button>
-      <button class="kpi kpi-btn" onclick="selView('week')"><div class="kpi-l">השבוע</div><div class="kpi-row"><div class="kpi-v">${week.length}</div></div></button>
-      <button class="kpi kpi-btn" onclick="selView('active')"><div class="kpi-l">פעילות</div><div class="kpi-row"><div class="kpi-v">${open.length}</div><div class="kpi-s">מתוך ${all.length}</div></div></button>
-      <button class="kpi kpi-btn acc-g" onclick="selView('done')"><div class="kpi-l">הושלמו</div><div class="kpi-row"><div class="kpi-v">${done.length}</div></div></button>
-    </div>
-
-    <div class="dash-body">
-      <div class="dash-section-title">
-        <span>פרויקטים</span>
-        <span class="dash-section-cnt">${S.projects.length}</span>
-      </div>
-      <div class="dash-grid">${projCards||'<div class="empty-st">אין פרויקטים<br><button class="btn-primary" style="margin-top:10px" onclick="mNewP()">+ פרויקט חדש</button></div>'}</div>
-
-      ${urgent.length?`
-      <div class="dash-section-title" style="margin-top:22px">
-        <span style="color:var(--red)">🔥 דחופות</span>
-        <span class="dash-section-cnt">${urgent.length}</span>
-        ${urgent.length>5?'<button class="btn-ghost" style="margin-right:auto;font-size:11px" onclick="selView(\'urgent\')">הצג הכל →</button>':''}
-      </div>
-      <div class="tl">
-        <div class="tl-head"><div></div><div>משימה</div><div>עדיפות</div><div>סטטוס</div><div>יעד</div><div></div></div>
-        ${sortTasks(urgent.slice()).slice(0,5).map(x=>renderTaskRow(x.task,x.area.name,x.proj,true)).join('')}
-      </div>`:''}
-
-      <div class="dash-section-title" style="margin-top:22px">
-        <span>דורש תשומת לב מיידית</span>
-        <span class="dash-section-cnt">${priorityTop.length}</span>
-        ${priorityList.length>8?'<button class="btn-ghost" style="margin-right:auto;font-size:11px" onclick="selView(\'overdue\')">הצג הכל →</button>':''}
-      </div>
-      <div class="tl">
-        <div class="tl-head"><div></div><div>משימה</div><div>עדיפות</div><div>סטטוס</div><div>יעד</div><div></div></div>
-        ${priorityHtml}
+      <div class="dash-cols">
+        <section class="dash-main tl">
+          <div class="dt-h"><h2>${tTitle}</h2><span class="cnt">${rows.length} משימות</span></div>
+          <div class="tl-head"><div></div><div>משימה</div><div>פרויקט · תחום</div><div>סטטוס</div><div>עדיפות</div><div>יעד</div><div></div></div>
+          ${rowsHtml}${moreHtml}
+        </section>
+        <aside class="dash-side">
+          <div class="dcard">
+            <div class="dcard-h"><h2>ביומן היום</h2>${hasCal?'<button class="lnk" onclick="selView(\'calendar\')">פתח יומן</button>':''}</div>
+            ${evHtml}
+          </div>
+          <div class="dcard">
+            <div class="dcard-h"><h2>הושלמו השבוע</h2></div>
+            <div class="dstat"><b>${doneWeek.length}</b>משימות</div>
+            <button class="lnk" onclick="selView('done')">כל המשימות שהושלמו (${done.length}) ←</button>
+          </div>
+        </aside>
       </div>
     </div>
   `;
@@ -1170,6 +1453,8 @@ function rProject(mn){
 
   let groupsHtml='';
   const isSingleArea=S.aaid&&S.aaid!=='__all__';
+  // area is already the section header (or the single selected area) → no need for the area column
+  const noAreaCol=(isSingleArea&&S.grouping!=='priority'&&S.grouping!=='status')||(!isSingleArea&&S.grouping==='area');
   if(isSingleArea&&S.grouping!=='priority'&&S.grouping!=='status'){
     // Single area view - flat list
     const a=p.areas.find(a=>a.id===S.aaid);
@@ -1273,8 +1558,8 @@ function rProject(mn){
       </select>
     </div>
     <div class="tl-wrap">
-      <div class="tl">
-        <div class="tl-head"><div></div><div>משימה · ${esc(curAreaName)}</div><div>עדיפות</div><div>סטטוס</div><div>יעד</div><div></div></div>
+      <div class="tl${noAreaCol?' no-pcol':''}">
+        <div class="tl-head"><div></div><div>משימה · ${esc(curAreaName)}</div><div>תחום</div><div>סטטוס</div><div>עדיפות</div><div>יעד</div><div></div></div>
         ${groupsHtml}
         <div class="tl-add" onclick="mNewT()">+ הוסף משימה</div>
       </div>
@@ -1298,6 +1583,7 @@ function renderTaskRow(t,areaName,proj,showProj){
   else if(t.priority==='נמוך')priorityHtml='<span class="chip-pr p-l"><span class="chip-pr-dot"></span>נמוך</span>';
   const col=proj?projColor(proj):null;
   const mobiMeta='<div class="tr-mobi-meta">'+
+    (showProj&&proj?'<span class="tr-mobi-proj"><span class="pd" style="background:'+col.hex+'"></span>'+esc(proj.name)+(areaName?' · '+esc(areaName):'')+'</span>':'')+
     (t.priority?priorityHtml:'')+
     '<span class="chip-st '+statusCls+'">'+esc(statusLbl)+'</span>'+
     (t.dueDate?'<span class="tr-due '+(od?'od':'')+'">'+esc(due)+(od?' !':'')+'</span>':'')+
@@ -1306,16 +1592,12 @@ function renderTaskRow(t,areaName,proj,showProj){
     <button class="cb ${isDone?'done':''}" onclick="toggleDone('${t.id}')" title="${isDone?'בטל סימון':'סמן כהושלם'}"></button>
     <div class="tr-title-wrap">
       <span class="tr-title">${esc(t.title)}</span>
-      <div class="tr-meta-chips">
-        ${t.importance==='גבוהה'?'<span class="imp-tag">חשוב</span>':''}
-        ${t.assigned?'<span class="chip-as">'+esc(t.assigned)+'</span>':''}
-        ${areaName?'<span class="tr-area">'+esc(areaName)+'</span>':''}
-        ${showProj&&proj?'<span class="tr-projchip" style="background:color-mix(in srgb,'+col.hex+' 14%,var(--panel));color:color-mix(in srgb,'+col.hex+' 72%,var(--ink))">'+esc(proj.name)+'</span>':''}
-      </div>
+      ${(t.importance==='גבוהה'||t.assigned)?'<div class="tr-meta-chips">'+(t.importance==='גבוהה'?'<span class="imp-tag">חשוב</span>':'')+(t.assigned?'<span class="chip-as">'+esc(t.assigned)+'</span>':'')+'</div>':''}
       ${mobiMeta}
     </div>
-    <div class="tr-priority-cell">${priorityHtml}</div>
+    <div class="tr-proj-cell">${showProj&&proj?'<span class="pd" style="background:'+col.hex+'"></span><span class="pn">'+esc(proj.name)+'</span>'+(areaName?'<span class="sep">·</span>':''):''}${areaName?'<span class="an">'+esc(areaName)+'</span>':''}</div>
     <div class="tr-status-cell"><span class="chip-st ${statusCls}">${esc(statusLbl)}</span></div>
+    <div class="tr-priority-cell">${priorityHtml}</div>
     <div class="tr-due-cell tr-due ${od?'od':''}">${t.dueDate?esc(due)+(od?' <span style="font-size:10px">!</span>':''):'<span style="color:var(--ink3)">—</span>'}</div>
     <button class="tr-more" onclick="showMovePop('${t.id}',this,event)" title="העבר תחום">${IC.more}</button>
   </div>`;
@@ -1962,7 +2244,7 @@ async function loadFilterEvents(key,timeMin,timeMax){
     filterEvtKey=key;
   }catch(e){filterEvents=[];filterEvtKey=key;}
   filterEvtLoading=false;
-  if(S.view==='today'||S.view==='week')rMain();
+  if(S.view==='today'||S.view==='week'||S.view==='dashboard')rMain();
 }
 function rCalendar(mn){
   const cfg=getGcalConfig();
@@ -2477,6 +2759,7 @@ function toggleDone(id){
   const r=findTask(id);if(!r)return;
   const becomesDone=r.task.status!=='הושלם';
   r.task.status=becomesDone?'הושלם':'פתוח';
+  r.task.doneAt=becomesDone?TODAY:'';
   if(becomesDone)moveTaskToDoneArea(id);
   else moveTaskFromDoneArea(id);
   sv();render();
@@ -2485,6 +2768,7 @@ function updTask(id,patch){
   const r=findTask(id);if(!r)return;
   Object.assign(r.task,patch);
   if('status' in patch){
+    r.task.doneAt=patch.status==='הושלם'?(r.task.doneAt||TODAY):'';
     if(patch.status==='הושלם')moveTaskToDoneArea(id);
     else if(r.area.name===DONE_AREA_NAME)moveTaskFromDoneArea(id);
   }
@@ -2516,7 +2800,7 @@ function doSearch(q){
       </div>
     </header>
     <div class="tl-wrap"><div class="tl">
-      <div class="tl-head"><div></div><div>משימה</div><div>עדיפות</div><div>סטטוס</div><div>יעד</div><div></div></div>
+      <div class="tl-head"><div></div><div>משימה</div><div>פרויקט · תחום</div><div>סטטוס</div><div>עדיפות</div><div>יעד</div><div></div></div>
       ${tasksHtml}
     </div></div>
   `;
@@ -2996,8 +3280,8 @@ function xCSV(){const p=ap();if(!p){alert('בחר פרויקט');return;}let row
 function xJSON(){const p=ap();if(!p){alert('בחר פרויקט');return;}const el=document.createElement('a');el.href=URL.createObjectURL(new Blob([JSON.stringify(p,null,2)],{type:'application/json'}));el.download=p.name+'.json';el.click();}
 
 // ===== MOBILE =====
-function toggleSB(){document.getElementById('sb').classList.toggle('open');}
-function closeMobileSB(){document.getElementById('sb').classList.remove('open');}
+function toggleSB(){toggleProjFly();}
+function closeMobileSB(){if(isMobileUI())setProjFly(false);}
 
 // ===== EXPOSE =====
 // ===== THEME: 'light' | 'dark' | '' (follow system). Stored in localStorage('theme'); applied pre-paint in <head>. =====
@@ -3006,7 +3290,7 @@ function isDarkNow(){const t=getThemePref();return t==='dark'||(t!=='light'&&!!(
 function applyTheme(){
   const t=getThemePref();
   if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);else document.documentElement.removeAttribute('data-theme');
-  const m=document.getElementById('meta-theme');if(m)m.setAttribute('content',isDarkNow()?'#0B1426':'#F4F7FB');
+  const m=document.getElementById('meta-theme');if(m)m.setAttribute('content',isDarkNow()?'#070E1C':'#0F1F3D');
 }
 function cycleTheme(){
   const order=['','dark','light'];const cur=getThemePref();const next=order[(order.indexOf(cur)+1)%order.length];
@@ -3023,7 +3307,7 @@ function themeIcon(){
 try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{applyTheme();if(!getThemePref())render();});}catch(_){}
 applyTheme();
 
-Object.assign(window,{cycleTheme,selView,selP,selA,selectTask,closeDetail,toggleDone,updTask,updTaskField,dTask,setFilterStatus,setGrouping,toggleCollapse,clearDoneInProject,onSearchInput,addNote,toggleNoteDone,dNote,updNote,toggleNoteExpand,updNoteContent,dragStart,dragEnd,areaDragOver,areaDragLeave,areaDrop,moveTask,showMovePop,closeMovePop,noteDragStart,noteDragEnd,projItemDragStart,projItemDragEnd,projDragOver,projDragLeave,projDrop,sm,cm,mNewP,cP,mEditP,sPn,dP,archiveProject,unarchiveProject,toggleArchView,mNewA,cA,mEditA,sA,dA,mNewT,cT,mSetKey,saveKey,delKey,addAssigneeForTask,fmtCmd,fmtTaskCmd,toggleTaskExpand,insertChecklist,clickCheckBox,aiKeyDown,clearAI,sendAI,xCSV,xJSON,mBackup,doBackupNow,restoreBackup,exportFullBackup,importFullBackup,doSignOut,toggleSB,closeMobileSB,pickColor,fmtNoteCmd,toggleRtPop,cycleCanvasBg,setCanvasTool,setCanvasColor,setCanvasPenSize,toggleCanvasTouch,canvasUndo,canvasClear,toggleNoteCanvas,startCanvasResize,gcalPrev,gcalNext,gcalGoToday,setCalView,toggleCalChat,gcalDoSignIn,gcalDoSignOut,loadCalEvents,mGcalConfig,saveGcalConfig,delGcalConfig,mNewEvent,mNewEventOnDay,mEditEvent,toggleAllDay,saveEvent,deleteEvent,mDayEvents,syncTaskToCal,unsyncTaskFromCal});
+Object.assign(window,{toggleProjFly,closeProjFly,mSettings,mMore,quickNewTask,setDashRange,cycleTheme,selView,selP,selA,selectTask,closeDetail,toggleDone,updTask,updTaskField,dTask,setFilterStatus,setGrouping,toggleCollapse,clearDoneInProject,onSearchInput,addNote,toggleNoteDone,dNote,updNote,toggleNoteExpand,updNoteContent,dragStart,dragEnd,areaDragOver,areaDragLeave,areaDrop,moveTask,showMovePop,closeMovePop,noteDragStart,noteDragEnd,projItemDragStart,projItemDragEnd,projDragOver,projDragLeave,projDrop,sm,cm,mNewP,cP,mEditP,sPn,dP,archiveProject,unarchiveProject,toggleArchView,mNewA,cA,mEditA,sA,dA,mNewT,cT,mSetKey,saveKey,delKey,addAssigneeForTask,fmtCmd,fmtTaskCmd,toggleTaskExpand,insertChecklist,clickCheckBox,aiKeyDown,clearAI,sendAI,xCSV,xJSON,mBackup,doBackupNow,restoreBackup,exportFullBackup,importFullBackup,doSignOut,toggleSB,closeMobileSB,pickColor,fmtNoteCmd,toggleRtPop,cycleCanvasBg,setCanvasTool,setCanvasColor,setCanvasPenSize,toggleCanvasTouch,canvasUndo,canvasClear,toggleNoteCanvas,startCanvasResize,gcalPrev,gcalNext,gcalGoToday,setCalView,toggleCalChat,gcalDoSignIn,gcalDoSignOut,loadCalEvents,mGcalConfig,saveGcalConfig,delGcalConfig,mNewEvent,mNewEventOnDay,mEditEvent,toggleAllDay,saveEvent,deleteEvent,mDayEvents,syncTaskToCal,unsyncTaskFromCal});
 
 // ===== AUTH =====
 let appStarted=false;
