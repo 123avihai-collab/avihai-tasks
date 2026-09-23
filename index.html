@@ -833,8 +833,8 @@ body.fly-open .dash-side{width:auto;display:grid;grid-template-columns:repeat(2,
   .dkpi-l{font-size:12px}
   .dash-cols{flex-direction:column;gap:16px;align-items:stretch}
   .dash-side,body.fly-open .dash-side{display:contents}
-  .dash-side .dcard:first-child{order:-1}
-  .dash-side .dcard:last-child{order:2}
+  .dash-side .dcard:first-child{order:2}
+  .dash-side .dcard:last-child{order:3}
   .tl-head{display:none}
   .tr,.tl.no-pcol .tr{grid-template-columns:22px minmax(0,1fr) auto;gap:10px;padding:12px}
   .tr-proj-cell{display:none}
@@ -889,6 +889,65 @@ body.fly-open .dash-side{width:auto;display:grid;grid-template-columns:repeat(2,
   .notes-add{padding:6px 16px 10px}
   .notes-list{padding:6px 16px 22px}
   .ai-msgs{padding:16px}
+}
+/* ================= v37: "My day" dashboard, project cards, collapse-all ================= */
+.dday{padding:14px 16px 16px;gap:4px}
+.dday .dcard-h{margin-bottom:4px}
+.dl-sec{display:flex;align-items:center;gap:8px;margin:10px 0 4px;font-size:12px;font-weight:700;color:var(--ink3)}
+.dl-sec:first-of-type{margin-top:2px}
+.dl-sec.od{color:var(--red)}
+.dl-n{font-size:11px;font-weight:700;padding:0 7px;border-radius:999px;background:var(--rail);color:var(--ink3)}
+.dl-sec.od .dl-n{background:var(--redSoft);color:var(--red)}
+.dl-row{display:flex;align-items:center;gap:10px;min-height:44px;padding:4px 8px;border-radius:8px}
+.dl-row:hover{background:var(--rail)}
+.dl-row.od{background:color-mix(in srgb,var(--red) 5%,var(--panel))}
+.dl-t{flex:1;min-width:0;text-align:start;font-size:14px;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:6px 0}
+.dl-d{font-size:12px;font-weight:700;color:var(--red);flex-shrink:0}
+.dl-p{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--ink2);flex-shrink:0;max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pd{width:8px;height:8px;border-radius:2px;flex-shrink:0;display:inline-block}
+.dl-timed{display:flex;align-items:stretch;gap:10px}
+.dl-time{width:46px;flex-shrink:0;padding-top:12px;font-size:13px;font-weight:700;color:var(--accent);font-feature-settings:"tnum"}
+.dl-item{flex:1;min-width:0}
+.dl-ev{position:relative;display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:6px 14px;border-radius:8px;background:var(--accentSoft);text-align:start;overflow:hidden;margin:2px 0}
+.dl-ev:hover{background:color-mix(in srgb,var(--accent) 16%,var(--panel))}
+.dl-bar{position:absolute;top:8px;bottom:8px;right:0;width:3px;border-radius:3px}
+.dl-evt{flex:1;min-width:0;font-size:14px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dl-cal{font-size:12px;color:var(--ink3);flex-shrink:0}
+.dl-more{margin:4px 8px}
+.dl-calnote{margin-top:10px}
+.wk-list{display:flex;flex-direction:column}
+.wk-row{display:flex;align-items:center;gap:8px;padding:8px 4px;border-bottom:1px solid var(--rule);text-align:start}
+.wk-row:last-child{border-bottom:none}
+.wk-row:hover{background:var(--rail)}
+.wk-d{font-size:14px;font-weight:600;color:var(--ink)}
+.wk-dt{font-size:12px;color:var(--ink3);flex:1}
+.wk-n{font-size:13px;font-weight:600;color:var(--accent)}
+.wk-n.zero{color:var(--ink3);font-weight:400}
+.pcs-h{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.pcs-h h2{flex:1;font-size:16px;font-weight:700}
+.pcs{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.pc{background:var(--panel);border:1px solid var(--rule);border-radius:10px;box-shadow:var(--shadow);padding:14px 16px;display:flex;flex-direction:column;gap:8px;cursor:pointer;transition:transform .12s,box-shadow .12s}
+.pc:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(15,27,45,.08)}
+.pc-h{display:flex;align-items:center;gap:8px}
+.pc-h .pd{width:10px;height:10px;border-radius:3px}
+.pc-n{flex:1;min-width:0;font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc-s{font-size:13px;color:var(--ink3)}
+.pc-list{display:flex;flex-direction:column;gap:2px;border-top:1px solid var(--rule);padding-top:8px}
+.pc-t{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink2);min-height:24px}
+.pc-tt{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc-td{font-size:12px;color:var(--ink3);flex-shrink:0}
+.pc-t.od .pc-td{color:var(--red);font-weight:700}
+/* collapse / expand all groups (project page) */
+.coll-all{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--ink2);transition:transform .15s}
+.coll-all:hover{background:var(--rule);color:var(--ink)}
+.coll-all.col{transform:rotate(-90deg)}
+.coll-all svg{width:13px;height:13px}
+@media(max-width:900px){
+  .tl-head{display:grid;grid-template-columns:22px minmax(0,1fr);padding:9px 12px}
+  .tl-head>div:nth-child(n+3){display:none}
+  .dl-p{max-width:96px}
+  .pcs{grid-template-columns:1fr}
+  .pcs-sec{padding-bottom:8px}
 }
 </style>
 </head>
@@ -1239,7 +1298,6 @@ function rSidebar(){
     {id:'today',ic:RI.today,lbl:'היום',b:counts.today},
     {id:'week',ic:RI.week,lbl:'השבוע'},
     {id:'overdue',ic:RI.late,lbl:'באיחור',b:counts.overdue,red:true},
-    {id:'urgent',ic:RI.flag,lbl:'דחוף'},
     {id:'calendar',ic:RI.cal,lbl:'יומן'},
     {id:'__proj',ic:RI.proj,lbl:'פרויקטים'},
     {id:'notes',ic:RI.notes,lbl:'פתקים'},
@@ -1259,7 +1317,7 @@ function rSidebar(){
     <div class="rail-grow"></div>
     <button class="rail-mini alt" onclick="cycleTheme()" title="${themeTitle()}" aria-label="${themeTitle()}">${themeIcon()}</button>
     <button class="rail-mini" onclick="mSettings()" title="הגדרות, גיבוי וייצוא" aria-label="הגדרות, גיבוי וייצוא">${riSvg(RI.settings)}</button>
-    <span class="rail-ver ver">v36</span>
+    <span class="rail-ver ver">v37</span>
   `;
 }
 
@@ -1283,10 +1341,7 @@ function rProjFly(){
     const late=p.areas.reduce((n,a)=>n+a.tasks.filter(t=>t.status!=='הושלם'&&isOverdue(t.dueDate)).length,0);
     const isAct=S.view==='proj'&&p.id===S.apid;
     const col=projColor(p);
-    const areasHtml=isAct?'<div class="proj-areas">'+p.areas.map(a=>{
-      const aAct=a.id===S.aaid?'act':'';
-      return '<div class="area-item '+aAct+'" onclick="selA(\''+a.id+'\')" ondragover="areaDragOver(event)" ondragleave="areaDragLeave(event)" ondrop="areaDrop(\''+a.id+'\',event)"><span class="area-name">'+esc(a.name)+'</span><span class="area-edit-btn" onclick="event.stopPropagation();mEditA(\''+a.id+'\')" title="עריכת תחום">✎</span><span class="area-cnt">'+a.tasks.length+'</span></div>';
-    }).join('')+'<div class="area-item area-add" onclick="mNewA()"><span>+ תחום</span><span></span></div></div>':'';
+    const areasHtml='';
     return '<div><button class="proj-item '+(isAct?'act':'')+'" draggable="true" onclick="selP(\''+p.id+'\')" ondragstart="projItemDragStart(\''+p.id+'\',event)" ondragend="projItemDragEnd(event)" ondragover="projDragOver(\''+p.id+'\',event)" ondragleave="projDragLeave(event)" ondrop="projDrop(\''+p.id+'\',event)"><span class="proj-left"><span class="proj-dot" style="background:'+col.hex+'" onclick="event.stopPropagation();selP(\''+p.id+'\');mEditP();" title="ערוך פרויקט וצבע"></span><span class="proj-name">'+esc(p.name)+'</span></span>'+(late?'<span class="pf-late">'+late+' באיחור</span>':'')+'<span class="proj-cnt">'+c+'</span></button>'+areasHtml+'</div>';
   }).join('');
   const archHtml=archivedProjs.length?'<div class="proj-arch"><button class="proj-arch-tg" onclick="toggleArchView()">'+riSvg('M3 7h18v13H3zM3 7l2-3h14l2 3M10 12h4')+' ארכיון ('+archivedProjs.length+') '+(archViewOpen?'▾':'◂')+'</button>'+(archViewOpen?archivedProjs.map(p=>'<div class="proj-arch-item"><span class="proj-name pf-arch-name" onclick="selP(\''+p.id+'\')">'+esc(p.name)+'</span><button class="proj-arch-restore" onclick="unarchiveProject(\''+p.id+'\')">שחזר</button></div>').join(''):'')+'</div>':'';
@@ -1317,7 +1372,7 @@ function mSettings(){
     it(riSvg(RI.cal),'חיבור יומן Google','cm();mGcalConfig()')+
     it(riSvg(RI.key),'מפתח עוזר ה-AI','cm();mSetKey()')+
     '<div class="set-sep"></div>'+
-    '<div class="set-status"><span class="dot'+(syncOk?'':' off')+'"></span>'+(syncOk?'מסונכרן לענן':'לא מחובר לענן')+' · <span class="ver">v36</span></div>'+
+    '<div class="set-status"><span class="dot'+(syncOk?'':' off')+'"></span>'+(syncOk?'מסונכרן לענן':'לא מחובר לענן')+' · <span class="ver">v37</span></div>'+
     it(riSvg(RI.out),'התנתקות','doSignOut()','danger')+
     '</div><div class="mc-actions"><button class="btn-ghost" onclick="cm()">סגור</button></div>');
 }
@@ -1325,7 +1380,7 @@ function mMore(){
   const c=taskCounts();
   const it=(ic,label,view,n)=>'<button class="set-item" onclick="cm();closeProjFly(true);selView(\''+view+'\')">'+riSvg(ic)+'<span>'+label+'</span>'+(n?'<span class="set-n">'+n+'</span>':'')+'</button>';
   sm('<h2>עוד</h2><div class="set-list">'+
-    it(RI.today,'היום','today',c.today)+it(RI.week,'השבוע','week',c.week)+it(RI.late,'באיחור','overdue',c.overdue)+it(RI.flag,'דחוף','urgent',c.urgent)+
+    it(RI.today,'היום','today',c.today)+it(RI.week,'השבוע','week',c.week)+it(RI.late,'באיחור','overdue',c.overdue)+
     it(RI.active,'כל המשימות הפעילות','active',c.all)+it(RI.done,'הושלמו','done')+it(RI.ai,'עוזר AI','ai')+
     '<div class="set-sep"></div><button class="set-item" onclick="mSettings()">'+riSvg(RI.settings)+'<span>הגדרות, גיבוי וייצוא</span></button>'+
     '</div><div class="mc-actions"><button class="btn-ghost" onclick="cm()">סגור</button></div>');
@@ -1401,47 +1456,75 @@ function rFilterView(mn,title,subtitle,tasks,events){
   `;
 }
 
-// ----- Dashboard (D layout: KPIs, task table, today's calendar, completed this week) -----
+// ----- Dashboard: KPIs · "My day" timeline (events + today's tasks, overdue first) · week · project cards -----
 let dashRange='today';
 function setDashRange(r){dashRange=r;render();}
 function hebDate(){try{return new Date().toLocaleDateString('he-IL',{weekday:'long',day:'numeric',month:'long'});}catch(_){return TODAY;}}
+function dayLabel(ds,i){if(i===1)return 'מחר';try{return new Date(ds+'T12:00:00').toLocaleDateString('he-IL',{weekday:'long'});}catch(_){return ds;}}
+function dashTaskRow(x,withDate){
+  const t=x.task,col=projColor(x.proj);
+  const od=isOverdue(t.dueDate)&&t.status!=='הושלם';
+  return '<div class="dl-row'+(od?' od':'')+'"><button class="cb" onclick="toggleDone(\''+t.id+'\')" title="סמן כהושלם" aria-label="סמן כהושלם"></button>'+
+    '<button class="dl-t" onclick="openTask(\''+t.id+'\')">'+esc(t.title)+'</button>'+
+    (withDate&&t.dueDate?'<span class="dl-d">'+esc(fmtDate(t.dueDate))+'</span>':'')+
+    '<span class="dl-p"><span class="pd" style="background:'+col.hex+'"></span>'+esc(x.proj.name)+'</span></div>';
+}
 function rDashboard(mn){
   const all=getAllTasks();
   const open=all.filter(x=>x.task.status!=='הושלם');
-  const overdue=open.filter(x=>isOverdue(x.task.dueDate));
-  const urgent=open.filter(x=>x.task.priority==='דחוף');
-  const today=open.filter(x=>x.task.dueDate===TODAY);
+  const overdue=sortTasks(open.filter(x=>isOverdue(x.task.dueDate)));
+  const todayT=open.filter(x=>x.task.dueDate===TODAY);
   const d7=new Date();d7.setDate(d7.getDate()+7);const wkEnd=d7.toISOString().split('T')[0];
+  const week=open.filter(x=>x.task.dueDate&&x.task.dueDate>=TODAY&&x.task.dueDate<=wkEnd);
   const w7=new Date();w7.setDate(w7.getDate()-6);const wkStart=w7.toISOString().split('T')[0];
   const done=all.filter(x=>x.task.status==='הושלם');
   const doneWeek=done.filter(x=>x.task.doneAt&&x.task.doneAt>=wkStart);
-
-  let rows,tTitle,empty;
-  if(dashRange==='week'){rows=open.filter(x=>x.task.dueDate&&x.task.dueDate<=wkEnd);tTitle='משימות השבוע';empty='אין משימות לשבוע הקרוב ✓';}
-  else if(dashRange==='all'){rows=open.slice();tTitle='כל המשימות הפתוחות';empty='אין משימות פתוחות ✓';}
-  else{rows=open.filter(x=>x.task.dueDate&&x.task.dueDate<=TODAY);tTitle='משימות להיום';empty='אין משימות להיום ✓';}
-  rows=sortTasks(rows);
-  const LIMIT=60;
-  const rowsHtml=rows.length?rows.slice(0,LIMIT).map(x=>renderTaskRow(x.task,x.area.name,x.proj,true)).join(''):'<div class="dmuted dt-empty">'+empty+'</div>';
-  const moreHtml=rows.length>LIMIT?'<button class="tl-add" onclick="selView(\'active\')">הצג את כל '+rows.length+' המשימות ←</button>':'';
 
   // today's calendar events (same loader the היום/השבוע views use)
   const hasCal=!!getGcalConfig().clientId;
   const key='dashboard:'+TODAY;
   if(hasCal&&filterEvtKey!==key&&!filterEvtLoading)loadFilterEvents(key,new Date(TODAY+'T00:00:00'),new Date(TODAY+'T23:59:59'));
-  const evs=hasCal?filterEvents.filter(ev=>(ev.start.date||(ev.start.dateTime||'').slice(0,10))===TODAY)
-    .sort((a,b)=>(a.start.dateTime||a.start.date||'').localeCompare(b.start.dateTime||b.start.date||'')):[];
-  let evHtml;
-  if(!hasCal)evHtml='<div class="dmuted">יומן Google לא מחובר</div><button class="lnk" onclick="selView(\'calendar\')">חבר את היומן ←</button>';
-  else if(!evs.length)evHtml='<div class="dmuted">'+(filterEvtLoading||filterEvtKey!==key?'טוען אירועים…':'אין אירועים היום')+'</div>';
-  else evHtml=evs.map(ev=>{
+  const evs=hasCal?filterEvents.filter(ev=>(ev.start.date||(ev.start.dateTime||'').slice(0,10))===TODAY):[];
+
+  // "My day": timed items (events + tasks with a time) in time order, then the rest of the day
+  const timed=[],untimed=[];
+  evs.forEach(ev=>{
     const allDay=!!ev.start.date;
-    const time=allDay?'כל היום':new Date(ev.start.dateTime).toTimeString().slice(0,5);
-    return '<button class="dev" onclick="mEditEvent(\''+esc(ev.id)+'\',\''+esc(ev._calId||'')+'\')">'+(ev._color?'<span class="dev-bar" style="background:'+esc(ev._color)+'"></span>':'')+'<span class="dev-time">'+esc(time)+'</span><span class="dev-b"><span class="dev-title">'+esc(ev.summary||'(ללא כותרת)')+'</span>'+(ev._calName?'<span class="dev-cal">'+esc(ev._calName)+'</span>':'')+'</span></button>';
+    const it={ev,time:allDay?'':new Date(ev.start.dateTime).toTimeString().slice(0,5)};
+    (allDay?untimed:timed).push(it);
+  });
+  todayT.forEach(x=>{const it={x,time:x.task.dueTime||''};(it.time?timed:untimed).push(it);});
+  timed.sort((a,b)=>a.time.localeCompare(b.time));
+  const evRow=ev=>'<button class="dl-ev" onclick="mEditEvent(\''+esc(ev.id)+'\',\''+esc(ev._calId||'')+'\')"><span class="dl-bar" style="background:'+esc(ev._color||'var(--accent)')+'"></span><span class="dl-evt">'+esc(ev.summary||'(ללא כותרת)')+'</span>'+(ev._calName?'<span class="dl-cal">'+esc(ev._calName)+'</span>':'')+'</button>';
+  const itemHtml=it=>it.ev?evRow(it.ev):dashTaskRow(it.x,false);
+  let dayHtml='';
+  if(overdue.length)dayHtml+='<div class="dl-sec od"><span>באיחור</span><span class="dl-n">'+overdue.length+'</span></div>'+overdue.slice(0,8).map(x=>dashTaskRow(x,true)).join('')+(overdue.length>8?'<button class="lnk dl-more" onclick="selView(\'overdue\')">עוד '+(overdue.length-8)+' באיחור ←</button>':'');
+  if(timed.length)dayHtml+='<div class="dl-sec"><span>לפי שעה</span></div>'+timed.map(it=>'<div class="dl-timed"><span class="dl-time">'+esc(it.time)+'</span><div class="dl-item">'+itemHtml(it)+'</div></div>').join('');
+  if(untimed.length)dayHtml+='<div class="dl-sec"><span>במהלך היום</span><span class="dl-n">'+untimed.length+'</span></div>'+untimed.map(itemHtml).join('');
+  if(!overdue.length&&!timed.length&&!untimed.length)dayHtml='<div class="dmuted dt-empty">אין משימות או אירועים להיום ✓</div>';
+  const calNote=!hasCal?'<button class="lnk dl-calnote" onclick="selView(\'calendar\')">חבר את יומן Google כדי לראות כאן גם פגישות ←</button>':
+    ((filterEvtLoading||filterEvtKey!==key)&&!evs.length?'<div class="dmuted dl-calnote">טוען אירועי יומן…</div>':'');
+
+  // next days (after today)
+  const days=[];
+  for(let i=1;i<=6;i++){const d=new Date();d.setDate(d.getDate()+i);const ds=d.toISOString().split('T')[0];days.push({ds,lbl:dayLabel(ds,i),n:open.filter(x=>x.task.dueDate===ds).length});}
+  const weekHtml=days.map(d=>'<button class="wk-row" onclick="selView(\'week\')"><span class="wk-d">'+esc(d.lbl)+'</span><span class="wk-dt">'+esc(fmtDate(d.ds))+'</span><span class="wk-n'+(d.n?'':' zero')+'">'+(d.n?d.n+' משימות':'—')+'</span></button>').join('');
+
+  // project cards: open / overdue counts + next 3 tasks by date (no progress bars)
+  const byDate=(a,b)=>(a.task.dueDate||'9999').localeCompare(b.task.dueDate||'9999');
+  const projCards=S.projects.filter(p=>!p.archived).map(p=>{
+    const pOpen=open.filter(x=>x.proj.id===p.id);
+    const pLate=pOpen.filter(x=>isOverdue(x.task.dueDate)).length;
+    const next=pOpen.slice().sort(byDate).slice(0,3);
+    const col=projColor(p);
+    return '<div class="pc" role="button" tabindex="0" onclick="selP(\''+p.id+'\')" onkeydown="if(event.key===\'Enter\')selP(\''+p.id+'\')">'+
+      '<div class="pc-h"><span class="pd" style="background:'+col.hex+'"></span><span class="pc-n">'+esc(p.name)+'</span>'+(pLate?'<span class="pf-late">'+pLate+' באיחור</span>':'')+'</div>'+
+      '<div class="pc-s">'+pOpen.length+' משימות פתוחות</div>'+
+      (next.length?'<div class="pc-list">'+next.map(x=>'<div class="pc-t'+(isOverdue(x.task.dueDate)?' od':'')+'"><span class="pc-tt">'+esc(x.task.title)+'</span>'+(x.task.dueDate?'<span class="pc-td">'+esc(fmtDate(x.task.dueDate))+'</span>':'')+'</div>').join('')+'</div>':'<div class="dmuted">אין משימות פתוחות</div>')+
+      '</div>';
   }).join('');
 
   const kpi=(cls,ic,label,val,view)=>'<button class="dkpi'+(cls?' '+cls:'')+'" onclick="selView(\''+view+'\')"><span class="dkpi-ic">'+riSvg(ic)+'</span><span class="dkpi-t"><span class="dkpi-l">'+label+'</span><span class="dkpi-v">'+val+'</span></span></button>';
-  const seg=[['today','היום'],['week','השבוע'],['all','הכל']].map(([k,l])=>'<button class="'+(dashRange===k?'on':'')+'" onclick="setDashRange(\''+k+'\')" aria-pressed="'+(dashRange===k)+'">'+l+'</button>').join('');
 
   mn.innerHTML=`
     <div class="dash-wrap">
@@ -1451,25 +1534,23 @@ function rDashboard(mn){
             <h1>מבט-על</h1>
             <div class="mn-h-meta"><span>${esc(hebDate())}</span></div>
           </div>
-          <div class="seg" role="group" aria-label="טווח">${seg}</div>
         </div>
       </header>
       <div class="dkpis">
         ${kpi('',RI.active,'פעילות',open.length,'active')}
-        ${kpi('',RI.week,'להיום',today.length,'today')}
+        ${kpi('',RI.today,'להיום',todayT.length,'today')}
         ${kpi(overdue.length?'k-red':'',RI.late,'באיחור',overdue.length,'overdue')}
-        ${kpi('k-amber',RI.flag,'דחוף',urgent.length,'urgent')}
+        ${kpi('',RI.week,'השבוע',week.length,'week')}
       </div>
       <div class="dash-cols">
-        <section class="dash-main tl">
-          <div class="dt-h"><h2>${tTitle}</h2><span class="cnt">${rows.length} משימות</span></div>
-          <div class="tl-head"><div></div><div>משימה</div><div>פרויקט · תחום</div><div>סטטוס</div><div>עדיפות</div><div>יעד</div><div></div></div>
-          ${rowsHtml}${moreHtml}
+        <section class="dash-main dcard dday">
+          <div class="dcard-h"><h2>היום שלי</h2>${hasCal?'<button class="lnk" onclick="selView(\'calendar\')">פתח יומן</button>':''}</div>
+          ${dayHtml}${calNote}
         </section>
         <aside class="dash-side">
           <div class="dcard">
-            <div class="dcard-h"><h2>ביומן היום</h2>${hasCal?'<button class="lnk" onclick="selView(\'calendar\')">פתח יומן</button>':''}</div>
-            ${evHtml}
+            <div class="dcard-h"><h2>הימים הקרובים</h2></div>
+            <div class="wk-list">${weekHtml}</div>
           </div>
           <div class="dcard">
             <div class="dcard-h"><h2>הושלמו השבוע</h2></div>
@@ -1478,6 +1559,10 @@ function rDashboard(mn){
           </div>
         </aside>
       </div>
+      <section class="pcs-sec">
+        <div class="pcs-h"><h2>פרויקטים</h2><button class="lnk" onclick="mNewP()">+ פרויקט חדש</button></div>
+        <div class="pcs">${projCards||'<div class="dmuted">אין פרויקטים עדיין</div>'}</div>
+      </section>
     </div>
   `;
 }
@@ -1500,6 +1585,7 @@ function rProject(mn){
   filtered=sortTasks(filtered.slice());
 
   let groupsHtml='';
+  const gkeys=[];
   const isSingleArea=S.aaid&&S.aaid!=='__all__';
   // area is already the section header (or the single selected area) → no need for the area column
   const noAreaCol=(isSingleArea&&S.grouping!=='priority'&&S.grouping!=='status')||(!isSingleArea&&S.grouping==='area');
@@ -1515,6 +1601,7 @@ function rProject(mn){
     p.areas.forEach(a=>{
       const items=filtered.filter(x=>x.area.id===a.id);
       if(items.length||!S.filterStatus){
+        gkeys.push(a.id);
         const col=S.collapsed[a.id]?'col':'';
         groupsHtml+='<button class="sec-head '+col+'" onclick="toggleCollapse(\''+a.id+'\')" ondragover="areaDragOver(event)" ondragleave="areaDragLeave(event)" ondrop="areaDrop(\''+a.id+'\',event)"><span class="chev">'+IC.arrow+'</span><span>'+esc(a.name)+'</span><span class="cnt">· '+items.length+'</span><span class="ic-add" onclick="event.stopPropagation();mNewT(\''+a.id+'\')" title="הוסף משימה">+</span></button>';
         if(!S.collapsed[a.id]){
@@ -1527,6 +1614,7 @@ function rProject(mn){
     STATUSES.forEach(s=>{
       const items=filtered.filter(x=>x.task.status===s);
       if(!items.length)return;
+      gkeys.push('s_'+s);
       const col=S.collapsed['s_'+s]?'col':'';
       groupsHtml+='<button class="sec-head '+col+'" onclick="toggleCollapse(\'s_'+s+'\')"><span class="chev">'+IC.arrow+'</span><span>'+esc(s)+'</span><span class="cnt">· '+items.length+'</span></button>';
       if(!S.collapsed['s_'+s])groupsHtml+=items.map(x=>renderTaskRow(x.task,x.area.name,null,false)).join('');
@@ -1541,6 +1629,7 @@ function rProject(mn){
     buckets.forEach(b=>{
       const items=filtered.filter(x=>(x.task.priority||'')===b.key);
       if(!items.length)return;
+      gkeys.push('p_'+b.key);
       const col=S.collapsed['p_'+b.key]?'col':'';
       const cls=b.key==='דחוף'?'pri-urgent':(b.key==='בינוני'?'pri-med':'');
       groupsHtml+='<button class="sec-head '+col+' '+cls+'" onclick="toggleCollapse(\'p_'+b.key+'\')"><span class="chev">'+IC.arrow+'</span><span>'+b.icon+' '+esc(b.label)+'</span><span class="cnt">· '+items.length+'</span></button>';
@@ -1551,6 +1640,9 @@ function rProject(mn){
     else groupsHtml='<div class="empty-st">אין משימות</div>';
   }
 
+  projGroupKeys=gkeys;
+  const allCol=gkeys.length&&gkeys.every(k=>S.collapsed[k]);
+  const collBtn=gkeys.length?'<button class="coll-all'+(allCol?' col':'')+'" onclick="toggleAllGroups()" title="'+(allCol?'פתח את כל הקבוצות':'כווץ את כל הקבוצות')+'" aria-label="'+(allCol?'פתח את כל הקבוצות':'כווץ את כל הקבוצות')+'">'+IC.arrow+'</button>':'';
   const isAllArea=!S.aaid||S.aaid==='__all__';
   const curAreaName=isAllArea?'הכל':(p.areas.find(a=>a.id===S.aaid)?.name||'הכל');
 
@@ -1568,13 +1660,11 @@ function rProject(mn){
 
   mn.innerHTML=`
     <header class="mn-h">
-      <div class="mn-crumb"><span>פרויקטים</span><span class="sep">/</span><span class="cur">${esc(p.name)}</span></div>
       <div class="mn-h-row">
         <div class="mn-h-l">
           <h1>${esc(p.name)}</h1>
           <div class="mn-h-meta">
-            <span class="mn-h-code">#${esc(p.name)}</span>
-            <span style="color:var(--ink3)">·</span><span>${total} משימות · ${p.areas.length} תחומים</span>
+            <span>${total} משימות · ${p.areas.length} תחומים</span>
             <span style="color:var(--ink3)">·</span><span>${open} פעילות</span>
           </div>
         </div>
@@ -1607,7 +1697,7 @@ function rProject(mn){
     </div>
     <div class="tl-wrap">
       <div class="tl${noAreaCol?' no-pcol':''}">
-        <div class="tl-head"><div></div><div>משימה · ${esc(curAreaName)}</div><div>תחום</div><div>סטטוס</div><div>עדיפות</div><div>יעד</div><div></div></div>
+        <div class="tl-head"><div>${collBtn}</div><div>משימה · ${esc(curAreaName)}</div><div>תחום</div><div>סטטוס</div><div>עדיפות</div><div>יעד</div><div></div></div>
         ${groupsHtml}
         <div class="tl-add" onclick="mNewT()">+ הוסף משימה</div>
       </div>
@@ -2766,6 +2856,15 @@ function selA(id){S.aaid=id;render();}
 function setFilterStatus(s){S.filterStatus=S.filterStatus===s?null:s;render();}
 function setGrouping(g){S.grouping=g;render();}
 function toggleCollapse(id){S.collapsed[id]=!S.collapsed[id];render();}
+let projGroupKeys=[];
+function toggleAllGroups(){const all=projGroupKeys.length&&projGroupKeys.every(k=>S.collapsed[k]);projGroupKeys.forEach(k=>{S.collapsed[k]=!all;});render();}
+// Open a task from anywhere (dashboard): go to its project, make sure its group is open, expand it.
+function openTask(id){
+  const r=findTask(id);if(!r)return;
+  expandedTasks.add(id);S.collapsed[r.area.id]=false;
+  selP(r.proj.id);
+  setTimeout(()=>{const el=document.querySelector('[data-task-id="'+id+'"]');if(el)el.scrollIntoView({block:'center'});},60);
+}
 
 function selectTask(id){if(!expandedTasks.has(id))expandedTasks.add(id);render();setTimeout(()=>{const el=document.getElementById('te-'+id);if(el)el.scrollIntoView({behavior:'smooth',block:'nearest'});},20);}
 function closeDetail(){expandedTasks.clear();render();}
@@ -3355,7 +3454,7 @@ function themeIcon(){
 try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{applyTheme();if(!getThemePref())render();});}catch(_){}
 applyTheme();
 
-Object.assign(window,{toggleProjFly,closeProjFly,mSettings,mMore,quickNewTask,setDashRange,cycleTheme,selView,selP,selA,selectTask,closeDetail,toggleDone,updTask,updTaskField,dTask,setFilterStatus,setGrouping,toggleCollapse,clearDoneInProject,onSearchInput,addNote,toggleNoteDone,dNote,updNote,toggleNoteExpand,updNoteContent,dragStart,dragEnd,areaDragOver,areaDragLeave,areaDrop,moveTask,showMovePop,closeMovePop,noteDragStart,noteDragEnd,projItemDragStart,projItemDragEnd,projDragOver,projDragLeave,projDrop,sm,cm,mNewP,cP,mEditP,sPn,dP,archiveProject,unarchiveProject,toggleArchView,mNewA,cA,mEditA,sA,dA,mNewT,cT,mSetKey,saveKey,delKey,addAssigneeForTask,fmtCmd,fmtTaskCmd,toggleTaskExpand,insertChecklist,clickCheckBox,aiKeyDown,clearAI,sendAI,xCSV,xJSON,mBackup,doBackupNow,restoreBackup,exportFullBackup,importFullBackup,doSignOut,toggleSB,closeMobileSB,pickColor,fmtNoteCmd,toggleRtPop,cycleCanvasBg,setCanvasTool,setCanvasColor,setCanvasPenSize,toggleCanvasTouch,canvasUndo,canvasClear,toggleNoteCanvas,startCanvasResize,gcalPrev,gcalNext,gcalGoToday,setCalView,toggleCalChat,gcalDoSignIn,gcalDoSignOut,loadCalEvents,mGcalConfig,saveGcalConfig,delGcalConfig,mNewEvent,mNewEventOnDay,mEditEvent,toggleAllDay,saveEvent,deleteEvent,mDayEvents,syncTaskToCal,unsyncTaskFromCal});
+Object.assign(window,{toggleAllGroups,openTask,toggleProjFly,closeProjFly,mSettings,mMore,quickNewTask,setDashRange,cycleTheme,selView,selP,selA,selectTask,closeDetail,toggleDone,updTask,updTaskField,dTask,setFilterStatus,setGrouping,toggleCollapse,clearDoneInProject,onSearchInput,addNote,toggleNoteDone,dNote,updNote,toggleNoteExpand,updNoteContent,dragStart,dragEnd,areaDragOver,areaDragLeave,areaDrop,moveTask,showMovePop,closeMovePop,noteDragStart,noteDragEnd,projItemDragStart,projItemDragEnd,projDragOver,projDragLeave,projDrop,sm,cm,mNewP,cP,mEditP,sPn,dP,archiveProject,unarchiveProject,toggleArchView,mNewA,cA,mEditA,sA,dA,mNewT,cT,mSetKey,saveKey,delKey,addAssigneeForTask,fmtCmd,fmtTaskCmd,toggleTaskExpand,insertChecklist,clickCheckBox,aiKeyDown,clearAI,sendAI,xCSV,xJSON,mBackup,doBackupNow,restoreBackup,exportFullBackup,importFullBackup,doSignOut,toggleSB,closeMobileSB,pickColor,fmtNoteCmd,toggleRtPop,cycleCanvasBg,setCanvasTool,setCanvasColor,setCanvasPenSize,toggleCanvasTouch,canvasUndo,canvasClear,toggleNoteCanvas,startCanvasResize,gcalPrev,gcalNext,gcalGoToday,setCalView,toggleCalChat,gcalDoSignIn,gcalDoSignOut,loadCalEvents,mGcalConfig,saveGcalConfig,delGcalConfig,mNewEvent,mNewEventOnDay,mEditEvent,toggleAllDay,saveEvent,deleteEvent,mDayEvents,syncTaskToCal,unsyncTaskFromCal});
 
 // ===== AUTH =====
 let appStarted=false;
