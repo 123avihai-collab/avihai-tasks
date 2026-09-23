@@ -846,6 +846,50 @@ body.fly-open .dash-side{width:auto;display:grid;grid-template-columns:repeat(2,
   .mc{max-width:none;border-radius:18px 18px 0 0;max-height:88vh;padding:18px 18px calc(18px + env(safe-area-inset-bottom))}
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+/* ================= D★ polish (v36): icons, empty states, calendar, notes, AI ================= */
+.ri{width:18px;height:18px;flex-shrink:0}
+.btn-ghost .ri,.btn-primary .ri{width:16px;height:16px}
+.sec-head .ri{width:14px;height:14px;vertical-align:-2px}
+.fv-events-h{display:flex;align-items:center;gap:8px}
+.fv-events-h .ri{width:15px;height:15px;color:var(--accent)}
+.empty-ic{width:64px;height:64px;border-radius:50%;background:var(--accentSoft);color:var(--accent);display:flex;align-items:center;justify-content:center;margin:0 auto 6px}
+.empty-ic .ri{width:28px;height:28px}
+.ai-no-key p{font-size:14px;color:var(--ink2);line-height:1.8}
+.cal-chat-t{display:inline-flex;align-items:center;gap:6px}
+.cal-chat-t .ri{width:16px;height:16px;color:var(--accent)}
+/* calendar grid */
+.cal-wrap{padding:14px 24px}
+.cal-wd-row{background:var(--rail);border:1px solid var(--rule);border-radius:10px 10px 0 0}
+.cal-wd{font-size:12px;letter-spacing:0;color:var(--ink3);border-left:1px solid var(--rule)}
+.cal-days{border:1px solid var(--rule);border-top:none;border-radius:0 0 10px 10px;box-shadow:var(--shadow)}
+.cal-day{border-left:1px solid var(--rule);border-top:1px solid var(--rule)}
+.cal-day.weekend,.cal-day.weekend.today{background:color-mix(in srgb,var(--accent) 5%,var(--panel))}
+.cal-day.other,.cal-day.weekend.other{background:var(--rail)}
+.cal-d-num{font-size:12px}
+.cal-ev{font-size:11.5px;border-radius:4px;padding:2px 6px}
+.cal-chat{border-inline-start:1px solid var(--rule)}
+.cal-chat-h{font-size:14px;border-bottom:1px solid var(--rule)}
+/* notes */
+.notes-add{padding:6px 24px 10px}
+.notes-add input{font-size:14px;padding:10px 14px;border:1px solid var(--rule2);border-radius:8px}
+.notes-add input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accentSoft)}
+.notes-list{padding:6px 24px 24px;gap:10px}
+.note{border:1px solid var(--rule);border-radius:10px;box-shadow:var(--shadow)}
+.note-row{padding:12px 16px;min-height:52px}
+.note-input{font-size:15px}
+.note-extra{border-top:1px solid var(--rule)}
+.note-content{border:1px solid var(--rule2);border-radius:0 0 8px 8px;font-size:14px}
+.notes-sep{font-size:12px;letter-spacing:0}
+/* AI */
+.ai-msgs{padding:18px 24px;gap:12px}
+.ai-msg{font-size:14px;border-radius:12px;padding:10px 14px}
+.ai-msg.user{border-radius:12px 12px 12px 4px}
+@media(max-width:900px){
+  .cal-wrap{padding:8px}
+  .notes-add{padding:6px 16px 10px}
+  .notes-list{padding:6px 16px 22px}
+  .ai-msgs{padding:16px}
+}
 </style>
 </head>
 <body>
@@ -1167,9 +1211,13 @@ const RI={
   download:'M12 4v11M7 10l5 5 5-5M5 20h14',
   key:'M15 7a4 4 0 1 1-3.9 5H8v3H5v-3H3v-3h8.1A4 4 0 0 1 15 7z',
   out:'M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10',
-  x:'M6 6l12 12M18 6 6 18'
+  x:'M6 6l12 12M18 6 6 18',
+  chat:'M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z',
+  link:'M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1',
+  archive:'M3 7h18v13H3zM3 7l2-3h14l2 3M10 12h4'
 };
-function riSvg(d){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="'+d+'"/></svg>';}
+function riSvg(d){return '<svg class="ri" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="'+d+'"/></svg>';}
+function emptyIc(d){return '<div class="empty-ic">'+riSvg(d)+'</div>';}
 function taskCounts(){
   const open=getAllTasks().filter(x=>x.task.status!=='הושלם');
   const today7=new Date();today7.setDate(today7.getDate()+7);
@@ -1211,7 +1259,7 @@ function rSidebar(){
     <div class="rail-grow"></div>
     <button class="rail-mini alt" onclick="cycleTheme()" title="${themeTitle()}" aria-label="${themeTitle()}">${themeIcon()}</button>
     <button class="rail-mini" onclick="mSettings()" title="הגדרות, גיבוי וייצוא" aria-label="הגדרות, גיבוי וייצוא">${riSvg(RI.settings)}</button>
-    <span class="rail-ver ver">v35</span>
+    <span class="rail-ver ver">v36</span>
   `;
 }
 
@@ -1269,7 +1317,7 @@ function mSettings(){
     it(riSvg(RI.cal),'חיבור יומן Google','cm();mGcalConfig()')+
     it(riSvg(RI.key),'מפתח עוזר ה-AI','cm();mSetKey()')+
     '<div class="set-sep"></div>'+
-    '<div class="set-status"><span class="dot'+(syncOk?'':' off')+'"></span>'+(syncOk?'מסונכרן לענן':'לא מחובר לענן')+' · <span class="ver">v35</span></div>'+
+    '<div class="set-status"><span class="dot'+(syncOk?'':' off')+'"></span>'+(syncOk?'מסונכרן לענן':'לא מחובר לענן')+' · <span class="ver">v36</span></div>'+
     it(riSvg(RI.out),'התנתקות','doSignOut()','danger')+
     '</div><div class="mc-actions"><button class="btn-ghost" onclick="cm()">סגור</button></div>');
 }
@@ -1326,7 +1374,7 @@ function rMain(){
 function rFilterView(mn,title,subtitle,tasks,events){
   events=events||[];
   const tasksHtml=tasks.length?tasks.map(x=>renderTaskRow(x.task,x.area.name,x.proj,true)).join(''):'<div class="empty-st">אין משימות להצגה</div>';
-  const evHtml=events.length?'<div class="fv-events"><div class="fv-events-h">📅 אירועי יומן ('+events.length+')</div>'+events.map(ev=>{
+  const evHtml=events.length?'<div class="fv-events"><div class="fv-events-h">'+riSvg(RI.cal)+'אירועי יומן ('+events.length+')</div>'+events.map(ev=>{
     const allDay=!!ev.start.date;
     const dstr=ev.start.date||(ev.start.dateTime||'').slice(0,10);
     const dayLbl=(S.view==='week'&&dstr!==TODAY)?(fmtDate(dstr)+' · '):'';
@@ -1485,9 +1533,9 @@ function rProject(mn){
     });
   } else if(S.grouping==='priority'){
     const buckets=[
-      {key:'דחוף',label:'דחוף',icon:'🔥'},
-      {key:'בינוני',label:'בינוני',icon:'•'},
-      {key:'נמוך',label:'נמוך',icon:'·'},
+      {key:'דחוף',label:'דחוף',icon:riSvg(RI.flag)},
+      {key:'בינוני',label:'בינוני',icon:''},
+      {key:'נמוך',label:'נמוך',icon:''},
       {key:'',label:'ללא עדיפות',icon:'—'}
     ];
     buckets.forEach(b=>{
@@ -1810,13 +1858,13 @@ function rNotes(mn){
       ${isOpen?`<div class="note-extra open">${richTools}<div id="note-content-${n.id}" class="note-content" contenteditable="true" data-placeholder="טקסט חופשי, פירוט..." onblur="updNoteContent('${n.id}',this.innerHTML)">${n.content||''}</div>${canvasSection}</div>`:''}
     </div>`;
   };
-  const empty=S.notes.length===0?'<div class="empty-st">אין פתקים<br><span style="font-size:11px">הוסף פתק למעלה.<br>גרור פתק לפרויקט בסיידבר → הופך למשימה</span></div>':'';
+  const empty=S.notes.length===0?'<div class="empty-st">אין פתקים<br><span style="font-size:11px">הוסף פתק למעלה.<br>גרור פתק לפרויקט בלוח הפרויקטים → הופך למשימה</span></div>':'';
   mn.innerHTML=`
     <header class="mn-h">
       <div class="mn-h-row">
         <div class="mn-h-l">
           <h1>פתקים מהירים</h1>
-          <div class="mn-h-meta"><span>${active.length} פעילים · ${S.notes.length} סה"כ</span><span style="color:var(--ink3)">·</span><span>גרור פתק לפרויקט בסיידבר להמרה למשימה</span></div>
+          <div class="mn-h-meta"><span>${active.length} פעילים · ${S.notes.length} סה"כ</span><span style="color:var(--ink3)">·</span><span>גרור פתק לפרויקט בלוח הפרויקטים כדי להפוך אותו למשימה</span></div>
         </div>
       </div>
     </header>
@@ -2256,7 +2304,7 @@ function rCalendar(mn){
         </div>
       </header>
       <div class="ai-no-key">
-        <div style="font-size:32px">📅</div>
+        ${emptyIc(RI.cal)}
         <p>האפליקציה תיצור עבורך יומן <b>נפרד</b> בשם "${esc(TASKS_CAL_NAME)}" ב-Google Calendar, ותעבוד רק עליו — היומן הראשי שלך לא ייגע.<br>נדרשים <b>Client ID</b> ו-<b>API Key</b> מ-Google Cloud. הפרטים נשמרים במכשיר שלך בלבד.</p>
         <button class="btn-primary" onclick="mGcalConfig()">הגדר חיבור</button>
         <div class="cal-help">
@@ -2363,13 +2411,13 @@ function renderCalendar(mn){
           <button class="btn-ghost" onclick="gcalNext()" title="הבא">‹</button>
         </div>
         <button class="btn-ghost" onclick="loadCalEvents()" title="רענן">↻</button>
-        <button class="btn-ghost${calChatOpen?' on':''}" onclick="toggleCalChat()" title="צ'אט תכנון מול הלוח">💬</button>
+        <button class="btn-ghost${calChatOpen?' on':''}" onclick="toggleCalChat()" title="צ'אט תכנון מול הלוח" aria-label="צ'אט תכנון מול הלוח">${riSvg(RI.chat)}</button>
         <button class="btn-primary" onclick="mNewEvent()">${IC.plus} אירוע</button>
-        <button class="btn-ghost" onclick="mGcalConfig()" title="הגדרות">⚙</button>`:`
+        <button class="btn-ghost" onclick="mGcalConfig()" title="הגדרות" aria-label="הגדרות">${riSvg(RI.settings)}</button>`:`
         <button class="btn-primary" onclick="gcalDoSignIn()">התחבר ל-Google</button>
-        <button class="btn-ghost" onclick="mGcalConfig()" title="הגדרות">⚙</button>`;
+        <button class="btn-ghost" onclick="mGcalConfig()" title="הגדרות" aria-label="הגדרות">${riSvg(RI.settings)}</button>`;
   let inner;
-  if(!signedIn)inner=`<div class="ai-no-key"><div style="font-size:32px">🔗</div><p>התחבר ל-Google כדי לצפות באירועי היומן, להוסיף ולערוך אותם מכאן.<br>הגישה מבוקשת ל-Google Calendar בלבד.</p><button class="btn-primary" onclick="gcalDoSignIn()">התחבר ל-Google Calendar</button></div>`;
+  if(!signedIn)inner=`<div class="ai-no-key">${emptyIc(RI.link)}<p>התחבר ל-Google כדי לצפות באירועי היומן, להוסיף ולערוך אותם מכאן.<br>הגישה מבוקשת ל-Google Calendar בלבד.</p><button class="btn-primary" onclick="gcalDoSignIn()">התחבר ל-Google Calendar</button></div>`;
   else inner=calView==='week'?calWeekBody():calView==='day'?calDayBody():calMonthBody();
   const calArea=signedIn?`<div class="cal-wrap">${inner}</div>`:inner;
   const body=(signedIn&&calChatOpen)?`<div class="cal-split"><div class="cal-split-main">${calArea}</div>${calChatPanelHtml()}</div>`:calArea;
@@ -2388,11 +2436,11 @@ function renderCalendar(mn){
 }
 function calChatPanelHtml(){
   if(!getApiKey())
-    return `<div class="cal-chat"><div class="cal-chat-h"><span>💬 עזר בינה</span><button class="btn-ghost" onclick="toggleCalChat()" title="סגור">✕</button></div><div class="ai-no-key" style="padding:24px 16px"><div style="font-size:28px">🔑</div><p>הגדר מפתח Anthropic API כדי לתכנן עם הצ'אט.</p><button class="btn-primary" onclick="mSetKey()">הגדר מפתח</button></div></div>`;
+    return `<div class="cal-chat"><div class="cal-chat-h"><span class="cal-chat-t">${riSvg(RI.ai)} עזר בינה</span><button class="btn-ghost" onclick="toggleCalChat()" title="סגור">✕</button></div><div class="ai-no-key" style="padding:24px 16px">${emptyIc(RI.key)}<p>הגדר מפתח Anthropic API כדי לתכנן עם הצ'אט.</p><button class="btn-primary" onclick="mSetKey()">הגדר מפתח</button></div></div>`;
   const msgs=aiMsgs.map(m=>`<div class="ai-msg ${m.role==='user'?'user':'ai'}${m.loading?' loading':''}">${esc(m.content)}</div>`).join('');
   const welcome=aiMsgs.length===0?`<div class="ai-welcome">תכנן מול הלוח — לדוגמה:<br>"כל יום שני תזכורת לשלוח דוח מיצובישי"<br>"קבע פגישה עם דני מחר ב-10:00 בצבע אדום"</div>`:'';
   return `<div class="cal-chat">
-    <div class="cal-chat-h"><span>💬 עזר בינה</span><div style="display:flex;gap:4px"><button class="btn-ghost" style="font-size:11px;padding:3px 8px" onclick="clearAI()" title="נקה">נקה</button><button class="btn-ghost" style="font-size:13px;padding:3px 8px" onclick="toggleCalChat()" title="סגור">✕</button></div></div>
+    <div class="cal-chat-h"><span class="cal-chat-t">${riSvg(RI.ai)} עזר בינה</span><div style="display:flex;gap:4px"><button class="btn-ghost" style="font-size:11px;padding:3px 8px" onclick="clearAI()" title="נקה">נקה</button><button class="btn-ghost" style="font-size:13px;padding:3px 8px" onclick="toggleCalChat()" title="סגור">✕</button></div></div>
     <div class="ai-msgs" id="ai-msgs">${welcome}${msgs}</div>
     <div class="ai-foot"><textarea class="ai-text" id="ai-input" placeholder="מה לתכנן? (Enter לשליחה)" onkeydown="aiKeyDown(event)"></textarea><button class="btn-accent" id="ai-send-btn" onclick="sendAI()">שלח</button></div>
   </div>`;
@@ -2673,7 +2721,7 @@ function rAI(mn){
         </div>
       </header>
       <div class="ai-no-key">
-        <div style="font-size:32px">🔑</div>
+        ${emptyIc(RI.key)}
         <p>כדי להשתמש בעדכון עם AI נדרש מפתח Anthropic API.<br>המפתח נשמר אצלך בלבד — לא בשרת ולא בקוד.</p>
         <button class="btn-primary" onclick="mSetKey()">הגדר מפתח API</button>
       </div>
@@ -2692,7 +2740,7 @@ function rAI(mn){
           <div class="mn-h-meta"><span>${esc(subtitle)}</span></div>
         </div>
         <div class="mn-h-actions">
-          <button class="btn-ghost" onclick="mSetKey()">🔑 מפתח</button>
+          <button class="btn-ghost" onclick="mSetKey()">${riSvg(RI.key)} מפתח</button>
           <button class="btn-ghost" onclick="clearAI()">נקה</button>
         </div>
       </div>
@@ -2855,7 +2903,7 @@ function pickColor(k,btn){pickedColor=k;document.querySelectorAll('.color-sw').f
 function mNewP(){pickedColor='blue';sm(`<h2>פרויקט חדש</h2><div class="mf"><label>שם הפרויקט</label><input id="v1" placeholder="לדוגמה: 2500"/></div>${colorPickerHtml('blue')}<div class="mc-actions"><button class="btn-primary" onclick="cP()">צור</button><button class="btn-ghost" onclick="cm()">ביטול</button></div>`);}
 function cP(){const n=document.getElementById('v1').value.trim();if(!n)return;const id=uid();const defs=[{id:uid(),name:'כללי',tasks:[]},{id:uid(),name:'ביצוע',tasks:[]},{id:uid(),name:'הזמנות רכש',tasks:[]},{id:uid(),name:'חשבונות',tasks:[]}];S.projects.push({id,name:n,color:pickedColor,areas:defs});S.apid=id;S.aaid='__all__';S.view='proj';sv();cm();render();}
 
-function mEditP(){const p=ap();if(!p)return;pickedColor=p.color||'blue';sm(`<h2>עריכת פרויקט</h2><div class="mf"><label>שם</label><input id="v1" value="${esc(p.name)}"/></div>${colorPickerHtml(p.color||'blue')}<div class="mc-actions"><button class="btn-primary" onclick="sPn()">שמור</button>${p.archived?'<button class="btn-ghost" onclick="unarchiveProject(\''+p.id+'\')">שחזר מארכיון</button>':'<button class="btn-ghost" onclick="archiveProject(\''+p.id+'\')">📁 לארכיון</button>'}<button class="btn-ghost btn-danger" onclick="dP()">מחק</button><button class="btn-ghost" onclick="cm()">ביטול</button></div>`);}
+function mEditP(){const p=ap();if(!p)return;pickedColor=p.color||'blue';sm(`<h2>עריכת פרויקט</h2><div class="mf"><label>שם</label><input id="v1" value="${esc(p.name)}"/></div>${colorPickerHtml(p.color||'blue')}<div class="mc-actions"><button class="btn-primary" onclick="sPn()">שמור</button>${p.archived?'<button class="btn-ghost" onclick="unarchiveProject(\''+p.id+'\')">שחזר מארכיון</button>':'<button class="btn-ghost" onclick="archiveProject(\''+p.id+'\')">'+riSvg(RI.archive)+' לארכיון</button>'}<button class="btn-ghost btn-danger" onclick="dP()">מחק</button><button class="btn-ghost" onclick="cm()">ביטול</button></div>`);}
 function archiveProject(id){const p=S.projects.find(x=>x.id===id);if(!p)return;p.archived=true;if(S.apid===id){S.apid=null;S.aaid=null;S.view='dashboard';}sv();cm();render();}
 function unarchiveProject(id){const p=S.projects.find(x=>x.id===id);if(!p)return;p.archived=false;sv();cm();render();}
 function toggleArchView(){archViewOpen=!archViewOpen;render();}
