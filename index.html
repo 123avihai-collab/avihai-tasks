@@ -1858,7 +1858,7 @@ function rNotes(mn){
       ${isOpen?`<div class="note-extra open">${richTools}<div id="note-content-${n.id}" class="note-content" contenteditable="true" data-placeholder="טקסט חופשי, פירוט..." onblur="updNoteContent('${n.id}',this.innerHTML)">${n.content||''}</div>${canvasSection}</div>`:''}
     </div>`;
   };
-  const empty=S.notes.length===0?'<div class="empty-st">אין פתקים<br><span style="font-size:11px">הוסף פתק למעלה.<br>גרור פתק לפרויקט בסיידבר → הופך למשימה</span></div>':'';
+  const empty=S.notes.length===0?'<div class="empty-st">אין פתקים<br><span style="font-size:11px">הוסף פתק למעלה.<br>גרור פתק לפרויקט בלוח הפרויקטים → הופך למשימה</span></div>':'';
   mn.innerHTML=`
     <header class="mn-h">
       <div class="mn-h-row">
