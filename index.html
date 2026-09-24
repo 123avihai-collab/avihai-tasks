@@ -949,6 +949,19 @@ body.fly-open .dash-side{width:auto;display:grid;grid-template-columns:repeat(2,
   .pcs{grid-template-columns:1fr}
   .pcs-sec{padding-bottom:8px}
 }
+/* ================= v38: separator headings in the projects panel ================= */
+.pf-sep{display:flex;align-items:center;gap:10px;margin:14px 4px 4px;padding:6px 8px;border-radius:6px;cursor:pointer;user-select:none}
+.pf-list>.pf-sep:first-child{margin-top:2px}
+.pf-sep-t{font-size:12px;font-weight:700;color:var(--ink3);letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:75%}
+.pf-sep-line{flex:1;height:1px;background:var(--rule2)}
+.pf-sep:hover{background:var(--rail)}
+.pf-sep:hover .pf-sep-t{color:var(--ink2)}
+.pf-sep.dragging{opacity:.4}
+.pf-sep.drop-before{box-shadow:inset 0 2px 0 0 var(--accent)}
+.pf-sep.drop-after{box-shadow:inset 0 -2px 0 0 var(--accent)}
+.pf-new-sep{background:var(--rail);color:var(--ink2)}
+.pf-h .pf-new{white-space:nowrap;padding:0 10px;flex-shrink:0}
+.pf-h h2{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 </style>
 </head>
 <body>
@@ -1128,7 +1141,7 @@ async function autoBackup(force,note){
   }catch(e){console.error('backup err',e);return false;}
 }
 function fmtBackupTime(ts){const d=new Date(ts);const p=n=>String(n).padStart(2,'0');return p(d.getDate())+'/'+p(d.getMonth()+1)+'/'+d.getFullYear()+' '+p(d.getHours())+':'+p(d.getMinutes());}
-function backupStats(b){let t=0;(b.projects||[]).forEach(p=>p.areas.forEach(a=>t+=a.tasks.length));return (b.projects||[]).length+' פרויקטים · '+t+' משימות · '+(b.notes||[]).length+' פתקים';}
+function backupStats(b){let t=0;(b.projects||[]).forEach(p=>(p.areas||[]).forEach(a=>t+=a.tasks.length));return (b.projects||[]).filter(p=>!p.sep).length+' פרויקטים · '+t+' משימות · '+(b.notes||[]).length+' פתקים';}
 async function mBackup(){
   sm(`<h2>גיבוי ושחזור</h2><div id="backup-body" style="font-size:12px;color:var(--ink3);padding:8px 0">טוען גיבויים...</div>`);
   await loadBackups();
@@ -1317,7 +1330,7 @@ function rSidebar(){
     <div class="rail-grow"></div>
     <button class="rail-mini alt" onclick="cycleTheme()" title="${themeTitle()}" aria-label="${themeTitle()}">${themeIcon()}</button>
     <button class="rail-mini" onclick="mSettings()" title="הגדרות, גיבוי וייצוא" aria-label="הגדרות, גיבוי וייצוא">${riSvg(RI.settings)}</button>
-    <span class="rail-ver ver">v37</span>
+    <span class="rail-ver ver">v38</span>
   `;
 }
 
@@ -1337,6 +1350,7 @@ function rProjFly(){
   if(!projFlyOpen){el.innerHTML='';return;}
   const archivedProjs=S.projects.filter(p=>p.archived);
   const projsHtml=S.projects.filter(p=>!p.archived).map(p=>{
+    if(p.sep)return '<div class="pf-sep" draggable="true" role="button" tabindex="0" title="לחץ לעריכת הכותרת · גרור כדי להזיז" onclick="mEditSep(\''+p.id+'\')" onkeydown="if(event.key===\'Enter\')mEditSep(\''+p.id+'\')" ondragstart="projItemDragStart(\''+p.id+'\',event)" ondragend="projItemDragEnd(event)" ondragover="sepDragOver(\''+p.id+'\',event)" ondragleave="projDragLeave(event)" ondrop="sepDrop(\''+p.id+'\',event)"><span class="pf-sep-t">'+esc(p.name)+'</span><span class="pf-sep-line"></span></div>';
     const c=ptcOpen(p);
     const late=p.areas.reduce((n,a)=>n+a.tasks.filter(t=>t.status!=='הושלם'&&isOverdue(t.dueDate)).length,0);
     const isAct=S.view==='proj'&&p.id===S.apid;
@@ -1349,10 +1363,11 @@ function rProjFly(){
     <div class="pf-grab" aria-hidden="true"></div>
     <div class="pf-h">
       <h2>פרויקטים</h2>
-      <button class="pf-new" onclick="mNewP()">+ חדש</button>
+      <button class="pf-new" onclick="mNewP()">+ פרויקט</button>
+      <button class="pf-new pf-new-sep" onclick="mNewSep()" title="הוסף כותרת חלוקה">+ כותרת</button>
       <button class="pf-x" onclick="closeProjFly()" aria-label="סגור את לוח הפרויקטים">${riSvg(RI.x)}</button>
     </div>
-    <div class="pf-list">${projsHtml||'<div class="pf-empty">אין פרויקטים עדיין<br><button class="btn-primary" onclick="mNewP()">+ פרויקט חדש</button></div>'}</div>
+    <div class="pf-list">${projsHtml}${S.projects.some(p=>!p.archived&&!p.sep)?'':'<div class="pf-empty">אין פרויקטים עדיין<br><button class="btn-primary" onclick="mNewP()">+ פרויקט חדש</button></div>'}</div>
     ${archHtml}
   `;
 }
@@ -1372,7 +1387,7 @@ function mSettings(){
     it(riSvg(RI.cal),'חיבור יומן Google','cm();mGcalConfig()')+
     it(riSvg(RI.key),'מפתח עוזר ה-AI','cm();mSetKey()')+
     '<div class="set-sep"></div>'+
-    '<div class="set-status"><span class="dot'+(syncOk?'':' off')+'"></span>'+(syncOk?'מסונכרן לענן':'לא מחובר לענן')+' · <span class="ver">v37</span></div>'+
+    '<div class="set-status"><span class="dot'+(syncOk?'':' off')+'"></span>'+(syncOk?'מסונכרן לענן':'לא מחובר לענן')+' · <span class="ver">v38</span></div>'+
     it(riSvg(RI.out),'התנתקות','doSignOut()','danger')+
     '</div><div class="mc-actions"><button class="btn-ghost" onclick="cm()">סגור</button></div>');
 }
@@ -1385,10 +1400,23 @@ function mMore(){
     '<div class="set-sep"></div><button class="set-item" onclick="mSettings()">'+riSvg(RI.settings)+'<span>הגדרות, גיבוי וייצוא</span></button>'+
     '</div><div class="mc-actions"><button class="btn-ghost" onclick="cm()">סגור</button></div>');
 }
+// ----- Separator headings in the projects list: {id, sep:true, name, areas:[]} stored in S.projects (keeps order/drag/backups) -----
+function mNewSep(){
+  sm('<h2>כותרת חלוקה חדשה</h2><div class="mf"><label>שם הכותרת</label><input id="v1" placeholder="לדוגמה: מכרזים" onkeydown="if(event.key===\'Enter\')cSep()"/></div><div class="dmuted">הכותרת תופיע בראש הרשימה — גרור אותה למיקום הרצוי.</div><div class="mc-actions"><button class="btn-primary" onclick="cSep()">צור</button><button class="btn-ghost" onclick="cm()">ביטול</button></div>');
+}
+function cSep(){const n=document.getElementById('v1').value.trim();if(!n)return;S.projects.unshift({id:uid(),sep:true,name:n,areas:[]});sv();cm();render();}
+function mEditSep(id){
+  const sp=S.projects.find(p=>p.id===id&&p.sep);if(!sp)return;
+  sm('<h2>עריכת כותרת</h2><div class="mf"><label>שם הכותרת</label><input id="v1" value="'+esc(sp.name)+'" onkeydown="if(event.key===\'Enter\')sSep(\''+id+'\')"/></div><div class="dmuted">הפרויקטים שמתחת לכותרת לא יושפעו.</div><div class="mc-actions"><button class="btn-primary" onclick="sSep(\''+id+'\')">שמור</button><button class="btn-ghost btn-danger" onclick="dSep(\''+id+'\')">מחק כותרת</button><button class="btn-ghost" onclick="cm()">ביטול</button></div>');
+}
+function sSep(id){const sp=S.projects.find(p=>p.id===id&&p.sep);const n=document.getElementById('v1').value.trim();if(!sp||!n)return;sp.name=n;sv();cm();render();}
+function dSep(id){if(!confirm('למחוק את הכותרת? הפרויקטים יישארו במקומם.'))return;S.projects=S.projects.filter(p=>!(p.id===id&&p.sep));sv();cm();render();}
+function sepDragOver(id,e){if(draggedNoteId)return;projDragOver(id,e);}
+function sepDrop(id,e){if(draggedNoteId){e.preventDefault();return;}projDrop(id,e);}
 // New task from anywhere: use the open project, otherwise ask which project first.
 function quickNewTask(){
   if(ap()){mNewT();return;}
-  const projs=S.projects.filter(p=>!p.archived);
+  const projs=S.projects.filter(p=>!p.archived&&!p.sep);
   if(!projs.length){mNewP();return;}
   sm('<h2>משימה חדשה — באיזה פרויקט?</h2><div class="set-list">'+projs.map(p=>'<button class="set-item" onclick="cm();closeProjFly(true);selP(\''+p.id+'\');mNewT()"><span class="pf-dot" style="background:'+projColor(p).hex+'"></span><span>'+esc(p.name)+'</span><span class="set-n">'+ptcOpen(p)+'</span></button>').join('')+'</div><div class="mc-actions"><button class="btn-ghost" onclick="cm()">ביטול</button></div>');
 }
@@ -1512,7 +1540,7 @@ function rDashboard(mn){
 
   // project cards: open / overdue counts + next 3 tasks by date (no progress bars)
   const byDate=(a,b)=>(a.task.dueDate||'9999').localeCompare(b.task.dueDate||'9999');
-  const projCards=S.projects.filter(p=>!p.archived).map(p=>{
+  const projCards=S.projects.filter(p=>!p.archived&&!p.sep).map(p=>{
     const pOpen=open.filter(x=>x.proj.id===p.id);
     const pLate=pOpen.filter(x=>isOverdue(x.task.dueDate)).length;
     const next=pOpen.slice().sort(byDate).slice(0,3);
@@ -2851,7 +2879,7 @@ function selView(v,projId){
   else S.aiProjId=null;
   closeMobileSB();render();
 }
-function selP(id){S.apid=id;S.view='proj';S.aaid='__all__';S.selTaskId=null;closeMobileSB();render();}
+function selP(id){if(S.projects.some(p=>p.id===id&&p.sep))return;S.apid=id;S.view='proj';S.aaid='__all__';S.selTaskId=null;closeMobileSB();render();}
 function selA(id){S.aaid=id;render();}
 function setFilterStatus(s){S.filterStatus=S.filterStatus===s?null:s;render();}
 function setGrouping(g){S.grouping=g;render();}
@@ -2974,11 +3002,11 @@ function closeMovePop(){const p=document.getElementById('move-pop');if(p)p.remov
 
 // Notes drag
 function noteDragStart(id,e){draggedNoteId=id;try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain','note:'+id);}catch(_){}e.currentTarget.classList.add('dragging');}
-function noteDragEnd(e){draggedNoteId=null;if(e.currentTarget.classList)e.currentTarget.classList.remove('dragging');document.querySelectorAll('.proj-item.drop-target,.proj-item.drop-before,.proj-item.drop-after').forEach(el=>el.classList.remove('drop-target','drop-before','drop-after'));}
+function noteDragEnd(e){draggedNoteId=null;if(e.currentTarget.classList)e.currentTarget.classList.remove('dragging');document.querySelectorAll('.proj-item.drop-target,.proj-item.drop-before,.proj-item.drop-after,.pf-sep.drop-before,.pf-sep.drop-after').forEach(el=>el.classList.remove('drop-target','drop-before','drop-after'));}
 
 // Project drag
 function projItemDragStart(pid,e){draggedProjId=pid;try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain','proj:'+pid);}catch(_){}e.currentTarget.classList.add('dragging');}
-function projItemDragEnd(e){draggedProjId=null;if(e.currentTarget.classList)e.currentTarget.classList.remove('dragging');document.querySelectorAll('.proj-item.drop-target,.proj-item.drop-before,.proj-item.drop-after').forEach(el=>el.classList.remove('drop-target','drop-before','drop-after'));}
+function projItemDragEnd(e){draggedProjId=null;if(e.currentTarget.classList)e.currentTarget.classList.remove('dragging');document.querySelectorAll('.proj-item.drop-target,.proj-item.drop-before,.proj-item.drop-after,.pf-sep.drop-before,.pf-sep.drop-after').forEach(el=>el.classList.remove('drop-target','drop-before','drop-after'));}
 function projDragOver(pid,e){if(draggedNoteId){e.preventDefault();e.dataTransfer.dropEffect='move';e.currentTarget.classList.add('drop-target');return;}if(draggedProjId&&draggedProjId!==pid){e.preventDefault();e.dataTransfer.dropEffect='move';const rect=e.currentTarget.getBoundingClientRect();const isTopHalf=(e.clientY-rect.top)<rect.height/2;e.currentTarget.classList.remove('drop-before','drop-after');e.currentTarget.classList.add(isTopHalf?'drop-before':'drop-after');}}
 function projDragLeave(e){e.currentTarget.classList.remove('drop-target','drop-before','drop-after');}
 function projDrop(pid,e){e.preventDefault();const target=e.currentTarget;if(draggedNoteId){target.classList.remove('drop-target');const id=draggedNoteId;const n=S.notes.find(x=>x.id===id);if(!n)return;const proj=S.projects.find(p=>p.id===pid);if(!proj||!proj.areas.length){alert('הפרויקט אינו מכיל תחומים');return;}const area=proj.areas.find(a=>a.name==='כללי')||proj.areas[0];const noteContentHtml=n.content&&n.content.trim()?esc(n.content).replace(/\n/g,'<br>'):'';area.tasks.push({id:uid(),title:n.text,content:noteContentHtml,notes:'',priority:'',importance:'',status:n.done?'הושלם':'פתוח',assigned:'',dueDate:'',inCal:false,created:new Date().toISOString()});S.notes=S.notes.filter(x=>x.id!==id);expandedNotes.delete(id);sv();render();return;}if(draggedProjId&&draggedProjId!==pid){const rect=target.getBoundingClientRect();const isTopHalf=(e.clientY-rect.top)<rect.height/2;target.classList.remove('drop-before','drop-after');const fromIdx=S.projects.findIndex(p=>p.id===draggedProjId);if(fromIdx<0)return;const[moved]=S.projects.splice(fromIdx,1);let toIdx=S.projects.findIndex(p=>p.id===pid);if(toIdx<0){S.projects.push(moved);}else{if(!isTopHalf)toIdx++;S.projects.splice(toIdx,0,moved);}sv();render();}}
@@ -3164,7 +3192,7 @@ async function sendAI(){
   aiMsgs.push({role:'ai',content:'חושב...',loading:true});
   render();
 
-  const projSummary=S.projects.map(p=>{
+  const projSummary=S.projects.filter(p=>!p.sep).map(p=>{
     const areas=p.areas.map(a=>{
       const tasks=a.tasks.map(t=>{
         const parts=[t.status];
@@ -3299,7 +3327,7 @@ status: פתוח/בביצוע/תלוי/הושלם.
     const results=[];
     const norm=s=>(s||'').toString().trim();
 
-    const findProj=name=>S.projects.find(p=>norm(p.name)===norm(name));
+    const findProj=name=>S.projects.find(p=>!p.sep&&norm(p.name)===norm(name));
     const findTaskIn=(proj,title)=>{for(const a of proj.areas){const t=a.tasks.find(t=>norm(t.title)===norm(title));if(t)return{task:t,area:a};}return null;};
     const calErr=e=>{
       if(e.message==='NO_DATE')return 'חסר תאריך יעד';
@@ -3349,7 +3377,7 @@ status: פתוח/בביצוע/תלוי/הושלם.
           S.projects.push({id,name:action.name,areas:defs});
           results.push('✅ נוסף פרויקט "'+action.name+'"');
         } else if(action.type==='delete_project'){
-          const idx=S.projects.findIndex(p=>norm(p.name)===norm(action.name));
+          const idx=S.projects.findIndex(p=>!p.sep&&norm(p.name)===norm(action.name));
           if(idx<0){results.push('❌ פרויקט "'+action.name+'" לא נמצא');continue;}
           const removed=S.projects.splice(idx,1)[0];
           if(S.apid===removed.id){S.apid=null;S.aaid=null;S.view='dashboard';}
@@ -3454,7 +3482,7 @@ function themeIcon(){
 try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{applyTheme();if(!getThemePref())render();});}catch(_){}
 applyTheme();
 
-Object.assign(window,{toggleAllGroups,openTask,toggleProjFly,closeProjFly,mSettings,mMore,quickNewTask,setDashRange,cycleTheme,selView,selP,selA,selectTask,closeDetail,toggleDone,updTask,updTaskField,dTask,setFilterStatus,setGrouping,toggleCollapse,clearDoneInProject,onSearchInput,addNote,toggleNoteDone,dNote,updNote,toggleNoteExpand,updNoteContent,dragStart,dragEnd,areaDragOver,areaDragLeave,areaDrop,moveTask,showMovePop,closeMovePop,noteDragStart,noteDragEnd,projItemDragStart,projItemDragEnd,projDragOver,projDragLeave,projDrop,sm,cm,mNewP,cP,mEditP,sPn,dP,archiveProject,unarchiveProject,toggleArchView,mNewA,cA,mEditA,sA,dA,mNewT,cT,mSetKey,saveKey,delKey,addAssigneeForTask,fmtCmd,fmtTaskCmd,toggleTaskExpand,insertChecklist,clickCheckBox,aiKeyDown,clearAI,sendAI,xCSV,xJSON,mBackup,doBackupNow,restoreBackup,exportFullBackup,importFullBackup,doSignOut,toggleSB,closeMobileSB,pickColor,fmtNoteCmd,toggleRtPop,cycleCanvasBg,setCanvasTool,setCanvasColor,setCanvasPenSize,toggleCanvasTouch,canvasUndo,canvasClear,toggleNoteCanvas,startCanvasResize,gcalPrev,gcalNext,gcalGoToday,setCalView,toggleCalChat,gcalDoSignIn,gcalDoSignOut,loadCalEvents,mGcalConfig,saveGcalConfig,delGcalConfig,mNewEvent,mNewEventOnDay,mEditEvent,toggleAllDay,saveEvent,deleteEvent,mDayEvents,syncTaskToCal,unsyncTaskFromCal});
+Object.assign(window,{mNewSep,cSep,mEditSep,sSep,dSep,sepDragOver,sepDrop,toggleAllGroups,openTask,toggleProjFly,closeProjFly,mSettings,mMore,quickNewTask,setDashRange,cycleTheme,selView,selP,selA,selectTask,closeDetail,toggleDone,updTask,updTaskField,dTask,setFilterStatus,setGrouping,toggleCollapse,clearDoneInProject,onSearchInput,addNote,toggleNoteDone,dNote,updNote,toggleNoteExpand,updNoteContent,dragStart,dragEnd,areaDragOver,areaDragLeave,areaDrop,moveTask,showMovePop,closeMovePop,noteDragStart,noteDragEnd,projItemDragStart,projItemDragEnd,projDragOver,projDragLeave,projDrop,sm,cm,mNewP,cP,mEditP,sPn,dP,archiveProject,unarchiveProject,toggleArchView,mNewA,cA,mEditA,sA,dA,mNewT,cT,mSetKey,saveKey,delKey,addAssigneeForTask,fmtCmd,fmtTaskCmd,toggleTaskExpand,insertChecklist,clickCheckBox,aiKeyDown,clearAI,sendAI,xCSV,xJSON,mBackup,doBackupNow,restoreBackup,exportFullBackup,importFullBackup,doSignOut,toggleSB,closeMobileSB,pickColor,fmtNoteCmd,toggleRtPop,cycleCanvasBg,setCanvasTool,setCanvasColor,setCanvasPenSize,toggleCanvasTouch,canvasUndo,canvasClear,toggleNoteCanvas,startCanvasResize,gcalPrev,gcalNext,gcalGoToday,setCalView,toggleCalChat,gcalDoSignIn,gcalDoSignOut,loadCalEvents,mGcalConfig,saveGcalConfig,delGcalConfig,mNewEvent,mNewEventOnDay,mEditEvent,toggleAllDay,saveEvent,deleteEvent,mDayEvents,syncTaskToCal,unsyncTaskFromCal});
 
 // ===== AUTH =====
 let appStarted=false;
