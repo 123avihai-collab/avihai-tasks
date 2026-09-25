@@ -962,6 +962,42 @@ body.fly-open .dash-side{width:auto;display:grid;grid-template-columns:repeat(2,
 .pf-new-sep{background:var(--rail);color:var(--ink2)}
 .pf-h .pf-new{white-space:nowrap;padding:0 10px;flex-shrink:0}
 .pf-h h2{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* ================= v39: sort for task lists + compact rows everywhere ================= */
+.fv-sort{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink3);flex-shrink:0}
+.fv-grp{display:flex;align-items:center;gap:8px;padding:7px 14px;background:var(--rail);border-bottom:1px solid var(--rule);font-size:13px;font-weight:700;color:var(--ink)}
+.fv-grp .pd{width:9px;height:9px;border-radius:3px}
+.fv-grp-n{font-size:11px;font-weight:700;padding:0 7px;border-radius:999px;background:var(--panel);color:var(--ink3)}
+/* compact task rows: height follows the text (chips sit next to the title, not under it) */
+.tr{padding:6px 14px;min-height:38px;gap:10px}
+.tl-head{padding:7px 14px;gap:10px}
+.tr-title-wrap{flex-direction:row;flex-wrap:wrap;align-items:center;gap:3px 8px}
+.tr-title{line-height:1.35}
+.tr-meta-chips{gap:5px}
+.imp-tag{padding:0 5px;line-height:18px}
+.chip-as{padding:1px 7px}
+.chip-st{padding:2px 7px}
+.sec-head{padding:6px 14px}
+.cb{width:17px;height:17px}
+.te{padding:12px 16px;padding-inline-start:44px}
+/* dashboard, projects panel, notes, lists */
+.dl-row{min-height:36px;padding:2px 8px}
+.dl-t{padding:4px 0}
+.dl-ev{min-height:36px;padding:4px 12px}
+.dl-time{padding-top:8px}
+.dl-sec{margin:8px 0 2px}
+.wk-row{padding:6px 4px}
+.pc{padding:12px 14px;gap:6px}
+.pc-t{min-height:22px}
+#projFly .proj-item{padding:7px 12px}
+.pf-sep{margin:10px 4px 2px;padding:4px 8px}
+.note-row{min-height:42px;padding:7px 14px}
+.set-item{min-height:40px;padding:8px 12px}
+.fv-ev{padding:7px 14px}
+@media(max-width:900px){
+  .tr,.tl.no-pcol .tr{padding:8px 12px;min-height:44px}
+  .tr-mobi-meta{flex-basis:100%;margin-top:2px}
+  .fv-sort span{display:none}
+}
 </style>
 </head>
 <body>
@@ -1330,7 +1366,7 @@ function rSidebar(){
     <div class="rail-grow"></div>
     <button class="rail-mini alt" onclick="cycleTheme()" title="${themeTitle()}" aria-label="${themeTitle()}">${themeIcon()}</button>
     <button class="rail-mini" onclick="mSettings()" title="הגדרות, גיבוי וייצוא" aria-label="הגדרות, גיבוי וייצוא">${riSvg(RI.settings)}</button>
-    <span class="rail-ver ver">v38</span>
+    <span class="rail-ver ver">v39</span>
   `;
 }
 
@@ -1387,7 +1423,7 @@ function mSettings(){
     it(riSvg(RI.cal),'חיבור יומן Google','cm();mGcalConfig()')+
     it(riSvg(RI.key),'מפתח עוזר ה-AI','cm();mSetKey()')+
     '<div class="set-sep"></div>'+
-    '<div class="set-status"><span class="dot'+(syncOk?'':' off')+'"></span>'+(syncOk?'מסונכרן לענן':'לא מחובר לענן')+' · <span class="ver">v38</span></div>'+
+    '<div class="set-status"><span class="dot'+(syncOk?'':' off')+'"></span>'+(syncOk?'מסונכרן לענן':'לא מחובר לענן')+' · <span class="ver">v39</span></div>'+
     it(riSvg(RI.out),'התנתקות','doSignOut()','danger')+
     '</div><div class="mc-actions"><button class="btn-ghost" onclick="cm()">סגור</button></div>');
 }
@@ -1454,9 +1490,31 @@ function rMain(){
   rFilterView(mn,title,subtitle,sortTasks(tasks),events);
 }
 
+// Sort for task-list screens (active / today / week / overdue / done); remembered per device.
+let fvSort=(()=>{try{return localStorage.getItem('fvSort')||'';}catch(_){return '';}})();
+function setFvSort(v){fvSort=v;try{localStorage.setItem('fvSort',v);}catch(_){}render();}
+function fvSortedHtml(tasks){
+  if(!tasks.length)return '<div class="empty-st">אין משימות להצגה</div>';
+  const row=x=>renderTaskRow(x.task,x.area.name,x.proj,true);
+  const smart=a=>sortTasks(a.slice());
+  const grp=(label,n,dot)=>'<div class="fv-grp">'+(dot?'<span class="pd" style="background:'+dot+'"></span>':'')+'<span>'+esc(label)+'</span><span class="fv-grp-n">'+n+'</span></div>';
+  const groups=(keys,keyOf,labelOf,dotOf)=>keys.map(k=>{const items=tasks.filter(x=>keyOf(x)===k);return items.length?grp(labelOf(k),items.length,dotOf?dotOf(k):'')+smart(items).map(row).join(''):'';}).join('');
+  if(fvSort==='proj'){
+    const ids=S.projects.filter(p=>!p.sep).map(p=>p.id);
+    return groups(ids,x=>x.proj.id,id=>(S.projects.find(p=>p.id===id)||{}).name||'',id=>projColor(S.projects.find(p=>p.id===id)).hex);
+  }
+  if(fvSort==='status')return groups(STATUSES,x=>x.task.status||'פתוח',k=>k);
+  if(fvSort==='prio')return groups(['דחוף','בינוני','נמוך',''],x=>x.task.priority||'',k=>k||'ללא עדיפות');
+  if(fvSort==='due'){
+    const sorted=tasks.slice().sort((a,b)=>(a.task.dueDate||'9999-99-99').localeCompare(b.task.dueDate||'9999-99-99')||(a.task.dueTime||'').localeCompare(b.task.dueTime||''));
+    return sorted.map(row).join('');
+  }
+  return tasks.map(row).join('');
+}
 function rFilterView(mn,title,subtitle,tasks,events){
   events=events||[];
-  const tasksHtml=tasks.length?tasks.map(x=>renderTaskRow(x.task,x.area.name,x.proj,true)).join(''):'<div class="empty-st">אין משימות להצגה</div>';
+  const tasksHtml=fvSortedHtml(tasks);
+  const sortOpts=[['','חכם (ברירת מחדל)'],['proj','פרויקט'],['status','סטטוס'],['prio','עדיפות'],['due','תאריך יעד']].map(([v,l])=>'<option value="'+v+'"'+(fvSort===v?' selected':'')+'>'+l+'</option>').join('');
   const evHtml=events.length?'<div class="fv-events"><div class="fv-events-h">'+riSvg(RI.cal)+'אירועי יומן ('+events.length+')</div>'+events.map(ev=>{
     const allDay=!!ev.start.date;
     const dstr=ev.start.date||(ev.start.dateTime||'').slice(0,10);
@@ -1472,6 +1530,7 @@ function rFilterView(mn,title,subtitle,tasks,events){
           <h1>${esc(title)}</h1>
           <div class="mn-h-meta"><span>${esc(subtitle)}</span><span style="color:var(--ink3)">·</span><span>${tasks.length} משימות${events.length?' · '+events.length+' אירועים':''}</span></div>
         </div>
+        <label class="fv-sort"><span>סידור לפי</span><select class="tlb-sel" onchange="setFvSort(this.value)" aria-label="סידור לפי">${sortOpts}</select></label>
       </div>
     </header>
     <div class="tl-wrap">
@@ -3482,7 +3541,7 @@ function themeIcon(){
 try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{applyTheme();if(!getThemePref())render();});}catch(_){}
 applyTheme();
 
-Object.assign(window,{mNewSep,cSep,mEditSep,sSep,dSep,sepDragOver,sepDrop,toggleAllGroups,openTask,toggleProjFly,closeProjFly,mSettings,mMore,quickNewTask,setDashRange,cycleTheme,selView,selP,selA,selectTask,closeDetail,toggleDone,updTask,updTaskField,dTask,setFilterStatus,setGrouping,toggleCollapse,clearDoneInProject,onSearchInput,addNote,toggleNoteDone,dNote,updNote,toggleNoteExpand,updNoteContent,dragStart,dragEnd,areaDragOver,areaDragLeave,areaDrop,moveTask,showMovePop,closeMovePop,noteDragStart,noteDragEnd,projItemDragStart,projItemDragEnd,projDragOver,projDragLeave,projDrop,sm,cm,mNewP,cP,mEditP,sPn,dP,archiveProject,unarchiveProject,toggleArchView,mNewA,cA,mEditA,sA,dA,mNewT,cT,mSetKey,saveKey,delKey,addAssigneeForTask,fmtCmd,fmtTaskCmd,toggleTaskExpand,insertChecklist,clickCheckBox,aiKeyDown,clearAI,sendAI,xCSV,xJSON,mBackup,doBackupNow,restoreBackup,exportFullBackup,importFullBackup,doSignOut,toggleSB,closeMobileSB,pickColor,fmtNoteCmd,toggleRtPop,cycleCanvasBg,setCanvasTool,setCanvasColor,setCanvasPenSize,toggleCanvasTouch,canvasUndo,canvasClear,toggleNoteCanvas,startCanvasResize,gcalPrev,gcalNext,gcalGoToday,setCalView,toggleCalChat,gcalDoSignIn,gcalDoSignOut,loadCalEvents,mGcalConfig,saveGcalConfig,delGcalConfig,mNewEvent,mNewEventOnDay,mEditEvent,toggleAllDay,saveEvent,deleteEvent,mDayEvents,syncTaskToCal,unsyncTaskFromCal});
+Object.assign(window,{setFvSort,mNewSep,cSep,mEditSep,sSep,dSep,sepDragOver,sepDrop,toggleAllGroups,openTask,toggleProjFly,closeProjFly,mSettings,mMore,quickNewTask,setDashRange,cycleTheme,selView,selP,selA,selectTask,closeDetail,toggleDone,updTask,updTaskField,dTask,setFilterStatus,setGrouping,toggleCollapse,clearDoneInProject,onSearchInput,addNote,toggleNoteDone,dNote,updNote,toggleNoteExpand,updNoteContent,dragStart,dragEnd,areaDragOver,areaDragLeave,areaDrop,moveTask,showMovePop,closeMovePop,noteDragStart,noteDragEnd,projItemDragStart,projItemDragEnd,projDragOver,projDragLeave,projDrop,sm,cm,mNewP,cP,mEditP,sPn,dP,archiveProject,unarchiveProject,toggleArchView,mNewA,cA,mEditA,sA,dA,mNewT,cT,mSetKey,saveKey,delKey,addAssigneeForTask,fmtCmd,fmtTaskCmd,toggleTaskExpand,insertChecklist,clickCheckBox,aiKeyDown,clearAI,sendAI,xCSV,xJSON,mBackup,doBackupNow,restoreBackup,exportFullBackup,importFullBackup,doSignOut,toggleSB,closeMobileSB,pickColor,fmtNoteCmd,toggleRtPop,cycleCanvasBg,setCanvasTool,setCanvasColor,setCanvasPenSize,toggleCanvasTouch,canvasUndo,canvasClear,toggleNoteCanvas,startCanvasResize,gcalPrev,gcalNext,gcalGoToday,setCalView,toggleCalChat,gcalDoSignIn,gcalDoSignOut,loadCalEvents,mGcalConfig,saveGcalConfig,delGcalConfig,mNewEvent,mNewEventOnDay,mEditEvent,toggleAllDay,saveEvent,deleteEvent,mDayEvents,syncTaskToCal,unsyncTaskFromCal});
 
 // ===== AUTH =====
 let appStarted=false;
